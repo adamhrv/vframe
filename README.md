@@ -4,7 +4,7 @@ VFRAME is a computer vision toolkit designed for analyzing large media archives 
 
 VFRAME is still under development and code is subject to major changes.
 
-The recommended way to use this repo is with building a custom version of OpenCV to utilize NVIDIA GPUs for DNN inference. The Conda environment yaml only include a CPU version of OpenCV.
+The recommended way to use this repo is with building a custom version of OpenCV to utilize NVIDIA GPUs for DNN inference. The Conda environment yaml only includes a CPU version of OpenCV.
 
 ## Setup Conda Environment
 
