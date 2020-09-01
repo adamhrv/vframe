@@ -41,7 +41,8 @@ class DNNFactory:
     'ultralight': UltralightRetinaFaceProc,
     'mask_rcnn': MaskRCNNProc,
     'east_text': EASTProc,
-    'human_pose': HumanPoseProc
+    'human_pose': HumanPoseProc,
+    'bbox_features': ClassificationProc,
   }
   # conditional processors
   if app_cfg.SRES_ENABLED:

@@ -22,7 +22,7 @@ from matplotlib import cycler as mpl_cycler
 from vframe.models import types
 from vframe.utils import im_utils
 from vframe.settings import app_cfg
-
+from vframe.models.color import Color
 
 # -----------------------------------------------------------------------------
 #
@@ -71,6 +71,10 @@ class DrawUtils:
 
   fonts = {}
   log = logging.getLogger('vframe')
+  color_red = Color.from_rgb_int((255, 0, 0))
+  color_green = Color.from_rgb_int((0, 255, 0))
+  color_blue = Color.from_rgb_int((0, 0, 255))
+  color_white = Color.from_rgb_int((255, 255, 255))
 
   def __init__(self):
     # build/cache a dict of common font sizes
@@ -85,7 +89,7 @@ class DrawUtils:
       self.fonts[pt] = ImageFont.truetype(join(app_cfg.FP_ROBOTO_400), pt)
     return self.fonts[pt]
 
-  def draw_rotated_bbox_cv(self, im, rbbox_norm, stroke_weight=2, color=None):
+  def draw_rotated_bbox_cv(self, im, rbbox_norm, stroke_weight=2, color=color_green):
     """Draw rotated bbox using opencv
     """
     if im_utils.is_pil(im):
@@ -113,7 +117,7 @@ class DrawUtils:
     return im
 
 
-  def draw_rotated_bbox_pil(self, im, rbbox_norm, stroke_weight=2, color=None, expand=0.0):
+  def draw_rotated_bbox_pil(self, im, rbbox_norm, stroke_weight=2, color=color_green, expand=0.0):
     """Draw rotated bbox using PIL
     """
     if im_utils.is_np(im):
@@ -142,7 +146,7 @@ class DrawUtils:
     return im
 
 
-  def draw_mask(self, im, bbox_norm, mask, threshold=0.3,  mask_blur_amt=21, color=None, blur_amt=None, color_alpha=0.6):
+  def draw_mask(self, im, bbox_norm, mask, threshold=0.3,  mask_blur_amt=21, color=color_green, blur_amt=None, color_alpha=0.6):
     """Draw image mask overlay
     """
     dim = im.shape[:2][::-1]
@@ -164,7 +168,7 @@ class DrawUtils:
     return im
 
 
-  def draw_bbox_cv(self, im, bboxes_norm, color=(0,255,0), stroke_weight=2, expand=0.0):
+  def draw_bbox_cv(self, im, bboxes_norm, color=color_green, stroke_weight=2, expand=0.0):
     '''Draws BBox onto cv image
     '''
     if im_utils.is_pil(im):
@@ -178,7 +182,6 @@ class DrawUtils:
 
     for bbox_norm in bboxes_norm:
       bbox_dim = bbox_norm.expand(expand).to_bbox_dim(im.shape[:2][::-1])
-      #rgb_int = color.to_rgb_int()
       im = cv.rectangle(im, bbox_dim.p1.xy, bbox_dim.p2.xy, color, stroke_weight)
 
     if was_pil:
@@ -187,7 +190,7 @@ class DrawUtils:
     return im
 
 
-  def draw_bbox_np(self, im, bboxes_norm, color=(0,255,0), expand=0.0):
+  def draw_bbox_np(self, im, bboxes_norm, color=color_green, expand=0.0):
     '''Draws BBox onto cv image using np broadcasting
     '''
     if im_utils.is_pil(im):
@@ -212,7 +215,7 @@ class DrawUtils:
     return im
     
 
-  def draw_bbox_pil(self, im, bboxes_norm, color, stroke_weight=2, fill=True, expand=0.0):
+  def draw_bbox_pil(self, im, bboxes_norm, color=color_green, stroke_weight=2, fill=True, expand=0.0):
     '''Draws BBox onto cv image
     :param color: RGB value
     '''
@@ -320,7 +323,7 @@ class DrawUtils:
     return im
 
 
-  def draw_text_cv(self, im, pt, text, size=1.0, color=(255,255,255)):
+  def draw_text_cv(self, im, pt, text, size=1.0, color=color_white):
     '''Draws degrees as text over image
     '''
     if im_utils.is_pil():
@@ -331,6 +334,7 @@ class DrawUtils:
 
     dim = im.shape[:2][::-1]
     pt_dim = pt.to_point_dim(dim)
+    color_rgb = color.to_rgb_int()
     cv.putText(im, text, pt.xy, cv.FONT_HERSHEY_SIMPLEX, size, color, thickness=1, lineType=cv.LINE_AA)
 
     if was_pil:
