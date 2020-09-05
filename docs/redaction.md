@@ -1,36 +1,64 @@
 # Face Redaction
 
-![](assets/face-redact-01.jpg)
+![](assets/face-snowden-x1.png)
 
-Use VFRAME to detect and redact faces in images and videos. Save the results to JPG, PNG, MP4, or as JSON data files.
+Use VFRAME to detect and redact faces in images and videos. Save the results to JPG, PNG, MP4, or as JSON data files. *This module is still under development. Syntax and features are subject to major changes.*
 
 ## Features:
 
-- ModelZoo options: YOLOV4, RetinaFace, SSD MobileNet, and more.
-- Export options: save to image, video, or JSON
+- ModelZoo options: YOLOV4, RetinaFace, RetinaFaceLight, and SSD MobileNet detection models
+- Export options: save to image, croplets, video, or JSON
 - GPU options: CUDA acceleration if OpenCV compiled with CUDA enabled
 - Merge options for using multiple models in ensemble
 
-## Examples
+## Detect and Blur Face in Image or Video
 
-Blur all faces in a single image using YOLOV4 face detector:
-
+First, source the filepaths environment variables
 ```
-# Blur faces in a single image and display to screen
-./cli.py pipe open -i ../data/images/face_simple.jpg \
-              detect -m yoloface \
-              blur \
-              display
+# source environment variables used for examples
+source ../data/examples/filepaths.sh
 ```
 
-
-Blur Faces, Save to New File
+Simple face detection for image
 ```
-# Blur faces in a single image and save to new file
-./cli.py pipe open -i ../data/images/face_simple.jpg \
-              detect -m yoloface \
-              blur \
-              save_image -o ~/Downloads/ --suffix _redacted
+# Detect faces and display
+./cli.py pipe open -i $FP_SNOWDEN_X1 detect -m yoloface draw display
+
+# Detect faces and display
+./cli.py pipe open -i $FP_SNOWDEN_X1 detect -m ssdface draw display
+
+# Detect faces and display
+./cli.py pipe open -i $FP_SNOWDEN_X1 detect -m retinface draw display
+```
+
+Simple face detection for video
+
+```
+ # Detect and blur faces in a video (add no-pause to autoplay)
+./cli.py pipe open -i $FP_SNOWDEN_X1_VIDEO detect -m yoloface draw display --no-pause --delay 50
+```
+
+
+## Save Blurred Images
+
+
+## Detect and Blur Face in Video
+
+Simple face blurring for single image
+```
+# Detect and blur faces and save to new file
+./cli.py pipe open -i $FP_SNOWDEN_X1 detect -m yoloface blur save-images -o $DIR_IMAGES_OUT --suffix _redacted -e png
+
+# Detect and blur faces and save to new file, draw face bbox
+./cli.py pipe open -i $FP_SNOWDEN_X1 detect -m yoloface blur draw save-images -o $DIR_IMAGES_OUT --suffix _redacted_bbox -e png
+
+# rewritten as multi-line command for clarify
+./cli.py pipe \
+  open -i $FP_SNOWDEN_X1 \
+  detect -m yoloface \
+  blur \
+  draw \
+  save-images -o $DIR_IMAGES_OUT --suffix _redacted_bbox -e png
 ```
 
 

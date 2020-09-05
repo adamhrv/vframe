@@ -59,12 +59,15 @@ plugins:
       - filepaths: commands/cvat
 
   # ---------------------------------------------------------------------------
-  # Examples
+  # Template scripts
   # ---------------------------------------------------------------------------
-  - name: examples
+  - name: template
     scripts:
-     - filepath: commands/examples
-       include_hidden: True  # show files starting with "_" (eg _template.py)
+     - filepath: commands/template
+  - name: template.pipe
+    pipe: True
+    scripts:
+      - filepath: commands/template/pipe
 
   # ---------------------------------------------------------------------------
   # Search

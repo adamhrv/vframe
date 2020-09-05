@@ -29,7 +29,7 @@ from vframe.utils.click_utils import processor
   help='Filename suffix')
 @click.option('--numbered', 'opt_numbered', is_flag=True,
   help='Number files sequentially')
-@click.option('-q', '--quality', 'opt_quality', default=90, type=click.IntRange(0,100, clamp=True),
+@click.option('-q', '--quality', 'opt_quality', default=100, type=click.IntRange(0,100, clamp=True),
   show_default=True,
   help='JPEG write quality')
 @processor
