@@ -17,7 +17,7 @@ from vframe.utils.click_utils import processor
 @click.command('')
 @click.option('-o', '--output', 'opt_dir_out', required=True,
   help='Path to output directory')
-@click.option('-e', '--ext', 'opt_ext', default='jpg',
+@click.option('-e', '--ext', 'opt_ext', default=None,
   type=types.ImageFileExtVar,
   help=click_utils.show_help(types.ImageFileExt))
 @click.option('-f', '--frame', 'opt_frame_type', default='draw',
@@ -53,7 +53,6 @@ def cli(ctx, pipe, opt_dir_out, opt_ext, opt_frame_type, opt_prefix, opt_suffix,
 
   log = app_cfg.LOG
   file_utils.ensure_dir(opt_dir_out)
-  ext = opt_ext.name.lower()
   frame_count = 0
 
 
@@ -74,6 +73,10 @@ def cli(ctx, pipe, opt_dir_out, opt_ext, opt_frame_type, opt_prefix, opt_suffix,
       stem = Path(header.filename).stem
 
     # set filename
+    if not opt_ext:
+      ext = file_utils.get_ext(header.filename)
+    else:
+      ext = opt_ext.name.lower()
     fn = f'{opt_prefix}{stem}{opt_suffix}.{ext}'
     fp_out = join(opt_dir_out, fn)
 

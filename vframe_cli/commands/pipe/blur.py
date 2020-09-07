@@ -74,7 +74,7 @@ def cli(ctx, pipe, opt_data_keys, opt_factor, opt_iters, opt_expand):
       # blur data
       if item_data:
         for obj_idx, detection in enumerate(item_data.detections):
-          bbox_norm = detection.bbox.expand_per(opt_expand)
+          bbox_norm = detection.bbox.expand(opt_expand)
 
           # TODO: handle segmentation mask
           for i in range(opt_iters):

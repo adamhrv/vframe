@@ -26,7 +26,7 @@ ops_interpolation = ['nearest', 'antialias']
   help='Number of frames to between each GIF frame')
 @click.option('-f', '--force', 'opt_force', is_flag=True,
   help='Force overwrite video file')
-@click.option('--width', 'opt_width', default=640,
+@click.option('--width', 'opt_width', type=int, default=None,
   help='Width output size')
 @click.option('--interpolation', 'opt_interp', type=click.Choice(ops_interpolation),
   default='nearest',
@@ -59,7 +59,7 @@ def cli(ctx, opt_dir_in, opt_fp_out, opt_fps, opt_ext,
   if opt_slice:
     fps_im = fps_im[opt_slice[0]:opt_slice[1]]
   if opt_decimate:
-    fps_im = [x for i, x in enumerate(fps_im) if i % opt_decimate]
+    fps_im = [x for i, x in enumerate(fps_im) if i % opt_decimate == 0]
 
   if len(fps_im) > 100:
     log.warn('Creating GIF with over 100 frames. Could create memory issues')
@@ -69,8 +69,12 @@ def cli(ctx, opt_dir_in, opt_fp_out, opt_fps, opt_ext,
   for fp_im in tqdm(fps_im):
     im = Image.open(fp_im)
     w, h = im.size
-    h = int(opt_width * h / w)
-    im = im.resize((opt_width, h), Image.NEAREST)
+    if opt_width:
+      h = int(opt_width * h / w)
+      #im = im.resize((opt_width, h), Image.BICUBIC)
+      #im = im.resize((opt_width, h), Image.NEAREST)
+      app_cfg.LOG.debug('resize')
+      im = im.resize((opt_width, h))
     ims.append(im)
 
   num_frames = len(fps_im)
