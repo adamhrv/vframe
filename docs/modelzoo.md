@@ -1,5 +1,7 @@
 # Model Zoo
 
+*This feature is still under development. Syntax and features are subject to major changes.*
+
 The Model Zoo is a collection of nueral network computer vision models useful for inferring metadata about videos. It includes object detection, image classification, semantic segmentation, and superresolution with many more to come from VFRAME and contributors.
 
 For compatability and long term support, the Model Zoo aims to only use models that are compatible with OpenCV. For now this includes Caffe, Darknet, and TensorFlow models. More work is needed to port PyTorch/ONNX models. A few other model types are included for comparison (eg MXNet).

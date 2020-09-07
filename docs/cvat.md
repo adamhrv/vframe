@@ -1,5 +1,7 @@
 # CVAT Guide
 
+*This feature is still under development. Syntax and features are subject to major changes.*
+
 Use CVAT for annotating videos and images. Use VFRAME to generate annotations for CVAT. 
 
 ## Setup

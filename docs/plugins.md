@@ -1,5 +1,7 @@
 # VFRAME Plugins
 
+*This feature is still under development. Syntax and features are subject to major changes.*
+
 Add plugins to extend VFRAME. They're ideal for focused research projects and to help keep projects organized when lots of customized scripts are needed. Write as many CLI scripts as you want and add them to a custom plugin.
 
 There are 2 types of plugins: standalone and pipe. Pipe refers to the image processing pipe that you can use to chain commands together. Standalone scripts are self-contained.

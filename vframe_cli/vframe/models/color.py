@@ -102,11 +102,11 @@ class Color:
   def to_rgb_int(self):
     rgb_int = (int(255 * self.r), int(255 * self.g), int(255 * self.b))
     return rgb_int
-
+  
   def to_rgb_norm(self):
     rgb_norm = (self.r, self.g, self.b)
     return rgb_norm
-
+  
   def to_rgba_int(self):
     rgb_int = (int(255 * self.r), int(255 * self.g), int(255 * self.b), int(255 * self.a))
     return rgb_int
@@ -114,7 +114,7 @@ class Color:
   def to_rgba_norm(self):
     rgba_norm = (self.r, self.g, self.b, self.a)
     return rgba_norm
-
+  
   def to_hsv_int(self):
     h, s, v = colorsys.rgb_to_hsv(self.r, self.g, self.b)
     hsv_int = (int(360 * h), int(100 * s), int(100 * v))
@@ -156,4 +156,47 @@ class Color:
       b = 255  # dark colors - white font    
 
     return self.__class__.from_rgb_int((b,b,b))
+
+
+  @property
+  def rgb_int(self):
+    return self.to_rgb_int()
+
+  @property
+  def bgr_int(self):
+    return self.to_rgb_int()[::-1]
+
+  @property
+  def rgba_int(self):
+    return self.to_rgba_int()
+
+  @property
+  def rgba_norm(self):
+    return self.to_rgba_norm()
+
+  @property
+  def bgr_norm(self):
+    return self.to_rgb_norm()[::-1]
+
+  @property
+  def rgb_norm(self):
+    return self.to_rgb_norm()
+
+  @property
+  def hsv_int(self):
+    return self.to_hsv_int()
+
+  @property
+  def hsv_norm(self):
+    return self.to_hsv_norm()
+
+  @property
+  def rgb_hex(self):
+    return self.to_rgb_hex()
+
+  @property
+  def rgba_hex(self):
+    return self.rgba_hex()
+
+
     
