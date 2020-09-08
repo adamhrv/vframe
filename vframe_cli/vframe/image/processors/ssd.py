@@ -25,8 +25,7 @@ class SSDProc(DetectionProc):
       if confidence > self.dnn_cfg.threshold:
         class_idx = int(detection[1])  # skip background ?
         xyxy = detection[3:7]
-        app_cfg.LOG.debug(f'box: {xyxy}')
-        bbox = BBox.from_xyxy_norm(*xyxy, *self.frame_dim)
+        bbox = BBox.from_xyxy_norm(*xyxy, *self.frame_dim_orig)
         label = self.labels[class_idx] if self.labels else ''
         detect_result = DetectResult(class_idx, confidence, bbox, label)
         detect_results.append(detect_result)

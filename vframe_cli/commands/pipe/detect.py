@@ -56,15 +56,7 @@ def cli(ctx, pipe, opt_model_enum, opt_data_key, opt_gpu,
   dnn_cfg = modelzoo.get(model_name)
 
   # override dnn_cfg vars with cli vars
-  if opt_gpu:
-    dnn_cfg.use_gpu()
-  else:
-    dnn_cfg.use_cpu()
-  if all(opt_dnn_size):
-    dnn_cfg.width = opt_dnn_size[0]
-    dnn_cfg.height = opt_dnn_size[1]
-  if opt_dnn_threshold is not None:
-    dnn_cfg.threshold = opt_dnn_threshold
+  dnn_cfg.override(gpu=opt_gpu, size=opt_dnn_size, threshold=opt_dnn_threshold)
     
   # rotate cv, np vals
   cv_rot_val = app_cfg.ROTATE_VALS[opt_rotate]

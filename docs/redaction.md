@@ -1,13 +1,13 @@
+*This module is still under development. Code is subject to major changes.*
+
 # Face Redaction
 
-![](assets/face-snowden-x1.png)
-
+![](assets/face-snowden-x1.gif)
 
 Detect and redact faces in images and videos. Save the results to JPG, PNG, MP4, or as JSON data files. 
 
-*This module is still under development. Syntax and features are subject to major changes.*
 
-Features:
+Capabilities:
 
 - ModelZoo options: YOLOV4, RetinaFace, RetinaFaceLight, and SSD MobileNet detection models
 - Export options: save to image, croplets, video, or JSON
@@ -26,42 +26,42 @@ source ../data/examples/filepaths.sh
 Simple face detection and blurring for images
 ```
 # Detect and blur faces using ssdface
-./cli.py pipe open -i $FP_SNOWDEN_X1 detect -m ssdface blur draw display
+./cli.py pipe open -i $FACE_IMAGE detect -m ssdface blur draw display
 
 # Detect and blur faces using retinaface
-./cli.py pipe open -i $FP_SNOWDEN_X1 detect -m retinface blur draw display
+./cli.py pipe open -i $FACE_IMAGE detect -m retinaface blur draw display
 
 # Detect and blur faces using yoloface (custom cv build required)
-./cli.py pipe open -i $FP_SNOWDEN_X1 detect -m yoloface blur draw display
+./cli.py pipe open -i $FACE_IMAGE detect -m yoloface blur draw display
 ```
 
 Simple face detection and blurring for videos
 ```
  # Detect and blur faces in a video
-./cli.py pipe open -i $FP_SNOWDEN_X1_VIDEO detect -m yoloface blur draw display --autoplay
+./cli.py pipe open -i $FACE_VIDEO detect -m ssdface blur draw display --autoplay
 ```
 
 Save images or video
 ```
 # Save images
-./cli.py pipe open -i $FP_SNOWDEN_X1 detect -m yoloface blur save-images -o $DIR_IMAGES_OUT
+./cli.py pipe open -i $FACE_IMAGE detect -m ssdface blur save-images -o $DIR_IMAGES_OUT
 
 # Save video
-./cli.py pipe open -i $FP_SNOWDEN_X1_VIDEO detect -m yoloface blur draw save-video -o $DIR_VIDEO_OUT
+./cli.py pipe open -i $FACE_VIDEO detect -m ssdface blur draw save-video -o $DIR_VIDEO_OUT
 ```
 
 Blur the detect face regions
 ```
 # Detect and blur faces and save to new file
-./cli.py pipe open -i $FP_SNOWDEN_X1 detect -m yoloface blur save-images -o $DIR_IMAGES_OUT
+./cli.py pipe open -i $FACE_IMAGE detect -m ssdface blur save-images -o $DIR_IMAGES_OUT
 
 # Detect and blur faces and save to new file, draw face bbox
-./cli.py pipe open -i $FP_SNOWDEN_X1 detect -m yoloface blur draw save-images -o $DIR_IMAGES_OUT
+./cli.py pipe open -i $FACE_IMAGE detect -m ssdface blur draw save-images -o $DIR_IMAGES_OUT
 
 # rewrite as multi-line command for clarity
 ./cli.py pipe \
-  open -i $FP_SNOWDEN_X1 \
-  detect -m yoloface \
+  open -i $FACE_IMAGE \
+  detect -m ssdface \
   blur \
   draw \
   save-images -o $DIR_IMAGES_OUT
@@ -70,10 +70,10 @@ Blur the detect face regions
 Add `save-images` or `save-video` to the pipe commands to save redacted frames
 ```
 # Save blurred face image
-./cli.py pipe open -i $FP_SNOWDEN_X1 detect -m yoloface draw save-images $DIR_IMAGES_OUT
+./cli.py pipe open -i $FACE_IMAGE detect -m ssdface draw save-images $DIR_IMAGES_OUT
 
 # Save blurred face video
-./cli.py pipe open -i $FP_SNOWDEN_X1_VIDEO detect -m yoloface blur draw save-video
+./cli.py pipe open -i $FACE_VIDEO detect -m ssdface blur draw save-video
 
 ```
 
@@ -84,44 +84,44 @@ Blur Directory of Images or Videos
 # Directory of JPG images
 ./cli.py pipe \
   open -i ../data/images/ --exts jpg \
-  detect -m yoloface \
+  detect -m ssdface \
   blur \
   save_image -o ~/Downloads/ --suffix _redacted
 
 # Directory of MP4 videos
 ./cli.py pipe
   open -i ../data/images/ --exts mp4 \
-  detect -m yoloface \
+  detect -m ssdface \
   blur \
   save_video -o ~/Downloads/ --suffix _redacted
 ```
 
-Expand BBox (for example, to cover ears)
+Expand BBox (eg: to cover ears)
 ```
 # Expand the bounding box to blur more than the face
 ./cli.py pipe \
   open -i ../data/media/input/samples/faces.jpg \
-  detect -m yoloface \
+  detect -m ssdface \
   blur --expand 0.5 \
   display
 ```
 
-Blur all faces in a video and export to JSON file
+Blur all faces in a video and export detections to JSON file
 ```
 # Blur faces in a single image
 ./cli.py pipe \
   open -i ../data/media/input/samples/faces.mp4 \
-  detect -m yoloface \
+  detect -m ssdface \
   blur \
   save_data -o ../data/media/output/
 ```
 
-Blur Faces and Save to JSON
+Blur faces and save detections to JSON
 ```
 # Blur faces in a single image
 ./cli.py \
   pipe open -i ../data/media/input/samples/faces.mp4 \
-  detect -m yoloface \
+  detect -m ssdface \
   blur \
   save_data -o ../data/media/output/faces.json
 ```
@@ -132,14 +132,14 @@ Detector ensemble
 ./cli.py  pipe \
   open -i ../data/media/input/samples/faces.jpg \
   detect -m yoloface \
-  detect -m ssd \
+  detect -m ssdface \
   merge --to face \
-  blur \
-  draw -c 255 255 255 \
+  blur -n face \
+  draw -c 255 255 255 -n face \
   display
 ```
 
-Multi-detector ensemble with post-processing NMS:
+Multi-detector ensemble with post-processing NMS
 ```
 #!/bin/bash
 # save this to detect.sh and run "bash detect.sh"
@@ -174,10 +174,9 @@ export CUDA_VISIBLE_DEVICES=${GPU}; ./cli.py pipe \
        detect -m ssdface -r 270 -n ssdface_270 \
        merge --to ssdface \
        save_data -o ${FP_DETECTIONS}/ssdface.json
-
 ```
 
-If GPU has low RAM run each command separately
+If GPU RAM is limited, run each command separately
 ```
 #!/bin/bash
 # save this to detect.sh and run "bash detect.sh"
@@ -198,7 +197,7 @@ for DETECTOR in ${DETECTORS}; do
 done
 ```
 
-If you're on a remote computer, create a tmux session to monitor:
+On a remote computerc reate a tmux session to monitor and detach
 ```
 tmux new -s detect
 conda activate vframe
@@ -222,7 +221,10 @@ FP_OUT=/path/to/videos_blurred/
   save_video -o ${FP}
 ```
 
+To be implemented:
+- reattach audio track
 
+## Tips
 
 Detecting Small Faces
 
@@ -249,6 +251,5 @@ By default, the detectors use the image size settings in the ModelZoo YAML confi
 ## Credits
 
 Development of the VFRAME face blurring tools was supported by NL Net Privacy Enhancing Technologies during 2019 - 2020.
-
 
 Research and development: Adam Harvey, VFRAME

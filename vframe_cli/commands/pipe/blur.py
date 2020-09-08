@@ -55,7 +55,8 @@ def cli(ctx, pipe, opt_data_keys, opt_factor, opt_iters, opt_expand):
     pipe_item = yield
     header = ctx.obj['header']
     im = pipe_item.get_image(types.FrameImage.DRAW)
-
+    dim = im.shape[:2][::-1]
+    
     # get data keys
     if not opt_data_keys:
       data_keys = header.get_data_keys()
@@ -74,11 +75,11 @@ def cli(ctx, pipe, opt_data_keys, opt_factor, opt_iters, opt_expand):
       # blur data
       if item_data:
         for obj_idx, detection in enumerate(item_data.detections):
-          bbox_norm = detection.bbox.expand(opt_expand)
+          bbox = detection.bbox.expand_per(opt_expand).redim(dim)
 
           # TODO: handle segmentation mask
           for i in range(opt_iters):
-            im = im_utils.blur_roi(im, bbox_norm)
+            im = im_utils.blur_roi(im, bbox)
 
 
       # resume pipe stream    

@@ -87,7 +87,8 @@ def cli(ctx, pipe, opt_data_keys, opt_bbox, opt_label, opt_key, opt_conf,
     header = ctx.obj['header']
     
     im = pipe_item.get_image(types.FrameImage.DRAW)
-
+    dim = im.shape[:2][::-1]
+    
     if not opt_data_keys:
       data_keys = header.get_data_keys()
     else:
@@ -103,7 +104,7 @@ def cli(ctx, pipe, opt_data_keys, opt_bbox, opt_label, opt_key, opt_conf,
       if item_data:
         # draw bbox, labels, mask
         for obj_idx, detection in enumerate(item_data.detections):
-          bbox = detection.bbox
+          bbox = detection.bbox.redim(dim)
 
           # FIXME
           if opt_color_source == 'random':

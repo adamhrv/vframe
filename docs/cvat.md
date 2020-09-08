@@ -1,6 +1,6 @@
-# CVAT Guide
+*This module is still under development. Code is subject to major changes.*
 
-*This feature is still under development. Syntax and features are subject to major changes.*
+# CVAT Guide
 
 Use CVAT for annotating videos and images. Use VFRAME to generate annotations for CVAT. 
 

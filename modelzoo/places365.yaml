@@ -34,6 +34,7 @@ caffe_places365_googlenet:
   features: pool5/drop_7x7_s1
   dimensions: 1024
   threshold: 0.5
+  allow_resize: False
   active: True
 
 caffe_places365_alexnet:
@@ -56,7 +57,9 @@ caffe_places365_alexnet:
   features: drop7
   dimensions: 4096
   threshold: 0.5
+  allow_resize: False
   active: True
+  fit: True
 
 caffe_places365_vgg16:
   name: Caffe VGG16 Places365
@@ -78,6 +81,7 @@ caffe_places365_vgg16:
   features: drop7
   dimensions: 4096
   threshold: 0.5
+  allow_resize: False
   active: True
 
 caffe_places365_imagenet1000_vgg16:
@@ -100,4 +104,5 @@ caffe_places365_imagenet1000_vgg16:
   features: drop7
   dimensions: 4096
   threshold: 0.5
+  allow_resize: False
   active: True

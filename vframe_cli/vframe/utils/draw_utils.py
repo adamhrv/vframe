@@ -205,7 +205,6 @@ def _draw_bbox_pil(canvas, bbox, color, stroke):
   :returns PIL.ImageDraw
 """
   xyxy = bbox.xyxy_int
-  app_cfg.LOG.debug(f'draw xyxy: {xyxy}')
   if stroke == -1:
     canvas.rectangle(xyxy, fill=color.rgb_int)
   else:
@@ -229,7 +228,6 @@ def draw_bbox(im, bbox, color=None, stroke=None, expand=None,
   # ensure pil format
   if im_utils.is_np(im):
     im = im_utils.np2pil(im)
-    dim = im.size
     was_np = True
   else:
     was_np = False

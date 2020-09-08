@@ -74,7 +74,6 @@ def cli(ctx, pipe, opt_text, opt_x, opt_y, opt_color, opt_font_size,
       xy[1] = h + xy[1]
 
     dim = im.shape[:2][::-1]
-    app_cfg.LOG.debug(f'dim: {dim}')
     pt = Point(*xy, *dim)
     
     # draw text

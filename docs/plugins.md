@@ -1,6 +1,6 @@
-# VFRAME Plugins
+*This module is still under development. Code is subject to major changes.*
 
-*This feature is still under development. Syntax and features are subject to major changes.*
+# VFRAME Plugins
 
 Add plugins to extend VFRAME. They're ideal for focused research projects and to help keep projects organized when lots of customized scripts are needed. Write as many CLI scripts as you want and add them to a custom plugin.
 

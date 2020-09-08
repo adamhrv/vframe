@@ -31,9 +31,10 @@ class YOLOProc(DetectionProc):
       cfg.height = wh
       self.log.warn(f'YOLO width and height must be multiple of 32. Setting to: {wh}')
 
+    self.frame_dim_orig = im.shape[:2][::-1]
     im = im_utils.resize(im, width=cfg.width, height=cfg.height, force_fit=cfg.fit)
-    self.frame_dim = im.shape[:2][::-1]
-    dim = self.frame_dim if cfg.fit else cfg.size
+    self.frame_dim_resized = im.shape[:2][::-1]
+    dim = self.frame_dim_resized if cfg.fit else cfg.size
     blob = cv.dnn.blobFromImage(im, cfg.scale, dim, cfg.mean, crop=cfg.crop, swapRB=cfg.rgb)
     self.net.setInput(blob)
 
@@ -56,7 +57,7 @@ class YOLOProc(DetectionProc):
         confidence = scores[class_idx]
         if confidence > self.dnn_cfg.threshold:
           cx, cy, w, h = detection[0:4]
-          bbox = BBoxNorm.from_cxcywh_dim((cx, cy, w, h), *self.frame_dim)
+          bbox = BBox.from_cxcywh_norm(cx, cy, w, h, *self.frame_dim_orig)
           label = self.labels[class_idx] if self.labels else ''
           detect_result = DetectResult(class_idx, confidence, bbox, label)
           detect_results.append(detect_result)

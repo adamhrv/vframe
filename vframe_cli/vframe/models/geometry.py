@@ -16,6 +16,7 @@ import numpy as np
 
 from vframe.models.color import Color
 
+log = logging.getLogger('vframe')
 
 # ---------------------------------------------------------------------------
 #
@@ -144,13 +145,18 @@ class BBox:
     self.y2 = min(max(self.y2, 0), self.dh)
 
 
+  def redim(self, dim):
+    w,h = dim
+    x1, y1, x2, y2 = list(np.array(self.xyxy_norm) * np.array([w, h, w, h]))
+    return self.__class__(x1, y1, x2, y2, w, h)
+
   # ---------------------------------------------------------------------------
   # Expanding
   # ---------------------------------------------------------------------------
 
   def _expand_wh(self, w, h):
-    x1, y1, x2, y2 = list(np.array(self.xyxy) + np.array([-k, -k, k, k]))
-    return self.__class__(x1, y1, x2, y2, self.dim)
+    x1, y1, x2, y2 = list(np.array(self.xyxy) + np.array([-w, -h, w, h]))
+    return self.__class__(x1, y1, x2, y2, *self.dim)
 
 
   def expand(self, k):
@@ -385,15 +391,15 @@ class BBox:
   
 
   # ---------------------------------------------------------------------------
-  # Relative properties
+  # Comparisons
   # ---------------------------------------------------------------------------
 
-  def contains_point(self, p):
+  def contains_point(self, p2):
     '''Checks if this BBox contains the normalized point
     :param p: (Point)
     :returns (bool)
     '''
-    return (p.x >= self.x1 and p.x <= self.x2 and p.y >= self.y1 and p.y <= self.y2)
+    return (p2.x >= self.x1 and p2.x <= self.x2 and p2.y >= self.y1 and p2.y <= self.y2)
 
 
   def contains_bbox(self, b2):
@@ -404,12 +410,12 @@ class BBox:
     return (b2.x1 >= self.x1 and b2.x2 <= self.x2 and b2.y1 >= self.y1 and b2.y2 <= self.y2)
 
 
-  def coverlap(self, b2):
+  def overlaps(self, b2):
     """Calculates overlap percentage between another BBox
     :param b2: BBox
     :returns percentage as float
     """
-    app_cfg.LOG.warn('To be implemented')
+    log.warn('Not yet implemented')
     return 0.0
 
 
@@ -434,7 +440,6 @@ class BBox:
   # Classmethods
   # ---------------------------------------------------------------------------
 
-
   @classmethod
   def from_xywh_norm(cls, x, y, w, h, dw, dh):
     xyxy = tuple(np.array((x, y, x + w, y + h)) * np.array([dw, dh, dw, dh]))
@@ -446,22 +451,20 @@ class BBox:
     return cls(*xyxy, dw, dh)
 
   @classmethod
-  def from_cxcywh(cls, cxcywh, dim):
-    cx, cy, w, h = cxcywh
+  def from_cxcywh(cls, cx, cy, w, h, dw, dh):
     x1 = cx - w/2
     y1 = cy - h/2
     x2 = cx + w/2
     y2 = cy + h/2
-    return cls(x1, y1, x2, y2, *dim)
+    return cls(x1, y1, x2, y2, dw, dh)
 
   @classmethod
-  def from_cxcywh_norm(cls, cxcywh, dim):
-    cx, cy, w, h = cxcywh
-    x1 = cx - w/2
-    y1 = cy - h/2
-    x2 = cx + w/2
-    y2 = cy + h/2
-    return cls(x1, y1, x2, y2, *dim)
+  def from_cxcywh_norm(cls, cx, cy, w, h, dw, dh):
+    x1 = dw * (cx - w/2)
+    y1 = dh * (cy - h/2)
+    x2 = dw * (cx + w/2)
+    y2 = dh * (cy + h/2)
+    return cls(x1, y1, x2, y2, dw, dh)
 
 
   # ---------------------------------------------------------------------------
@@ -654,10 +657,6 @@ class BBox:
     return (self.x1_norm, self.y1_norm, self.w_norm, self.h_norm)
 
 
-
-
-
-
   # --------------------------------------------------------------------------- 
   # area
   
@@ -683,16 +682,17 @@ class BBox:
 
 
 
-
 # ---------------------------------------------------------------------------
 #
-# Rotated BBoxNorm: FIXME translate to BBox style
+# Rotated BBoxNorm: 
+# FIXME: Not yet implemented
 #
 # ---------------------------------------------------------------------------
 
 @dataclass
 class RotatedBBox:
-  
+  """TODO: not yet implemented
+  """
   p1: Point
   p2: Point
   p3: Point
@@ -712,22 +712,16 @@ class RotatedBBox:
 
 
 
-# ---------------------------------------------------------------------------
-#
-# Bounding Box normalized coords
-#
-# ---------------------------------------------------------------------------
-
-
 # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 # 
-# DUMMY DATA
+# Deprecated, phasing out
 #
 # XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 @dataclass
 class BBoxNormLabel:
-  '''Represent general BBox'''
+  """TODO: not yet implemented
+  """
   # label: str
   # label_index: int
   # filename: str
@@ -738,8 +732,8 @@ class BBoxNormLabel:
 
 @dataclass
 class BBoxLabel:
-  '''Represent general BBox info
-  '''
+  """TODO: not yet implemented
+  """
   # label: str
   # label_index: int
   # filename: str
@@ -750,65 +744,13 @@ class BBoxLabel:
 
 @dataclass
 class BBoxNormLabelColor(BBoxNormLabel):
-  '''Represent BBox info from pixel masks as norm floats. 
-  Used for Blender mask annotations
-  '''
+  """TODO: not yet implemented
+  """
   color: Color
 
 
 @dataclass
 class BBoxLabelColor:
-  '''Represent BBox info from pixel masks as int. 
-  Used for Blender mask annotations
-  '''
+  """TODO: not yet implemented
+  """
   color: Color
-
-
-# -----------------------------------------------------------------------------
-#
-# junkyard
-#
-# -----------------------------------------------------------------------------
-
-# @dataclass
-# class BBoxNormLabel(BBox):
-#   '''Represent general BBox'''
-#   label: str
-#   label_index: int
-#   filename: str
-
-#   def to_colored(self, color):
-#     """Converts BBoxNorm to BBoxLabeled
-#     :param color: (Color)
-#     """
-#     return BBoxNormLabelColor(*self.xyxy, self.label, self.label_index, self.filename, color)
-
-
-
-# @dataclass
-# class BBoxLabel
-#   '''Represent general BBox info
-#   '''
-#   label: str
-#   label_index: int
-#   filename: str
-
-#   def to_colored(self, color):
-#     return BBoxLabelColor(xyxy, self.dim, self.label, self.label_index, self.filename, color)
-
-
-# @dataclass
-# class BBoxNormLabelColor(BBoxNormLabel):
-#   '''Represent BBox info from pixel masks as norm floats. 
-#   Used for Blender mask annotations
-#   '''
-#   color: Color
-
-
-# @dataclass
-# class BBoxLabelColor
-#   '''Represent BBox info from pixel masks as int. 
-#   Used for Blender mask annotations
-#   '''
-#   color: Color
-
