@@ -21,9 +21,9 @@ color_styles = ['random', 'preset', 'fixed']
   help='Name of data key for ROIs')
 @click.option('--bbox/--no-bbox', 'opt_bbox', is_flag=True, default=True,
   help='Draw bbox')
-@click.option('--label/--no-label', 'opt_label', is_flag=True, default=True,
+@click.option('--class-label/--no-class-label', 'opt_label', is_flag=True, default=True,
   help='Draws label')
-@click.option('--key/--no-key', 'opt_key', is_flag=True, default=False,
+@click.option('--data-label/--no-data-label', 'opt_key', is_flag=True, default=False,
   help='Draws data key')
 @click.option('--confidence/--no-confidence', 'opt_conf', is_flag=True, default=False,
   help='Draws confidence score text')

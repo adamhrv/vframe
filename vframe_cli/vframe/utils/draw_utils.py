@@ -197,35 +197,6 @@ def draw_mask(im, bbox_norm, mask, threshold=0.3,  mask_blur_amt=21, color=color
   return im
 
 
-
-# -----------------------------------------------------------------------------
-#
-# BBoxes
-#
-# -----------------------------------------------------------------------------
-
-# def draw_bbox_cv(im, bboxes, color, stroke):
-#   """Draws BBox onto Numpy image using np broadcasting
-#   :param bbox: BBoxDiim
-#   :param color: Color
-#   :param stroke: int
-#   """
-#   for bbox in bboxes:
-#     im = cv.rectangle(im, bbox_dim.p1.xy, bbox_dim.p2.xy, color, stroke)
-#   return im
-
-
-# def _draw_bbox_np(im, bboxes, color, stroke):
-#   """Draws BBox onto cv image using np broadcasting
-#   :param bbox: BBoxDiim
-#   :param color: Color
-#   :param stroke: int
-#   """
-#   for bbox in bboxes:
-#     im[bbox.y1:bbox.y2, bbox.x1:bbox.x2] = color.bgr_int
-#   return im
-
-
 def _draw_bbox_pil(canvas, bbox, color, stroke):
   """Draws BBox onto PIL.ImageDraw
   :param bbox: BBoxDiim
@@ -382,6 +353,13 @@ def draw_text(im, text, pt, color=None, size_text=None, color_text=None,
 font_mngr = FontManager()
 
 
+
+# -----------------------------------------------------------------------------
+#
+# junkyard
+#
+# -----------------------------------------------------------------------------
+
 # def draw_text_cv(im, text, pt, size=1.0, color=None):
 #   """Draws degrees as text over image
 #   """
@@ -400,4 +378,32 @@ font_mngr = FontManager()
 #   if was_pil:
 #     im = im_utils.pil2np(im)
 
+#   return im
+
+
+# -----------------------------------------------------------------------------
+#
+# BBoxes
+#
+# -----------------------------------------------------------------------------
+
+# def draw_bbox_cv(im, bboxes, color, stroke):
+#   """Draws BBox onto Numpy image using np broadcasting
+#   :param bbox: BBoxDiim
+#   :param color: Color
+#   :param stroke: int
+#   """
+#   for bbox in bboxes:
+#     im = cv.rectangle(im, bbox_dim.p1.xy, bbox_dim.p2.xy, color, stroke)
+#   return im
+
+
+# def _draw_bbox_np(im, bboxes, color, stroke):
+#   """Draws BBox onto cv image using np broadcasting
+#   :param bbox: BBoxDiim
+#   :param color: Color
+#   :param stroke: int
+#   """
+#   for bbox in bboxes:
+#     im[bbox.y1:bbox.y2, bbox.x1:bbox.x2] = color.bgr_int
 #   return im
