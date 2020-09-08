@@ -13,29 +13,25 @@ import click
 from vframe.utils.click_utils import processor
 
 @click.command('')
+@click.option('-t', '--text', 'opt_text', required=True,
+  help='Caption text')
+@click.option('-x', '--x', 'opt_x', required=True, default=0,
+  help='X position in pixels. Use negative for distance from bottom.')
+@click.option('-y', '--y', 'opt_y', required=True, default=0,
+  help='Y position in pixels. Use negative for distance from bottom.')
 @click.option('-c', '--color', 'opt_color', 
   default=(0,255,0),
   help='font color in RGB int (eg 0 255 0)')
-@click.option('-t', '--text', 'opt_caption', required=True,
-  help='Caption text')
-@click.option('-x', '--x', 'opt_x', required=True, default=20,
-  help='X position in pixels. Use negative for distance from bottom.')
-@click.option('-y', '--y', 'opt_y', required=True, default=-20,
-  help='Y position in pixels. Use negative for distance from bottom.')
-@click.option('-a', '--alpha', 'opt_alpha', default=1.0,
-  help='Opacity of font')
-@click.option('--font-size', 'opt_font_size', default=14,
+@click.option('--size', 'opt_font_size', default=16,
   help='Font size for labels')
-@click.option('--knockout', 'opt_knockout', default=None, type=int,
-  help='Knockout pixel distance')
 @click.option('--bg', 'opt_bg', is_flag=True,
   help='Add text background')
-@click.option('--bg-color', 'opt_bg_color', default=(0,0,0))
-@click.option('--bg-padding', 'opt_bg_padding', default=None, type=int)
+@click.option('--bg-color', 'opt_color_bg', default=(0,0,0))
+@click.option('--bg-padding', 'opt_padding_text', default=None, type=int)
 @processor
 @click.pass_context
-def cli(ctx, pipe, opt_caption, opt_x, opt_y, opt_color, opt_font_size, 
-  opt_alpha, opt_knockout, opt_bg, opt_bg_color, opt_bg_padding):
+def cli(ctx, pipe, opt_text, opt_x, opt_y, opt_color, opt_font_size,
+  opt_bg, opt_color_bg, opt_padding_text):
   """Add text caption"""
   
   """
@@ -48,14 +44,14 @@ def cli(ctx, pipe, opt_caption, opt_x, opt_y, opt_color, opt_font_size,
   from vframe.settings import app_cfg
   from vframe.models import types
   from vframe.models.color import Color
-  from vframe.models.bbox import PointNorm
+  from vframe.models.geometry import Point
   from vframe.utils import im_utils, draw_utils
   
   # ---------------------------------------------------------------------------
   # initialize
 
-  color_txt = Color.from_rgb_int(opt_color)
-  color_bg = Color.from_rgb_int(opt_bg_color)
+  color_text = Color.from_rgb_int(opt_color)
+  color_bg = Color.from_rgb_int(opt_color_bg)
 
 
   # ---------------------------------------------------------------------------
@@ -77,16 +73,13 @@ def cli(ctx, pipe, opt_caption, opt_x, opt_y, opt_color, opt_font_size,
     if xy[1] < 0:
       xy[1] = h + xy[1]
 
-    pt_norm = PointNorm(xy[0] / w, xy[1] / h)
-
-    # draw background if optioned
-    if opt_bg:
-      im = draw_utils.draw_text_bg(im, opt_caption, pt_norm, opt_font_size,
-       padding=opt_bg_padding, color=color_bg)
+    dim = im.shape[:2][::-1]
+    app_cfg.LOG.debug(f'dim: {dim}')
+    pt = Point(*xy, *dim)
     
     # draw text
-    im = draw_utils.draw_label(im, opt_caption, pt_norm, opt_font_size, color_txt, 
-      knockout=opt_knockout)
+    im = draw_utils.draw_text(im, opt_text, pt, color=color_text, size_text=opt_font_size, 
+      bg=opt_bg, padding_text=opt_padding_text, color_bg=color_bg, upper=False)
     
     pipe_item.set_image(types.FrameImage.DRAW, im)
     pipe.send(pipe_item)

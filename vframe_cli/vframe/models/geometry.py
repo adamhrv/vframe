@@ -7,10 +7,6 @@
 #
 #############################################################################
 
-"""
-VFRAME BBox classes. Used in all VFRAME repos
-"""
-
 import logging
 import random
 import math
@@ -19,7 +15,105 @@ from dataclasses import dataclass
 import numpy as np
 
 from vframe.models.color import Color
-from vframe.models.point import PointNorm, PointDim
+
+
+# ---------------------------------------------------------------------------
+#
+# Point classes
+#
+# ---------------------------------------------------------------------------
+
+@dataclass
+class Point:
+  """XY point in coordinate plane
+  """
+  x: float
+  y: float
+  dw: int=None  # dimension width
+  dh: int=None  # dimension height
+
+  def __post_init__(self):
+    # if no bounds, use x,y as bounding plane
+    self.dw = self.x if self.dw is None else self.dw
+    self.dh = self.x if self.dh is None else self.dh
+    self.dim = (self.dw, self.dh)
+    # clamp values. only useful if real dimensions provided
+    self.x = min(max(self.x, 0), self.dw)
+    self.y = min(max(self.y, 0), self.dh)
+
+
+  # ---------------------------------------------------------------------------
+  # transformations
+
+  def move(self, x, y):
+    """Moves point by x,y
+    """
+    return self.__class__(self.x1 + x, self.y1 + y, self.x2, self.y2, *self.dim)
+
+
+  def scale(self, scale):
+    """Scales point
+    """
+    return self.__class__((self.x * scale, self.y * scale))
+
+  
+  def distance(self, p2):
+    """Calculate distance between this point and another
+    :param p2: Point
+    :returns float of distance
+    """
+    dx = self.x - p2.x
+    dy = self.y - p2.y
+    return math.sqrt(math.pow(dx, 2) + math.pow(dy, 2))
+
+
+  # ---------------------------------------------------------------------------
+  # classmethods
+
+  @classmethod
+  def from_xy_int(cls, x, y, dim):
+    return cls(x / dw, y / dim[1], dim)
+
+  @classmethod
+  def from_xy_norm(cls, x, y, dim):
+    return cls(x, y, dim)
+
+  @classmethod
+  def from_bbox_tl(cls, bbox):
+    return cls(bbox.x1, bbox.y1, *bbox.dim)
+
+  @classmethod
+  def from_bbox(cls, bbox):
+    return cls.from_bbox_tl(bbox)
+
+  # ---------------------------------------------------------------------------
+  # properties
+
+  @property
+  def x_int(self):
+    return int(self.x)
+
+  @property
+  def y_int(self):
+    return int(self.y)
+  
+  @property
+  def xy_int(self):
+    return (self.x_int, self.y_int)
+
+  @property
+  def x_norm(self):
+    return (self.x / self.dw)
+
+  @property
+  def y_norm(self):
+    return (self.y / self.dh)
+  
+  @property
+  def xy_norm(self):
+    return (self.x_norm, self.y_norm)
+
+
 
 # ---------------------------------------------------------------------------
 #
@@ -29,138 +123,169 @@ from vframe.models.point import PointNorm, PointDim
 
 @dataclass
 class BBox:
-  
-  x1: int
-  y1: int
-  x2: int
-  y2: int
-  bounds: List = field(default_factory=lambda: [None, None])
+  """A box defined by x1, y1, x2, y2 points and a bounding frame dimension
+  """
+  x1: float
+  y1: float
+  x2: float
+  y2: float
+  dw: int=None  # dimension width
+  dh: int=None  # dimension height
+
 
   def __post_init__(self):
     # clamp values
-    self.x1 = self.recast(min(max(self.x1, 0), self.bounds[0]))
-    self.y1 = self.recast(min(max(self.y1, 0), self.bounds[1]))
-    self.x2 = self.recast(min(max(self.x2, 0), self.bounds[0]))
-    self.y2 = self.recast(min(max(self.y2, 0), self.bounds[1]))
-
-  def recast(self, n):
-    return type(self.x1)(n)
-
-  # end bbox base
-  def to_dict(self):
-    return {
-        'x1': self.recast(self.x1),
-        'y1': self.recast(self.y1),
-        'x2': self.recast(self.x2),
-        'y2': self.recast(self.y2),
-      }
+    self.dw = self.width if self.dw is None else self.dw
+    self.dh = self.height if self.dh is None else self.dh
+    self.dim = (self.dw, self.dh)
+    self.x1 = min(max(self.x1, 0), self.dw)
+    self.y1 = min(max(self.y1, 0), self.dh)
+    self.x2 = min(max(self.x2, 0), self.dw)
+    self.y2 = min(max(self.y2, 0), self.dh)
 
 
-  def translate(self, xyxy):
-    x1, y1, x2, y2 = xyxy
-    xyxy = (self.x1 + x1, self.y1 + y1, self.x2 + x2, self.y2 + y2)
-    return self.__class__(*xyxy, self.bounds)
+  # ---------------------------------------------------------------------------
+  # Expanding
+  # ---------------------------------------------------------------------------
 
-  
-  def expand(self, per):
-    """Expands BBox by percentage
+  def _expand_wh(self, w, h):
+    x1, y1, x2, y2 = list(np.array(self.xyxy) + np.array([-k, -k, k, k]))
+    return self.__class__(x1, y1, x2, y2, self.dim)
+
+
+  def expand(self, k):
+    """Expands by pixels in all directions
+    :param k: (int) pixels
+    :returns BBox
+    """
+    return self._expand_wh(k, k)
+
+
+  def expand_w(self, k):
+    return self._expand_wh(k, 0)
+
+
+  def expand_h(self, k):
+    return self._expand_wh(0, k)
+
+
+  def expand_per(self, k):
+    """Expands BBox by percentage of current width and height
     :param per: (float) percentage to expand 0.0 - 1.0
-    :returns (BBoxNorm) expanded
+    :returns BBox expanded
     """
-    dw, dh = [(self.w * per), (self.h * per)]
-    x1, y1, x2, y2 = list(np.array(self.xyxy) + np.array([-dw, -dh, dw, dh]))
-    # threshold expanded rectangle
-    x1 = max(x1, 0.0)
-    y1 = max(y1, 0.0)
-    x2 = min(x2, 1.0)
-    y2 = min(y2, 1.0)
-    return self.__class__(x1, y1, x2, y2, self.bounds)
+    w, h = (int(k * self.w), int(k * self.h))
+    return self._expand_wh(w, h)
 
-
-  # def to_labeled(self, label, label_index, fn):
-  #   return BBoxNormLabel(*self.xyxy, label, label_index, fn)
-
-  # def to_labeled_colored(self, label, label_index, fn, color):
-  #   return BBoxNormLabelColor(*self.xyxy, label, label_index, fn, color)
-
-  def to_scale_wh(self, sw, sh):
-    return self.__class__(self.x1, self.y1, self.w * sw + self.x1, self.h*sh + self.y1, self.bounds)
-
-
-  def scale(self, per):
-    """Scale by percentage value
+  def expand_per_w(self, k):
+    """Expands BBox by percentage of current width
+    :param per: (float) percentage to expand 0.0 - 1.0
+    :returns BBox expanded
     """
-    return self.__class__(self.x1 * per, self.y1 * per, self.x2 * per, self.y2 * s, self.bounds)
+    w, h = (int(k * self.w), int(k * self.h))
+    return self._expand_wh(w, 0)
+
+  def expand_per_h(self, k):
+    """Expands BBox by percentage of current height
+    :param per: (float) percentage to expand 0.0 - 1.0
+    :returns BBox expanded
+    """
+    h = int(k * self.h)
+    return self._expand_wh(0, h)
 
 
-  def scale(self, sw, sh):
+  # ---------------------------------------------------------------------------
+  # Scaling
+  # ---------------------------------------------------------------------------
+
+  def _scale(self, w, h):
+    return self.__class__(self.x1 * s, self.y1 * h, self.x2 * s, self.y2 * h, *self.dim)
+
+
+  def scale(self, k):
     """Scale by width and height values
     """
-    return self.__class__(self.x1 * sw, self.y1 * sh, self.x2 * sw, self.y2 * sh, self.bounds)
+    self._scale(k, k)
 
 
-  def to_bbox_labeled(self, label, label_index, color, fn):
-    # FIXME: probably broken
-    return BBoxLabeled(self.x1, self.y1, self.x2, self.y2, label, label_index, color, fn)
+  def scale_w(self, k):
+    return self._scale(k, 1)
+
+
+  def scale_h(self, k):
+    return self._scale(1, k)
+    
+
+  def scale_wh(self, w, h):
+    """Scales width and height independently
+    """
+    self._scale(w, h)
+
+
+  # ---------------------------------------------------------------------------
+  # Transformations
+  # ---------------------------------------------------------------------------
+
+  def translate(self, x, y):
+    """Translates BBox points
+    """
+    return self.__class__(self.x1 + x, self.y1 + y, self.x2 + x, self.y2 + y, *self.dim) 
   
 
-  def jitter(self, per):
+  def move_to(self, x, y):
+    """Moves to new XY location
+    """
+    return self.__class__(x, y, x + self.w, y + self.h, *self.dim)
+
+
+  def shift(self, x1, y1, x2, y2):
+    """Moves corner locations
+    """
+    return self.__class__(self.x1 + x1, self.y1 + y1, self.x2 + x2, self.y2 + y2, *self.dim)
+
+
+  def jitter(self, k):
     '''Jitters the center xy and the wh of BBox
-    :returns BBox[SubClass] jittered
+    :returns BBox
     '''
-    amtw = per * self.w
-    amth = per *self.h
+    amtw = k * self.w
+    amth = k *self.h
     w = self.w + (self.w * random.uniform(-amtw, amtw))
     h = self.h + (self.h * random.uniform(-amth, amth))
     cx = self.cx + (self.cx * random.uniform(-amtw, amtw))
     cy = self.cy + (self.cy * random.uniform(-amth, amth))
     orig_type = type(self.x1)
     xyxy_mapped = list(map(orig_type, [cx - w/2, cx - w/2, cx + w/2, cx + w/2]))
-    self.__class__(*xyxy_mapped, self.bounds)
-
-
-  def contains_point(self, p):
-    '''Checks if this BBox contains the normalized point
-    :param p: (Point)
-    :returns (bool)
-    '''
-    return (p.x >= self.x1 and p.x <= self.x2 and p.y >= self.y1 and p.y <= self.y2)
-
-
-  def contains_bbox(self, b):
-    '''Checks if this BBox fully contains another BBox
-    :param b: (BBox)
-    :returns (bool)
-    '''
-    return (b.x1 >= self.x1 and b.x2 <= self.x2 and b.y1 >= self.y1 and b.y2 <= self.y2)
+    self.__class__(*xyxy_mapped, self.dim)
 
 
   def rot90(self, k=1):
     """Rotates BBox by 90 degrees N times
-    :param k: number of 90 rotations
+    :param k: int number of 90 degree rotations
     """
-    w,h = (1.0, 1.0)
+    k %= 4
+    w, h = self.dim
     if k == 1:
       # 90 degrees
       x1,y1 = (h - self.y2, self.x1)
       x2,y2 = (x1 + self.h, y1 + self.w)
-      return self.__class__(x1, y1, x2, y2)
+      return self.__class__(x1, y1, x2, y2, (h,w))
     elif k == 2:
       # 180 degrees
       x1,y1 = (w - self.x2, h - self.y2)
       x2, y2 = (x1 + self.w, y1 + self.h)
-      return self.__class__(x1, y1, x2, y2)
-    elif k == 3 or k == -1:
+      return self.__class__(x1, y1, x2, y2, (w,h))
+    elif k == 3:
       # 270 degrees
       x1,y1 = (self.y1, w - self.x2)
       x2, y2 = (x1 + self.h, y1 + self.w)
-      return self.__class__(x1, y1, x2, y2)
+      return self.__class__(x1, y1, x2, y2, (h,w))
     else:
       return self
 
 
   # convert image to new size centered at bbox
-  def to_ratio(self, dim, ratio, expand=0.5):
+  def ratio(self, dim, ratio, expand=0.5):
     
     # expand/padd bbox
     w,h = dim
@@ -223,95 +348,11 @@ class BBox:
     y1, y2 = (max(0, y1), min(1.0, y2))
       
     return self.__class__(x1,y1,x2,y2)
+  
 
-
-  @classmethod
-  def from_bbox_dim(cls, bbox_dim):
-    w,h = bbox_dim.bounds
-    x1,y1,x2,y2 = list(map(int, (bbox_dim.x1 / w, bbox_dim.y1 / h, bbox_dim.x2 / w, bbox_dim.y2 / h)))
-    return cls(x1, y1, x2, y2)
-
-
-  @classmethod
-  def from_xywh(cls, xywh):
-    x, y, w, h = xywh
-    x1, y1, x2, y2 = (x, y, x + w, y + h)
-    return cls(x1, y1, x2, y2, self.bounds)
-
-
-  @classmethod
-  def from_xyxy(cls, xyxy):
-    return cls(*xyxy)
-
-
-  @classmethod
-  def from_cxcywh(cls, cxcywh):
-    cx, cy, w, h = cxcywh
-    x1 = cx - w/2
-    y1 = cy - h/2
-    x2 = cx + w/2
-    y2 = cy + h/2
-    return cls(x1, y1, x2, y2)
-
-
-  @property
-  def w(self):
-    return (self.x2 - self.x1)
-
-  @property
-  def width(self):
-    return self.w
-
-  @property
-  def h(self):
-    return (self.y2 - self.y1)
-
-  @property
-  def wh(self):
-    return (self.w, self.h)
-
-  @property
-  def cx(self):
-    return self.retype(self.x1 + (self.width / 2))
-
-  @property
-  def cy(self):
-    return self.retype(self.y1 + (self.height / 2))
-
-  @property
-  def cxcy(self):
-    return (self.cx, self.cy)
-
-  @property
-  def height(self):
-    return self.h
-
-  @property
-  def area(self):
-    return self.w * self.h
-
-  @property
-  def p1(self):
-    return PointNorm(self.x1, self.y1)
-
-  @property
-  def p2(self):
-    return PointNorm(self.x2, self.y2)
-
-  @property
-  def xyxy(self):
-    return (self.x1, self.y1, self.x2, self.y2)
-
-  @property
-  def xy(self):
-    return (self.x1, self.y1)
-
-  @property
-  def xywh(self):
-    return (self.x1, self.y1, self.w, self.h)
-
-
-  def to_square(self):
+  def square(self):
+    """Forces to square ratio
+    """
     if self.w == self.h:
       return self
     x1, y1, x2, y2 = self.xyxy
@@ -321,12 +362,12 @@ class BBox:
       # landscape: expand height
       delta = (w - h) / 2
       y1 = max(y1 - delta, 0)
-      y2 = min(y2 + delta, self.bounds[1])
+      y2 = min(y2 + delta, self.dh)
     elif h > w:
       # portrait: expand width
       delta = (h - w) / 2
       x1 = max(x1 - delta, 0)
-      x2 = min(x2 + delta,  self.bounds[0])
+      x2 = min(x2 + delta,  self.dw)
     # try again
     w, h = (x2 - x1, y2 - y1)
     # if still not square, contract
@@ -334,100 +375,340 @@ class BBox:
       # landscape: contract width
       delta = (w - h) / 2
       x1 = max(x1 + delta, 0)
-      x2 = min(x2 - delta, self.bounds[0])
+      x2 = min(x2 - delta, self.dw)
     elif h > w:
       # portrait: contract height
       delta = (h - w) / 2
       y1 = max(y1 + delta, 0)
-      y2 = min(y2 - delta, self.bounds[0])
-    return BBox(y1, x2, y2, self.bounds)
-
-
-  @classmethod
-  def from_xyxy_dim(cls, xyxy, dim):
-    x1, y1, x2, y2 = xyxy
-    return cls(x1, y1, x2, y2, dim)  # **xyxy?
-
-  def to_bbox_norm(self):
-    w,h = self.bounds
-    x1,y1,x2,y2 = (self.x1 / w, self.y1 / h, self.x2 / w, self.y2 / h)
-    return BBoxNorm(x1, y1, x2, y2)
+      y2 = min(y2 - delta, self.dw)
+    return self.__class__(x1, y1, x2, y2, self.dim)
   
 
-  def expand_px(self, px):
-    """Expands BBoxpixels
-    :param px: (int) pixels
-    :returns expanded
+  # ---------------------------------------------------------------------------
+  # Relative properties
+  # ---------------------------------------------------------------------------
+
+  def contains_point(self, p):
+    '''Checks if this BBox contains the normalized point
+    :param p: (Point)
+    :returns (bool)
+    '''
+    return (p.x >= self.x1 and p.x <= self.x2 and p.y >= self.y1 and p.y <= self.y2)
+
+
+  def contains_bbox(self, b2):
+    '''Checks if this BBox fully contains another BBox
+    :param b: (BBox)
+    :returns (bool)
+    '''
+    return (b2.x1 >= self.x1 and b2.x2 <= self.x2 and b2.y1 >= self.y1 and b2.y2 <= self.y2)
+
+
+  def coverlap(self, b2):
+    """Calculates overlap percentage between another BBox
+    :param b2: BBox
+    :returns percentage as float
     """
-    x1, y1, x2, y2 = list(np.array(self.xyxy) + np.array([-px, -px, px, px]))
-    # threshold expanded rectangle
-    xyxy = self._clamp(x1, y1, x2, y2)
-    return self.__class__(x1, y1, x2, y2, self.bounds)
-    
+    app_cfg.LOG.warn('To be implemented')
+    return 0.0
 
-  def to_labeled(self, label, label_index, fn):
-    return BBoxLabel(xyxy, self.bounds, label, label_index, fn)
+
+  # ---------------------------------------------------------------------------
+  # Represent
+  # ---------------------------------------------------------------------------
+
+  def to_dict(self):
+    """Converts BBox to dict of xyxy and dim
+    """
+    return {
+      'x1': self.x1,
+      'y1': self.y1,
+      'x2': self.x2,
+      'y2': self.y2,
+      'dw': self.dw,
+      'dh': self.dh
+      }
+
+
+  # ---------------------------------------------------------------------------
+  # Classmethods
+  # ---------------------------------------------------------------------------
+
 
   @classmethod
-  def from_xywh_dim(cls, xywh, dim):
-    x,y,w,h = xywh
-    return cls(x, y, x + w, y + h, dim)
+  def from_xywh_norm(cls, x, y, w, h, dw, dh):
+    xyxy = tuple(np.array((x, y, x + w, y + h)) * np.array([dw, dh, dw, dh]))
+    return cls(x, y, x + w, y + h, dw, dh)
+
+  @classmethod
+  def from_xyxy_norm(cls, x1, y1, x2, y2, dw, dh):
+    xyxy = tuple(np.array((x1, y1, x2, y2)) * np.array([dw, dh, dw, dh]))
+    return cls(*xyxy, dw, dh)
+
+  @classmethod
+  def from_cxcywh(cls, cxcywh, dim):
+    cx, cy, w, h = cxcywh
+    x1 = cx - w/2
+    y1 = cy - h/2
+    x2 = cx + w/2
+    y2 = cy + h/2
+    return cls(x1, y1, x2, y2, *dim)
+
+  @classmethod
+  def from_cxcywh_norm(cls, cxcywh, dim):
+    cx, cy, w, h = cxcywh
+    x1 = cx - w/2
+    y1 = cy - h/2
+    x2 = cx + w/2
+    y2 = cy + h/2
+    return cls(x1, y1, x2, y2, *dim)
 
 
+  # ---------------------------------------------------------------------------
+  # Properties
+  # ---------------------------------------------------------------------------
 
-  # def rot90(self, k=1):
-  #   """Rotates BBox by 90 degrees N times
-  #   :param n
-  #   """
-  #   w, h = self.bounds
-  #   if k == 1:
-  #     # 90 degrees
-  #     x1,y1 = (h - self.y2, self.x1)
-  #     x2,y2 = (x1 + self.h, y1 + self.w)
-  #     return self.__class__(x1, y1, x2, y2, (h,w))
-  #   elif k == 2:
-  #     # 180 degrees
-  #     x1,y1 = (w - self.x2, h - self.y2)
-  #     x2, y2 = (x1 + self.w, y1 + self.h)
-  #     return self.__class__(x1, y1, x2, y2, (w,h))
-  #   elif k == 3:
-  #     # 270 degrees
-  #     x1,y1 = (self.y1, w - self.x2)
-  #     x2, y2 = (x1 + self.h, y1 + self.w)
-  #     return self.__class__(x1, y1, x2, y2, (h,w))
-  #   else:
-  #     return self
+  # --------------------------------------------------------------------------- 
+  # width
 
-# ---------------------------------------------------------------------------
-#
-# Bounding Box normalized coords
-#
-# ---------------------------------------------------------------------------
+  @property
+  def w(self):
+    return (self.x2 - self.x1)
 
+  @property
+  def w_int(self):
+    return int(self.x2 - self.x1)
 
-@dataclass
-class BBoxNorm(BBox):
+  @property
+  def width(self):
+    return self.w
+
+  @property
+  def width_int(self):
+    return int(self.w)  
+
+  @property
+  def w_norm(self):
+    return self.w / self.dw
+
+  @property
+  def width_norm(self):
+    return self.w_norm
+
+  # --------------------------------------------------------------------------- 
+  # height
   
-  x1: float
-  y1: float
-  x2: float
-  y2: float
-  bounds: tuple(1.0, 1.0)
+  @property
+  def h(self):
+    return (self.y2 - self.y1)
+
+  @property
+  def h_int(self):
+    return int(self.y2 - self.y1)
+
+  @property
+  def height(self):
+    return self.h
+
+  @property
+  def height_int(self):
+    return int(self.h)  
+
+  @property
+  def h_norm(self):
+    return self.h / self.dw
+
+  @property
+  def height_norm(self):
+    return self.h_norm
 
 
-  def __post_init__(self):
-    # clamp values
-    self.x1 = self.retype(min(max(self.x1, 0), self.bounds[0]))
-    self.y1 = self.retype(min(max(self.y1, 0), self.bounds[1]))
-    self.x2 = self.retype(min(max(self.x2, 0), self.bounds[0]))
-    self.y2 = self.retype(min(max(self.y2, 0), self.bounds[1]))
+  # --------------------------------------------------------------------------- 
+  # center
+
+  @property
+  def cx(self):
+    return int(self.x1 + (self.width / 2))
+
+  @property
+  def cx_norm(self):
+    return (self.x1 + (self.width / 2)) / self.dw
+
+  @property
+  def cy(self):
+    return int(self.y1 + (self.height / 2))
+
+  @property
+  def cy_norm(self):
+    return (self.y1 + (self.height / 2)) / self.dh
+  
+  @property
+  def cxcy(self):
+    return (*self.cx, *self.cy)
+
+  @property
+  def cxcy_norm(self):
+    return (*self.cx_norm, *self.cy_norm)
 
 
-  def to_bbox_dim(self, dim):
-    w,h = dim
-    x1, y1, x2, y2 = [int(a) for a in [self.x1 * w, self.y1 * h, self.x2 * w, self.y2 * h]]
-    return self.__class__(x1, y1, x2, y2, dim)
+  # --------------------------------------------------------------------------- 
+  # x
+  
+  @property
+  def x1_int(self):
+    return int(self.x1)
 
+  @property
+  def x2_int(self):
+    return int(self.x2)
+
+  @property
+  def x1_norm(self):
+    return self.x1 / self.dw
+
+  @property
+  def x2_norm(self):
+    return self.x2 / self.dw
+
+  # --------------------------------------------------------------------------- 
+  # y
+  
+  @property
+  def y1_int(self):
+    return int(self.y1)
+
+  @property
+  def y2_int(self):
+    return int(self.y2)
+
+  @property
+  def y1_norm(self):
+    return self.y1 / self.dh
+
+  @property
+  def y2_norm(self):
+    return self.y2 / self.dh
+
+
+  # --------------------------------------------------------------------------- 
+  # xy
+  
+  @property
+  def xy(self):
+    return (self.x1, self.y1)
+
+  @property
+  def xy_int(self):
+    return tuple(map(int, self.xy))
+
+  @property
+  def xy_norm(self):
+    return (self.x1_norm, self.y1_norm)
+
+
+  # --------------------------------------------------------------------------- 
+  # xywy
+
+  @property
+  def xyxy(self):
+    return (self.x1, self.y1, self.x2, self.y2)
+  
+  @property
+  def xyxy_int(self):
+    return tuple(map(int, self.xyxy))
+
+  @property
+  def xyxy_norm(self):
+    return (self.x1_norm, self.y1_norm, self.x2_norm, self.y2_norm)
+
+
+  # --------------------------------------------------------------------------- 
+  # wh
+
+  @property
+  def wh(self):
+    return (self.w, self.h)
+
+  @property
+  def wh_int(self):
+    return tuple(map, int, (self.w, self.h))
+
+  @property
+  def wh_norm(self):
+    return (self.w_norm, self.h_norm)
+
+  
+  # --------------------------------------------------------------------------- 
+  # xywh
+
+  @property
+  def xywh(self):
+    return (self.x1, self.y1, self.w, self.h)
+
+  @property
+  def xywh_int(self):
+    return tuple(map(int, self.xywh))
+
+  @property
+  def xywh_norm(self):
+    return (self.x1_norm, self.y1_norm, self.w_norm, self.h_norm)
+
+
+
+
+
+
+  # --------------------------------------------------------------------------- 
+  # area
+  
+  @property
+  def area(self):
+    return self.w * self.h
+
+  @property
+  def area_int(self):
+    return int(self.area)
+
+
+  # --------------------------------------------------------------------------- 
+  # points
+
+  @property
+  def p1(self):
+    return Point(self.x1, self.y1, self.dim)
+
+  @property
+  def p2(self):
+    return Point(self.x2, self.y2, self.dim)
+
+
+
+
+# ---------------------------------------------------------------------------
+#
+# Rotated BBoxNorm: FIXME translate to BBox style
+#
+# ---------------------------------------------------------------------------
+
+@dataclass
+class RotatedBBox:
+  
+  p1: Point
+  p2: Point
+  p3: Point
+  p4: Point
+  
+  @property
+  def vertices(self):
+    return [self.p1, self.p2, self.p3, self.p4]
+
+  @property
+  def points_norm(self):
+    return (self.p1.xy_norm, self.p2.xy_norm, self.p3.xy_norm, self.p4.xy_norm)
+
+  @property
+  def points_int(self):
+    return (self.p1.xy, self.p2.xy, self.p3.xy, self.p4.xy)
 
 
 
@@ -437,31 +718,34 @@ class BBoxNorm(BBox):
 #
 # ---------------------------------------------------------------------------
 
+
+# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+# 
+# DUMMY DATA
+#
+# XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
 @dataclass
-class BBoxNormLabel(BBoxNorm):
+class BBoxNormLabel:
   '''Represent general BBox'''
-  label: str
-  label_index: int
-  filename: str
+  # label: str
+  # label_index: int
+  # filename: str
 
   def to_colored(self, color):
-    """Converts BBoxNorm to BBoxLabeled
-    :param color: (Color)
-    """
-    return BBoxNormLabelColor(*self.xyxy, self.label, self.label_index, self.filename, color)
-
+    pass
 
 
 @dataclass
-class BBoxLabel
+class BBoxLabel:
   '''Represent general BBox info
   '''
-  label: str
-  label_index: int
-  filename: str
+  # label: str
+  # label_index: int
+  # filename: str
 
   def to_colored(self, color):
-    return BBoxLabelColor(xyxy, self.bounds, self.label, self.label_index, self.filename, color)
+    pass
 
 
 @dataclass
@@ -473,7 +757,7 @@ class BBoxNormLabelColor(BBoxNormLabel):
 
 
 @dataclass
-class BBoxLabelColor
+class BBoxLabelColor:
   '''Represent BBox info from pixel masks as int. 
   Used for Blender mask annotations
   '''
@@ -481,77 +765,45 @@ class BBoxLabelColor
 
 
 
-# ---------------------------------------------------------------------------
-#
-# Rotated BBoxNorm
-#
-# ---------------------------------------------------------------------------
+# @dataclass
+# class BBoxNormLabel(BBox):
+#   '''Represent general BBox'''
+#   label: str
+#   label_index: int
+#   filename: str
 
-@dataclass
-class RotatedBBox:
-  
-  p1: Point
-  p2: Point
-  p3: Point
-  p4: Point
-
-  @property
-  def vertices(self):
-    return [self.p1, self.p2, self.p3, self.p4]
+#   def to_colored(self, color):
+#     """Converts BBoxNorm to BBoxLabeled
+#     :param color: (Color)
+#     """
+#     return BBoxNormLabelColor(*self.xyxy, self.label, self.label_index, self.filename, color)
 
 
 
-@dataclass
-class RotatedBBoxNorm(RotatedBBox):
+# @dataclass
+# class BBoxLabel
+#   '''Represent general BBox info
+#   '''
+#   label: str
+#   label_index: int
+#   filename: str
 
-  p1: PointNorm
-  p2: PointNorm
-  p3: PointNorm
-  p4: PointNorm
-
-  @classmethod
-  def from_rbbox_dim(cls, rbbox_dim):
-    verts_norm = [p.to_point_norm(rbbox_dim.bounds) for p in rbbox_dim.vertices]
-    return cls(verts_norm)
-
-  def to_rbbox_dim(self, dim):
-    verts_dim = [p.to_point_dim(dim) for p in self.vertices]
-    return RotatedBBox( dim)
-
-  def to_bbox_norm(self):
-    """Converts RotatedBBoxto a normal BBoxNorm
-    """
-    x1 = min([p.x for p in self.vertices])
-    y1 = max([p.y for p in self.vertices])
-    x2 = max([p.y for p in self.vertices])
-    y2 = min([p.y for p in self.vertices])
-    return BBoxNorm(x1, y1, x2, y2)
+#   def to_colored(self, color):
+#     return BBoxLabelColor(xyxy, self.dim, self.label, self.label_index, self.filename, color)
 
 
+# @dataclass
+# class BBoxNormLabelColor(BBoxNormLabel):
+#   '''Represent BBox info from pixel masks as norm floats. 
+#   Used for Blender mask annotations
+#   '''
+#   color: Color
 
 
-@dataclass
-class RotatedBBox:
+# @dataclass
+# class BBoxLabelColor
+#   '''Represent BBox info from pixel masks as int. 
+#   Used for Blender mask annotations
+#   '''
+#   color: Color
 
-  p1: PointDim
-  p2: PointDim
-  p3: PointDim
-  p4: PointDim
-  dim: (int, int)
-
-  @classmethod
-  def from_rbbox_norm(self, rbbox_norm, dim):
-    verts = [p.to_point_dim(dim) for p in rbbox_norm.vertices]
-    return RotatedBBox( dim)
-
-  def to_rbbox_norm(self):
-    verts = [p.to_point_norm(self.bounds) for p in self.vertices]
-    return RotatedBBoxNorm(*verts)
-
-  def to_bbox_dim(self):
-    """Converts RotatedBBoxto a normal BBo   """
-    x1 = min([p.x for p in self.vertices])
-    y1 = min([p.y for p in self.vertices])
-    x2 = max([p.y for p in self.vertices])
-    y2 = max([p.y for p in self.vertices])
-    return BBox(y1, x2, y2, self.bounds)

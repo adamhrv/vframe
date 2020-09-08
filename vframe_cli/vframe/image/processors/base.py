@@ -65,8 +65,8 @@ class NetProc:
       cfg.height = cfg.width
       self.log.warning(f'Width and height must be equal. Forcing to lowest size: {cfg.width}')
 
-    im = im_utils.resize(im, width=cfg.width, height=cfg.height, force_fit=cfg.fit)
     self.frame_dim = im.shape[:2][::-1]
+    im = im_utils.resize(im, width=cfg.width, height=cfg.height, force_fit=cfg.fit)
     dim = self.frame_dim if cfg.fit else cfg.size
     blob = cv.dnn.blobFromImage(im, cfg.scale, dim, cfg.mean, crop=cfg.crop, swapRB=cfg.rgb)
     self.net.setInput(blob)

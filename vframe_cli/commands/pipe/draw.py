@@ -31,25 +31,25 @@ color_styles = ['random', 'preset', 'fixed']
   help='Draws mask (if available)')
 @click.option('--rbbox/--no-rbbox', 'opt_rbbox', is_flag=True, default=False,
   help='Draw rotated bbox (for scene text detectors)')
-@click.option('--stroke', 'opt_stroke_weight', default=4,
+@click.option('--stroke', 'opt_stroke', default=4,
   help='Size of border. Use -1 for fill.')
 @click.option('--expand', 'opt_expand', default=None, 
   type=click.FloatRange(0.0, 1.0, clamp=True),
   help='Percentage to expand bbox')
-@click.option('--text-size', 'opt_text_size', default=16,
-  help='Text size')
 @click.option('--mask-alpha', 'opt_mask_alpha', default=0.6,
   help='Mask color weight')
-@click.option('--color-source', 'opt_color_source', default='random', 
-  type=click.Choice(color_styles),
-  help="Assign color to bbox and label background")
-@click.option('--text-color', 'opt_text_color', 
-  type=(int, int, int), default=(None, None, None),
-  help='Color in RGB int (eg 0 255 0)')
 @click.option('-c', '--color', 'opt_color', 
   type=(int, int, int), default=(None, None, None),
   help='Color in RGB int (eg 0 255 0)')
-@click.option('--label-padding', 'opt_label_padding', 
+@click.option('--color-source', 'opt_color_source', default='random', 
+  type=click.Choice(color_styles),
+  help="Assign color to bbox and label background")
+@click.option('--label-size', 'opt_size_label', default=16,
+  help='Text size')
+@click.option('--label-color', 'opt_color_label', 
+  type=(int, int, int), default=(None, None, None),
+  help='Color in RGB int (eg 0 255 0)')
+@click.option('--label-padding', 'opt_padding_label', 
   type=int, default=None,
   help='Label padding')
 @click.option('--label-index', 'opt_label_index', 
@@ -58,8 +58,8 @@ color_styles = ['random', 'preset', 'fixed']
 @processor
 @click.pass_context
 def cli(ctx, pipe, opt_data_keys, opt_bbox, opt_label, opt_key, opt_conf, 
-  opt_mask, opt_rbbox, opt_stroke_weight, opt_text_size, opt_expand, 
-  opt_mask_alpha, opt_color_source, opt_text_color, opt_color, opt_label_padding,
+  opt_mask, opt_rbbox, opt_stroke, opt_size_label, opt_expand, 
+  opt_mask_alpha, opt_color_source, opt_color_label, opt_color, opt_padding_label,
   opt_label_index):
   """Draw bboxes, labels, and masks"""
   
@@ -103,7 +103,7 @@ def cli(ctx, pipe, opt_data_keys, opt_bbox, opt_label, opt_key, opt_conf,
       if item_data:
         # draw bbox, labels, mask
         for obj_idx, detection in enumerate(item_data.detections):
-          bbox = detection.bbox  # normalized
+          bbox = detection.bbox
 
           # FIXME
           if opt_color_source == 'random':
@@ -115,16 +115,16 @@ def cli(ctx, pipe, opt_data_keys, opt_bbox, opt_label, opt_key, opt_conf,
             app_cfg.LOG.warn('Not yet implemented')
             color = Color.from_rgb_int((255,0,0))
           
-          # draw mask
-          if opt_mask and item_data.task_type == types.Processor.SEGMENTATION:
-            mask = detection.mask
-            im = draw_utils.draw_mask(im, bbox, mask, 
-              color=color, color_weight=opt_mask_alpha)
+          # # draw mask
+          # if opt_mask and item_data.task_type == types.Processor.SEGMENTATION:
+          #   mask = detection.mask
+          #   im = draw_utils.draw_mask(im, bbox, mask, 
+          #     color=color, color_weight=opt_mask_alpha)
 
-          # draw rotated bbox
-          if opt_rbbox and item_data.task_type == types.Processor.DETECTION_ROTATED:
-            im = draw_utils.draw_rotated_bbox_pil(im, detection.rbbox, 
-              stroke_weight=opt_stroke_weight, color=color)
+          # # draw rotated bbox
+          # if opt_rbbox and item_data.task_type == types.Processor.DETECTION_ROTATED:
+          #   im = draw_utils.draw_rotated_bbox_pil(im, detection.rbbox, 
+          #     stroke=opt_stroke, color=color)
 
           if opt_bbox:
             
@@ -141,9 +141,9 @@ def cli(ctx, pipe, opt_data_keys, opt_bbox, opt_label, opt_key, opt_conf,
             label = ': '.join(labels) if labels else None
 
             # draw bbox and optional labeling
-            im = draw_utils.draw_bbox(im, bbox, color,
-              stroke_weight=opt_stroke_weight, expand=opt_expand,
-              text=label, text_size=opt_text_size, text_padding=opt_label_padding,
+            im = draw_utils.draw_bbox(im, bbox, color=color,
+              stroke=opt_stroke, expand=opt_expand,
+              label=label, size_label=opt_size_label, padding_label=opt_padding_label,
               )
 
     pipe_item.set_image(types.FrameImage.DRAW, im)

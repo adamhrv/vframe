@@ -14,8 +14,7 @@ import cv2 as cv
 
 from vframe.settings import app_cfg
 from vframe.utils import im_utils
-from vframe.models.bbox import BBoxNorm, BBoxDim, PointNorm, PointDim
-from vframe.models.bbox import RotatedBBoxNorm, RotatedBBoxDim
+from vframe.models.geometry import BBox, Point, RotatedBBox
 from vframe.image.processors.base import DetectionProc
 from vframe.models.cvmodels import RotatedDetectResult, RotatedDetectResults
 
@@ -105,8 +104,8 @@ class EASTProc(DetectionProc):
       vertices = cv.boxPoints(boxes[i[0]])
       # output format
       #((163.83588152587978, 66.38432557600203), (132.39764, 20.20161), -0.32462181577778104)
-      points = [PointDim(int(x), int(y)) for x,y in vertices]
-      rbbox_norm = RotatedBBoxDim(*points, self.frame_dim).to_rbbox_norm()
+      points = [Point(int(x), int(y)) for x,y in vertices]
+      rbbox_norm = RotatedBBox(*points, self.frame_dim).to_rbbox_norm()
       bbox_norm = rbbox_norm.to_bbox_norm()
       box_orig = boxes[i[0]][:2]
       x1, y1 = box_orig[0]

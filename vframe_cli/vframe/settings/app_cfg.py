@@ -106,6 +106,8 @@ LIGHT_GRAY = Color.from_rgb_int((170, 170, 170))
 DARK_GRAY = Color.from_rgb_int((85, 85, 85))
 
 DEFAULT_STROKE_WEIGHT = 2
+DEFAULT_TEXT_SIZE = 14
+DEFAULT_PADDING_PER = 0.25
 
 # -----------------------------------------------------------------------------
 # OpenCV DNN

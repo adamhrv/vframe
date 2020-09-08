@@ -11,7 +11,7 @@ import numpy as np
 import cv2 as cv
 
 from vframe.settings import app_cfg
-from vframe.models.bbox import BBoxNorm, BBoxDim
+from vframe.models.geometry import BBox, Point
 from vframe.image.processors.base import DetectionProc
 from vframe.models.cvmodels import DetectResult, DetectResults
 from vframe.utils import im_utils
@@ -56,9 +56,9 @@ class YOLOProc(DetectionProc):
         confidence = scores[class_idx]
         if confidence > self.dnn_cfg.threshold:
           cx, cy, w, h = detection[0:4]
-          bbox_norm = BBoxNorm.from_cxcywh((cx, cy, w, h))
+          bbox = BBoxNorm.from_cxcywh_dim((cx, cy, w, h), *self.frame_dim)
           label = self.labels[class_idx] if self.labels else ''
-          detect_result = DetectResult(class_idx, confidence, bbox_norm, label)
+          detect_result = DetectResult(class_idx, confidence, bbox, label)
           detect_results.append(detect_result)
 
     if self.dnn_cfg.nms:
