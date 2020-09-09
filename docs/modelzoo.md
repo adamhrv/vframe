@@ -7,7 +7,7 @@ The Model Zoo is a collection of neural network computer vision models useful fo
 For compatibility and long term support, the Model Zoo aims to only use models that are compatible with OpenCV. For now this includes Caffe, Darknet, and TensorFlow models. More work is needed to port PyTorch/ONNX models. A few other model types are included for comparison (eg MXNet).
 
 
-## Testing and Benchmarking
+## ModelZoo Utility Scripts
 
 ```
 # list modelzoo commands
