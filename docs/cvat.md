@@ -12,9 +12,7 @@ Use CVAT for annotating videos and images. Use VFRAME to generate annotations fo
 - Start docker and navigate to <http://localhost:8080/> 
 
 ```
-
 - CLI `docker exec -it cvat bash -ic "python3 utils/cli/cli.py --auth ${CVAT_USERNAME}:${CVAT_PASSWORD} ls"`
-
 ```
 
 ## Setup
