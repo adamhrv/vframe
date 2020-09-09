@@ -14,7 +14,7 @@
 #
 ################################################################################
 
-caffe_imagenet_bvlc_googlenet:
+caffe-imagenet-bvlc-googlenet:
   name: Caffe ImageNet GoogleNet
   processor: classify
   output: features
@@ -36,7 +36,7 @@ caffe_imagenet_bvlc_googlenet:
   allow_resize: False
   active: True
 
-caffe_imagenet_bvlc_alexnet:
+caffe-imagenet-bvlc-alexnet:
   name: Caffe ImageNet AlexNet
   processor: classify
   output: features
@@ -58,7 +58,7 @@ caffe_imagenet_bvlc_alexnet:
   allow_resize: False
   active: True
 
-caffe_imagenet_bvlc_reference_caffenet:
+caffe-imagenet-bvlc:
   name: Caffe ImageNet CaffeNet
   processor: classify
   output: features

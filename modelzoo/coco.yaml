@@ -15,7 +15,7 @@
 ################################################################################
 
 
-yolov3_coco:
+yolo3-coco:
   name: YOLOv3 COCO 608
   processor: yolo
   output: bbox
@@ -37,7 +37,7 @@ yolov3_coco:
   allow_resize: True
 
 
-yolov4_coco:
+yolo4-coco:
   name: YOLOv4 COCO 512
   processor: yolo
   output: bbox
