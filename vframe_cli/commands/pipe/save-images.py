@@ -87,7 +87,6 @@ def cli(ctx, pipe, opt_dir_out, opt_ext, opt_frame_type, opt_prefix, opt_suffix,
       path_out = Path(opt_dir_out)
       path_file = Path(header.filepath)
       fp_subdir = str(path_file.relative_to(path_in).parent)
-      log.debug(fp_subdir)
       fp_out = join(opt_dir_out, fp_subdir, fn)
     else:
       fp_out = join(opt_dir_out, fn)
