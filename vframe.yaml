@@ -38,11 +38,11 @@ plugins:
       - filepath: commands/pipe
 
   # ---------------------------------------------------------------------------
-  # Development scripts, snippets
+  # Utility scripts
   # ---------------------------------------------------------------------------
-  - name: dev
+  - name: utils
     scripts:
-      - filepath: commands/dev
+      - filepath: commands/utils
 
   # ---------------------------------------------------------------------------
   # ModelZoo manager
