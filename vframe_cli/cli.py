@@ -27,6 +27,7 @@ import click
 from vframe.settings import app_cfg, plugins_cfg
 from vframe.utils import log_utils
 
+
 # -----------------------------------------------------------------------------
 #
 # Argparse pre-process
@@ -101,7 +102,6 @@ def process_commands(processors, opt_pipe):
 
 
 
-
 # -----------------------------------------------------------------------------
 #
 # Setup commands
@@ -131,7 +131,8 @@ for plugin_script in plugin_group.scripts:
       fn = Path(fp_py).stem
       cli.add_command(module.cli, name=fn)
     except Exception as e:
-      print(f'Could not import {fn}: {e}')
+      msg = f'Could not import "{fn}": {e}'
+      print(f"{app_cfg.TERM_COLORS.FAIL}{msg}{app_cfg.TERM_COLORS.ENDC}")
 
 
 # -----------------------------------------------------------------------------
