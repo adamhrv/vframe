@@ -1,4 +1,4 @@
-name: vframe_search
+name: vframe
 channels:
   - defaults
 dependencies:
@@ -20,7 +20,7 @@ dependencies:
   - openssl=1.1.1f=h1de35cc_0
   - pandas=1.0.3=py37h6c726b0_0
   - pip=19.1.1=py37_0
-  - python=3.7.3=h359304d_0
+  - python=3.7.6=h0371630_2
   - readline=7.0=h1de35cc_5
   - setuptools=41.0.1=py37_0
   - sqlite=3.29.0=ha441bb4_0
