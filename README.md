@@ -47,11 +47,11 @@ pip uininstall opencv-python -y
 cd vframe_cli
 
 # Test a model (auto-downloads model)
-./cli.py modelzoo test -m yolov3_coco
+./cli.py modelzoo test -m yolo3-coco
 
 # Speed test model for 20 iterations
-./cli.py modelzoo fps -m yolov3_coco --iters 20 --cpu  # use CPU
-./cli.py modelzoo fps -m yolov3_coco --iters 20 --gpu  # use GPU if available
+./cli.py utils.modelzoo fps -m yolo3-coco --iters 20 --cpu  # use CPU
+./cli.py utils.modelzoo fps -m yolo3-coco --iters 20 --gpu  # use GPU if available
 ```
 
 Read more about the [ModelZoo](docs/modelzoo.md)
@@ -63,10 +63,11 @@ Under development.
 ## Blur Faces
 ```
 # Detect and blur faces in directory of images
-./cli.py pipe open -i path/to/your/images/ --exts jpg \
-              detect -m yoloface \
-              blur \
-              save_image -o path/to/your/images_redacted/
+./cli.py pipe \
+    open -i path/to/input/ \
+    detect -m yoloface \
+    blur \
+    save_image -o path/to/output/
 ```
 
 Read more about [redaction](docs/redaction.md)
