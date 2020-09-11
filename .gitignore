@@ -17,8 +17,8 @@ data/incoming/*
 data/test/*
 data/reports/*
 data/examples/videos/frames*
-data/examples/images/output/*
-data/examples/videos/output/*
+data/examples/images/output
+data/examples/videos/output
 
 # Don't ignore
 !vframe_cli/plugins/.gitkeep
