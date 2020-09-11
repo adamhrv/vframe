@@ -110,9 +110,9 @@ class EASTProc(DetectionProc):
       box_orig = boxes[i[0]][:2]
       x1, y1 = box_orig[0]
       x2, y2 = box_orig[1]
-      bbox_norm_orig = BBoxNorm(x1/w, y1/h, x2/w, y2/h)
+      bbox = BBox(x1, y1, x2, y2, *dim)
       angle = boxes[i[0]][0]
-      rdr = RotatedDetectResult(0, confidences[i[0]], bbox_norm, rbbox_norm, bbox_norm_orig, angle)
+      rdr = RotatedDetectResult(0, confidences[i[0]], bbox_norm, rbbox_norm, bbox, angle)
       results.append(rdr)
     
     return RotatedDetectResults(results, 0.0)
