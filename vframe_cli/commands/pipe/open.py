@@ -158,7 +158,7 @@ def cli(ctx, sink, opt_input, opt_recursive, opt_replace_path, opt_width, opt_he
           continue
         else:
           pbar.update()
-          pipe_frame = PipeFrame(frame)      
+          pipe_frame = PipeFrame(frame)
           sink.send(pipe_frame)
           header.increment_frame()
 

@@ -246,7 +246,7 @@ def draw_bbox(im, bbox, color=None, stroke=None, expand=None,
     label = label.upper()
     # init font styles
     color_label = color.get_fg_color() if color_label is None else color_label
-    size_label = app_cfg.DEFAULT_size_label if size_label is None else size_label
+    size_label = app_cfg.DEFAULT_SIZE_LABEL if size_label is None else size_label
     font = font_mngr.get_font(size_label)
     padding_label = int(app_cfg.DEFAULT_PADDING_PER * size_label) if padding_label is None else padding_label
     # bbox of label background
