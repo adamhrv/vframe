@@ -111,7 +111,7 @@ ssdface:
   # meta
   name: OpenCV SSD Face Detector
   # model
-  local: modelzoo//models/caffe/detection/mobilenet_ssd_face/
+  local: modelzoo/models/caffe/detection/mobilenet_ssd_face/
   remote: https://download.vframe.io/v2/models/caffe/detection/mobilenet_ssd_face/
   model: opencv_face_detector.caffemodel
   config: opencv_face_detector.prototxt
