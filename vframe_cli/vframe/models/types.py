@@ -60,7 +60,7 @@ class LogLevel(Enum):
 class Processor(Enum):
   """Loger vebosity
   """
-  DETECTION, CLASSIFICATION, SEGMENTATION, DETECTION_ROTATED = range(4)
+  DETECTION, CLASSIFICATION, SEGMENTATION, DETECTION_ROTATED, DETECTION_POSE = range(5)
 
   def __repr__(self):
     return self.name.lower()

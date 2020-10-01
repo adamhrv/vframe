@@ -275,17 +275,17 @@ class BBox:
       # 90 degrees
       x1,y1 = (h - self.y2, self.x1)
       x2,y2 = (x1 + self.h, y1 + self.w)
-      return self.__class__(x1, y1, x2, y2, (h,w))
+      return self.__class__(x1, y1, x2, y2, h, w)
     elif k == 2:
       # 180 degrees
       x1,y1 = (w - self.x2, h - self.y2)
       x2, y2 = (x1 + self.w, y1 + self.h)
-      return self.__class__(x1, y1, x2, y2, (w,h))
+      return self.__class__(x1, y1, x2, y2, w, h)
     elif k == 3:
       # 270 degrees
       x1,y1 = (self.y1, w - self.x2)
       x2, y2 = (x1 + self.h, y1 + self.w)
-      return self.__class__(x1, y1, x2, y2, (h,w))
+      return self.__class__(x1, y1, x2, y2, h, w)
     else:
       return self
 

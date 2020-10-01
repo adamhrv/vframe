@@ -291,7 +291,7 @@ class HumanPoseDetectResults:
   """
   detections: List[HumanPoseDetectResult]
   duration: float=0.0
-  task_type: Enum = Processor.DETECTION
+  task_type: Enum = Processor.DETECTION_POSE
   
   def to_dict(self):
     return {

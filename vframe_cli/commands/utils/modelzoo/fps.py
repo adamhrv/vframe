@@ -83,6 +83,13 @@ def cli(ctx, opt_model_enums, opt_gpu, opt_dnn_size,
     
     h,w = im.shape[:2]
     fps = cvmodel.fps(n_iters=opt_n_iters, im=im)
+    
+    # force height to zero if cfg does not declare
+    if not dnn_cfg.width:
+      dnn_cfg.width = 0
+    if not dnn_cfg.height:
+      dnn_cfg.height = 0
+
     o = {
       'model': model_name,
       'fps': float(f'{fps:.2f}'),

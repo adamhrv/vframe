@@ -17,6 +17,7 @@ from vframe.image.processors.yolo import YOLOProc
 from vframe.image.processors.ssd import SSDProc
 from vframe.image.processors.retinaface_mxnet import RetinaFaceMXNetProc
 from vframe.image.processors.ultralight import UltralightRetinaFaceProc
+from vframe.image.processors.pose import COCOPoseFaceProc
 #from vframe.image.processors.mask_rcnn import MaskRCNNProc
 #from vframe.image.processors.human_pose import HumanPoseProc
 #from vframe.image.processors.east import EASTProc
@@ -39,9 +40,9 @@ class DNNFactory:
     'retinaface_mxnet': RetinaFaceMXNetProc,
     'ultralight': UltralightRetinaFaceProc,
     'bbox_features': ClassificationProc,
+    'coco_poseface': COCOPoseFaceProc,
     #'mask_rcnn': MaskRCNNProc,
     #'east_text': EASTProc,
-    #'human_pose': HumanPoseProc,
   }
   # conditional processors
   if app_cfg.SRES_ENABLED:

@@ -75,7 +75,7 @@ def cli(ctx, pipe, opt_data_keys, opt_nms_thresh, opt_dnn_thresh, opt_name, opt_
 
         if item_data.detections:
           for face_idx, detect_result in enumerate(item_data.detections):
-            bboxes.append(detect_result.bbox.to_bbox_dim(frame_dim).xywh)
+            bboxes.append(detect_result.bbox.xywh)
             confidences.append(float(detect_result.confidence))
             labels.append(detect_result.label)
             detect_results.append(detect_result)

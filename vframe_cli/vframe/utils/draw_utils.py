@@ -232,10 +232,11 @@ def draw_bbox(im, bbox, color=None, stroke=None, expand=None,
   else:
     was_np = False
 
-  bbox = bbox if expand is None else bbox.expand(expand)
 
-  # init font styles and canvas
-  stroke = app_cfg.DEFAULT_STROKE_WEIGHT if stroke is None else stroke
+  # init kwargs
+  bbox = bbox if expand is None else bbox.expand(expand)
+  color = color if color else app_cfg.GREEN
+  stroke = stroke if stroke else app_cfg.DEFAULT_STROKE_WEIGHT
   canvas = ImageDraw.ImageDraw(im)
 
   # draw bbox
@@ -245,10 +246,10 @@ def draw_bbox(im, bbox, color=None, stroke=None, expand=None,
   if label:
     label = label.upper()
     # init font styles
-    color_label = color.get_fg_color() if color_label is None else color_label
-    size_label = app_cfg.DEFAULT_SIZE_LABEL if size_label is None else size_label
+    color_label = color_label if color_label else color.get_fg_color()
+    size_label = size_label if size_label else app_cfg.DEFAULT_SIZE_LABEL
+    padding_label = padding_label if padding_label else int(app_cfg.DEFAULT_PADDING_PER * size_label)
     font = font_mngr.get_font(size_label)
-    padding_label = int(app_cfg.DEFAULT_PADDING_PER * size_label) if padding_label is None else padding_label
     # bbox of label background
     bbox_bg = _bbox_from_text(bbox, label, font, padding_label)
     # check if space permits outer label
@@ -261,7 +262,6 @@ def draw_bbox(im, bbox, color=None, stroke=None, expand=None,
     # point of label origin
     bbox_label = bbox_bg.shift(padding_label, padding_label, -padding_label, -padding_label)
     _draw_text_pil(canvas, label, Point.from_bbox(bbox_label), color_label, font)
-
 
   # cleanup
   del canvas
