@@ -14,7 +14,7 @@
 #
 ################################################################################
 
-caffe-imagenet-bvlc-googlenet:
+imagenet-googlenet:
   name: Caffe ImageNet GoogleNet
   processor: classify
   output: features
@@ -23,7 +23,7 @@ caffe-imagenet-bvlc-googlenet:
   model: bvlc_googlenet.caffemodel
   config: bvlc_googlenet.prototxt
   labels: labels.txt
-  license: LICENSE.txt
+  license: license.txt
   mean: [104, 117, 123]
   scale: 1.0
   width: 224
@@ -36,7 +36,7 @@ caffe-imagenet-bvlc-googlenet:
   allow_resize: False
   active: True
 
-caffe-imagenet-bvlc-alexnet:
+imagenet-alexnet:
   name: Caffe ImageNet AlexNet
   processor: classify
   output: features
@@ -45,7 +45,7 @@ caffe-imagenet-bvlc-alexnet:
   model: bvlc_alexnet.caffemodel
   config: bvlc_alexnet.prototxt
   labels: labels.txt
-  license: LICENSE.txt
+  license: license.txt
   mean: [104, 117, 123]
   scale: 1.0
   width: 224
@@ -58,7 +58,7 @@ caffe-imagenet-bvlc-alexnet:
   allow_resize: False
   active: True
 
-caffe-imagenet-bvlc:
+imagenet-bvlc:
   name: Caffe ImageNet CaffeNet
   processor: classify
   output: features
@@ -67,7 +67,7 @@ caffe-imagenet-bvlc:
   model: bvlc_reference_caffenet.caffemodel
   config: bvlc_reference_caffenet.prototxt
   labels: labels.txt
-  license: LICENSE.txt
+  license: license.txt
   mean: [104, 117, 123]
   scale: 1.0
   width: 224

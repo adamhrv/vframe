@@ -15,7 +15,7 @@
 ################################################################################
 
 
-yolo3-openimages:
+openimages:
   name: YOLOv3 Open Images
   processor: yolo
   output: bbox
@@ -24,7 +24,7 @@ yolo3-openimages:
   model: yolov3-openimages.weights
   config: yolov3-openimages.cfg
   labels: labels.txt
-  license: LICENSE.txt
+  license: license.txt
   layers: ['yolo_82', 'yolo_94', 'yolo_106']
   mean: [0,0,0]
   scale: 0.00392156862745098  # 1/255
@@ -32,6 +32,6 @@ yolo3-openimages:
   height: 608
   rgb: true
   crop: false
-  threshold: 0.85
+  threshold: 0.75
   nms: true
-  allow_resize: True
+  allow_resize: true

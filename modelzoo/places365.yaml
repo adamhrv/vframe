@@ -14,7 +14,7 @@
 #
 ################################################################################
 
-caffe-places365-googlenet:
+places365-googlenet:
   name: Caffe GoogleNet Places365
   origin: https://github.com/CSAILVision/places365
   processor: classify
@@ -24,7 +24,7 @@ caffe-places365-googlenet:
   model: googlenet_places365.caffemodel
   config: googlenet_places365.prototxt
   labels: labels.txt
-  license: LICENSE.txt
+  license: license.txt
   mean: [104, 117, 123]
   scale: 1.0
   width: 224
@@ -37,7 +37,7 @@ caffe-places365-googlenet:
   allow_resize: False
   active: True
 
-caffe-places365-alexnet:
+places365-alexnet:
   name: Caffe AlexNet Places365
   origin: https://github.com/CSAILVision/places365
   processor: classify
@@ -47,7 +47,7 @@ caffe-places365-alexnet:
   model: alexnet_places365.caffemodel
   config: alexnet_places365.prototxt
   labels: labels.txt
-  license: LICENSE.txt
+  license: license.txt
   mean: [104, 117, 123]
   scale: 1.0
   width: 224
@@ -61,7 +61,7 @@ caffe-places365-alexnet:
   active: True
   fit: True
 
-caffe-places365-vgg16:
+places365-vgg16:
   name: Caffe VGG16 Places365
   origin: https://github.com/CSAILVision/places365
   processor: classify
@@ -71,7 +71,7 @@ caffe-places365-vgg16:
   model: vgg16_places365.caffemodel
   config: vgg16_places365.prototxt
   labels: labels.txt
-  license: LICENSE.txt
+  license: license.txt
   mean: [104, 117, 123]
   scale: 1.0
   width: 224
@@ -84,7 +84,14 @@ caffe-places365-vgg16:
   allow_resize: False
   active: True
 
-caffe-places365-imagenet1k-vgg16:
+
+################################################################################
+#
+# Places365 + Imagenet classification
+#
+################################################################################
+
+places365-imagenet-vgg16:
   name: VGG16 ImagNetPlaces1365
   origin: https://github.com/CSAILVision/places365
   processor: classify
@@ -94,7 +101,7 @@ caffe-places365-imagenet1k-vgg16:
   model: vgg16_hybrid1365.caffemodel
   config: vgg16_hybrid1365.prototxt
   labels: labels.txt
-  license: LICENSE.txt
+  license: license.txt
   mean: [104, 117, 123]
   scale: 1.0
   width: 224
