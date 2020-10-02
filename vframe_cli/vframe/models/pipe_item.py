@@ -52,7 +52,7 @@ class PipeContextHeader:
       self._frame_idx_start = 0
       self._frame_idx_end = 0
 
-    elif self.ext == 'mp4':
+    elif self.ext.lower() == 'mp4' or self.ext.lower() == 'mov':
       try:
         self.video = cv.VideoCapture(self.filepath)
         self.video.get(cv.CAP_PROP_FOURCC)
@@ -221,6 +221,8 @@ class PipeFrame:
   def set_image(self, frame_type, im):
     if frame_type == types.FrameImage.ORIGINAL:
       self.im_original = im
+      self.im_draw = self.im_original.copy()
+      self.height, self.width = self.im_original.shape[:2]
     elif frame_type == types.FrameImage.DRAW:
       self.im_draw = im
 
