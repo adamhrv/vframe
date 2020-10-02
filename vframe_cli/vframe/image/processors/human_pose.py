@@ -54,4 +54,4 @@ class HumanPoseProc(DetectionProc):
     pose_result = HumanPoseDetectResult(0, 1.0, bbox_norm, pose_keypoints)
     results.append(rdr)
     
-    return HumanPoseDetectResults(results, 0.0)
+    return HumanPoseDetectResults(results)

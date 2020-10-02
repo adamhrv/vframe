@@ -211,14 +211,12 @@ class ClassifyResults:
   """Container for ClassifyResult items
   """
   classifications: List[ClassifyResult]
-  duration: float=0.0
   task_type: Enum = Processor.CLASSIFICATION
   
 
   def to_dict(self):
     return {
       'classifications': [ d.to_dict() for d in self.classifications ],
-      'duration': float(self.duration),
       'task_type': self.task_type.name.lower(),
     }
 
@@ -230,14 +228,12 @@ class DetectResults:
   """Container for DetectResult items
   """
   detections: List[DetectResult]
-  duration: float=0.0
   task_type: Enum = Processor.DETECTION
   
 
   def to_dict(self):
     return {
       'detections': [ d.to_dict() for d in self.detections ],
-      'duration': float(self.duration),
       'task_type': self.task_type.name.lower(),
     }
 
@@ -256,13 +252,11 @@ class SegmentResults:
   """Container for SegmentResult items
   """
   detections: List[SegmentResult]
-  duration: float=0.0
   task_type: Enum = Processor.SEGMENTATION
   
   def to_dict(self):
     return {
       'detections': [ d.to_dict() for d in self.detections ],
-      'duration': float(self.duration),
       'task_type': self.task_type,
     }
 
@@ -272,13 +266,11 @@ class RotatedDetectResults:
   """Container for RotatatedDetectReusult with 
   """
   detections: List[RotatedDetectResult]
-  duration: float=0.0
   task_type: Enum = Processor.DETECTION_ROTATED
   
   def to_dict(self):
     return {
       'detections': [ d.to_dict() for d in self.detections ],
-      'duration': float(self.duration),
       'task_type': self.task_type,
     }
 
@@ -290,13 +282,11 @@ class HumanPoseDetectResults:
   """Container for HumanPoseDetectResult with 
   """
   detections: List[HumanPoseDetectResult]
-  duration: float=0.0
   task_type: Enum = Processor.DETECTION_POSE
   
   def to_dict(self):
     return {
       'detections': [ d.to_dict() for d in self.detections ],
-      'duration': float(self.duration),
       'task_type': self.task_type,
     }
 

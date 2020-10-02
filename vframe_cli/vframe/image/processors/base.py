@@ -145,7 +145,7 @@ class ClassificationProc(NetProc):
         classify_result = ClassifyResult(idx, preds[idx], self.labels[idx])
         classify_results.append(classify_result)
 
-    return ClassifyResults(classify_results, self._perf_ms())
+    return ClassifyResults(classify_results)
 
 
   def features(self, im):

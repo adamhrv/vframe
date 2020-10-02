@@ -42,12 +42,11 @@ class COCOPoseFaceProc(DetectionProc):
     self._pre_process(im)
     start_time = time.time()
     outs = self.net.forward()
-    perf_ms = time.time() - start_time
-    results = self._post_process(outs, perf_ms)
+    results = self._post_process(outs)
     return results
 
 
-  def _post_process(self, output, perf_ms):
+  def _post_process(self, output):
     """Post process net output for object detection
     """
 
@@ -72,4 +71,4 @@ class COCOPoseFaceProc(DetectionProc):
         detect_result = DetectResult(class_idx, confidence, bbox, label)
         detect_results.append(detect_result)
 
-    return DetectResults(detect_results, self._perf_ms())
+    return DetectResults(detect_results)

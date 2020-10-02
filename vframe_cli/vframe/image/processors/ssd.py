@@ -33,4 +33,4 @@ class SSDProc(DetectionProc):
     if self.dnn_cfg.nms:
       detect_results = self._nms(detect_results, boxes, conf)
 
-    return DetectResults(detect_results, self._perf_ms())
+    return DetectResults(detect_results)

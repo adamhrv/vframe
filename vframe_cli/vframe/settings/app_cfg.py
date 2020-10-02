@@ -148,7 +148,8 @@ if CUDA_ENABLED:
 # -----------------------------------------------------------------------------
 # CLI command opts
 # -----------------------------------------------------------------------------
-DEFAULT_DETECT_MODEL = 'yolov3_coco'
+DEFAULT_DETECT_MODEL = 'coco'
+
 ROTATE_VALS = {
   '0': None,
   '90': cv.ROTATE_90_COUNTERCLOCKWISE,
@@ -158,6 +159,12 @@ ROTATE_VALS = {
   '-270': cv.ROTATE_90_COUNTERCLOCKWISE,
   '270': cv.ROTATE_90_CLOCKWISE,
 }
+
+# -----------------------------------------------------------------------------
+# Haarcascades
+# -----------------------------------------------------------------------------
+DIR_CV2_DATA = join(Path(os.path.dirname(cv.__file__)).parent, 'data')
+DEFAULT_HAARCASCADE = 'frontalface_default'
 
 # -----------------------------------------------------------------------------
 # S3 files
