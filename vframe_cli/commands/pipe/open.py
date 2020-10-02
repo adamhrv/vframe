@@ -67,8 +67,6 @@ def cli(ctx, sink, opt_input, opt_recursive, opt_replace_path, opt_width, opt_he
       log.error(f'No {opt_exts} found in {opt_input}')
       log.info('Use "-e/--ext" option to select different glob extension')
       return
-
-
     items.sort()
 
   elif Path(opt_input).is_file():

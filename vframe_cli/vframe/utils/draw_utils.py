@@ -341,7 +341,6 @@ def draw_text(im, text, pt, color=None, size_text=None, color_text=None,
   return im
 
 
-
 # -----------------------------------------------------------------------------
 #
 # init instances
@@ -349,34 +348,6 @@ def draw_text(im, text, pt, color=None, size_text=None, color_text=None,
 # -----------------------------------------------------------------------------
 
 font_mngr = FontManager()
-
-
-
-# -----------------------------------------------------------------------------
-#
-# junkyard
-#
-# -----------------------------------------------------------------------------
-
-# def draw_text_cv(im, text, pt, size=1.0, color=None):
-#   """Draws degrees as text over image
-#   """
-#   if im_utils.is_pil(im):
-#     im = im_utils.pil2np(im)
-#     was_pil = True
-#   else:
-#     was_pil = False
-
-#   dim = im.shape[:2][::-1]
-#   pt_dim = pt.to_point_dim(dim)
-#   color = app_cfg.GREEN if not color else color
-#   rgb = color.rgb_int
-#   cv.putText(im, text, pt_dim.xy, cv.text_HERSHEY_SIMPLEX, size, rgb, thickness=1, lineType=cv.LINE_AA)
-
-#   if was_pil:
-#     im = im_utils.pil2np(im)
-
-#   return im
 
 
 # -----------------------------------------------------------------------------
