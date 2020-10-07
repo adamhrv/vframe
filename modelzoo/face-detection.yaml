@@ -76,6 +76,33 @@ yoloface:
   allow_resize: True
   active: True
 
+yoloface2:
+  # meta
+  name: YOLO V4 Face Detection with Blur and Cutmix
+  credit: Copyright (c) 2020 Adam Harvey / VFRAME.io
+  # model
+  local: modelzoo/models/darknet/detection/yolo_v4_face_v2/
+  remote: https://download.vframe.io/v2/models/darknet/detection/yolov4_face_v2/
+  model: yolov4_last.weights  # 22500
+  config: yolov4_deploy.cfg
+  labels: labels.txt
+  license: LICENSE.txt
+  layers: ['yolo_139', 'yolo_150', 'yolo_161']
+  mean: [0,0,0]
+  scale: 0.00392156862745098  # 1/255
+  rgb: True
+  crop: False
+  # processor
+  processor: yolo
+  output: bbox
+  width: 800  # 800x800 recommended, use multiple of 32
+  height: 800  # 480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 832, 864, 896, 928, 
+  threshold: 0.8  # use 0.5 for greedy, 0.75 for normal
+  nms_threshold: 0.4
+  nms: True
+  allow_resize: True
+  active: True
+
 
 # -----------------------------------------------------------------------------
 # RetinaFace detector from InsightFace
@@ -155,7 +182,7 @@ poseface:
   rgb: False
   crop: False
   # processor
-  threshold: 0.15
+  threshold: 0.5
   allow_resize: True
   # post processor
   active: True

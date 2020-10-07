@@ -232,6 +232,11 @@ class BBox:
   # Transformations
   # ---------------------------------------------------------------------------
 
+  def to_dim(self, dim):
+    """Sets xyxy into new dimension plane
+    """
+    return self.__class__(self.x1 , self.y1, self.x2, self.y2, *dim) 
+
   def translate(self, x, y):
     """Translates BBox points
     """
@@ -353,7 +358,7 @@ class BBox:
     x1, x2 = (max(0, x1), min(1.0, x2))
     y1, y2 = (max(0, y1), min(1.0, y2))
       
-    return self.__class__(x1,y1,x2,y2)
+    return self.__class__(x1, y1, x2, y2, *self.dim)
   
 
   def square(self):
@@ -363,7 +368,6 @@ class BBox:
       return self
     x1, y1, x2, y2 = self.xyxy
     w, h = self.wh
-    # expand outward
     if w > h:
       # landscape: expand height
       delta = (w - h) / 2
@@ -387,7 +391,17 @@ class BBox:
       delta = (h - w) / 2
       y1 = max(y1 + delta, 0)
       y2 = min(y2 - delta, self.dw)
-    return self.__class__(x1, y1, x2, y2, self.dim)
+    return self.__class__(x1, y1, x2, y2, *self.dim)
+
+
+  def centered(self):
+    """Centers bbox inside bounding dimensions
+    """
+    cx,cy = (self.dw / 2, self.dh / 2)
+    dx, dy = ((self.dw - self.w) / 2), ((self.dh - self.h) / 2)
+    x1,y1,x2,y2 = (cx - self.w / 2, cy - self.h / 2, cx + self.w / 2, cy + self.h / 2)
+    return self.__class__(x1, y1, x2, y2, *self.dim)
+
   
 
   # ---------------------------------------------------------------------------
@@ -447,7 +461,7 @@ class BBox:
   @classmethod
   def from_xywh_norm(cls, x, y, w, h, dw, dh):
     xyxy = tuple(np.array((x, y, x + w, y + h)) * np.array([dw, dh, dw, dh]))
-    return cls(x, y, x + w, y + h, dw, dh)
+    return cls(*xyxy, dw, dh)
 
   @classmethod
   def from_xyxy_norm(cls, x1, y1, x2, y2, dw, dh):

@@ -104,9 +104,12 @@ GRAY = Color.from_rgb_int((127, 127, 127))
 LIGHT_GRAY = Color.from_rgb_int((170, 170, 170))
 DARK_GRAY = Color.from_rgb_int((85, 85, 85))
 
+DEFAULT_TEXT_SIZE = 14
 DEFAULT_STROKE_WEIGHT = 2
 DEFAULT_SIZE_LABEL = 14
 DEFAULT_PADDING_PER = 0.25
+DEFAULT_FONT_NAME = 'roboto'
+DEFAULT_FONT_FP = FP_ROBOTO_400
 
 class TERM_COLORS:
   HEADER = '\033[95m'
@@ -198,6 +201,17 @@ ZERO_PADDING = 6
 UCODE_OK = u"\u2714"  # check ok
 UCODE_NOK = u'\u2718'  # x no ok
 
+LICENSE_HEADER = """############################################################################# 
+#
+# VFRAME
+# MIT License
+# Copyright (c) 2020 Adam Harvey and VFRAME
+# https://vframe.io 
+#
+#############################################################################
+
+"""
+
 
 # -----------------------------------------------------------------------------
 # NVIDIA architectures for NVIDIA GPUs
@@ -225,3 +239,31 @@ try:
 except Exception as e:
   log.error(f'S3 .env variables not set. Can not access models.')
   log.info(f'Edit {fp_env} and add your S3 access keys. Use .env-sample.')
+
+
+
+# -----------------------------------------------------------------------------
+# Synthetic
+# -----------------------------------------------------------------------------
+
+# output files
+FN_METADATA = 'metadata.csv'  # filenamne
+FN_ANNOTATIONS = 'annotations.csv'  # filenamne
+DN_REAL = 'real'  # directory name
+DN_MASK = 'mask'  # directory name
+DN_COMP = 'comp'  # directory name
+DN_BBOX = 'bbox'  # directory name
+DN_IMAGES = 'images'  # directory name for images in concat output
+OUTPUT_FILE_FORMAT = 'PNG'
+
+# -----------------------------------------------------------------------------
+# Blender synthetic
+# -----------------------------------------------------------------------------
+
+FP_BLENDER_BIN = os.getenv('FP_BLENDER_BIN')  # set in .env
+BLENDER_VERSION = os.getenv('BLENDER_VERSION')  # set in .env
+
+# -----------------------------------------------------------------------------
+# Fonts synthetic
+# -----------------------------------------------------------------------------
+

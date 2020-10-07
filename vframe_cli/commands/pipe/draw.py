@@ -55,12 +55,14 @@ color_styles = ['random', 'preset', 'fixed']
 @click.option('--label-index', 'opt_label_index', 
   is_flag=True,
   help='Label padding')
+@click.option('-t', '--threshold', 'opt_threshold', default=0.0,
+  help='Minimum detection confidence to draw')
 @processor
 @click.pass_context
 def cli(ctx, pipe, opt_data_keys, opt_bbox, opt_label, opt_key, opt_conf, 
   opt_mask, opt_rbbox, opt_stroke, opt_size_label, opt_expand, 
   opt_mask_alpha, opt_color_source, opt_color_label, opt_color, opt_padding_label,
-  opt_label_index):
+  opt_label_index, opt_threshold):
   """Draw bboxes, labels, and masks"""
   
   from os.path import join
@@ -142,6 +144,7 @@ def cli(ctx, pipe, opt_data_keys, opt_bbox, opt_label, opt_key, opt_conf,
             label = ': '.join(labels) if labels else None
 
             # draw bbox and optional labeling
+            app_cfg.LOG.debug(bbox)
             im = draw_utils.draw_bbox(im, bbox, color=color,
               stroke=opt_stroke, expand=opt_expand,
               label=label, size_label=opt_size_label, padding_label=opt_padding_label,

@@ -34,10 +34,12 @@ from vframe.utils.click_utils import generator
   help='0-indexed frame number to end on')
 @click.option('--decimate', 'opt_decimate', type=int, default=None,
   help="Number of frames to skip between processing")
+@click.option('--fake-frame', 'opt_fake_frame', is_flag=True,
+  help='Use fake video frame. For data merging')
 @generator
 @click.pass_context
 def cli(ctx, sink, opt_input, opt_recursive, opt_replace_path, opt_width, opt_height, opt_exts, opt_slice,
-  opt_frame_start, opt_frame_end, opt_decimate):
+  opt_frame_start, opt_frame_end, opt_decimate, opt_fake_frame):
   """+ Add images or videos"""
   
   from pathlib import Path
@@ -48,7 +50,7 @@ def cli(ctx, sink, opt_input, opt_recursive, opt_replace_path, opt_width, opt_he
   import cv2 as cv
   from vframe.settings import app_cfg
   from vframe.models.pipe_item import PipeContextHeader, PipeFrame
-  from vframe.utils import file_utils
+  from vframe.utils import file_utils, im_utils
 
   
   # ---------------------------------------------------------------------------
@@ -145,7 +147,11 @@ def cli(ctx, sink, opt_input, opt_recursive, opt_replace_path, opt_width, opt_he
           pbar.close()
           break
 
-        frame_ok, frame = video.read()
+        if opt_fake_frame:
+          # pass a fake video frame through. used for data merging
+          frame_ok, frame = True, im_utils.create_blank_im(*header.dim)
+        else:
+          frame_ok, frame = video.read()
 
         if not frame_ok:
           pbar.close()

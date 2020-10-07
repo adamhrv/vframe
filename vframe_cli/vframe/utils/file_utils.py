@@ -28,6 +28,8 @@ from pathlib import Path
 import dataclasses
 import hashlib
 import logging
+from operator import itemgetter
+from collections import OrderedDict
 
 from dacite import from_dict
 import xmltodict
@@ -282,6 +284,29 @@ def write_csv(data, fp_out, header=None):
         writer.writerow(row)
 
 
+def setup_yaml():
+  """ https://stackoverflow.com/a/8661021 """
+  represent_dict_order = lambda self, data:  self.represent_mapping('tag:yaml.org,2002:map', data.items())
+  yaml.add_representer(OrderedDict, represent_dict_order)    
+
+setup_yaml()
+
+def write_yaml(data, fp, indent=2, comment=None, verbose=False):
+  """Writes YAML file. Use OrderedDict to maintain order.
+  :param fp_out: filepath (str)
+  :param data: (dict) of serialized data
+  :param indent: indent
+  :param comment: (str) add comment header
+  :param verbose: (bool) log output
+  """
+  with open(fp, 'w') as f:
+    if comment:
+      f.write(f'{comment}\n')
+    yaml.dump(data, f, default_flow_style=False, indent=indent)
+  if verbose:
+    log.info(f'Wrote {fp}')
+  
+
 def write_file(data, fp_in, **kwargs):
   ext = get_ext(fp_in)
   if ext == 'json':
@@ -300,6 +325,14 @@ def write_file(data, fp_in, **kwargs):
 # ----------------------------------------------------------------------
 # Helpers
 # ----------------------------------------------------------------------
+
+def sort_dict(d, reverse=True):
+  """Sorts dict by value
+  :param d: (dict) of serialized ata
+  :param reverse: (bool) reverse for ascending
+  :returns (OrderedDict)
+  """
+  return OrderedDict(sorted(d.items(), key=itemgetter(1)))
 
 def timestamp_to_str():
   return datetime.now().strftime("%Y%m%d%H%M%S")

@@ -21,7 +21,7 @@ from vframe.utils.click_utils import processor
 @click.option('--pause/--no-pause', 'opt_pause', is_flag=True, 
   default=True,
   help="Pause between frames")
-@click.option('--autoplay', 'opt_autoplay', is_flag=True,
+@click.option('--auto', 'opt_autoplay', is_flag=True,
   help='Autoplay video')
 @click.option('--frame', 'opt_frame_type', default='draw',
   type=types.FrameImageVar,

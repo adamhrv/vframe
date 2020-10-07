@@ -48,28 +48,28 @@ plugins:
   - name: convert
     description: Conversion utility scripts
     scripts:
-      - filepath: commands/utils/convert
+      - filepath: commands/convert
 
   - name: cvat
     description: CVAT utility scripts
     scripts:
-      - filepath: commands/utils/cvat
+      - filepath: commands/cvat
 
   - name: modelzoo
     description: ModelZoo utility scripts
     scripts:
-      - filepath: commands/utils/modelzoo
+      - filepath: commands/modelzoo
       - filepath: plugins/vframe_modelzoo_plugin/vframe_modelzoo/commands
 
   - name: plot
     description: Data plotting utilities
     scripts:
-      - filepath: commands/utils/plot
+      - filepath: commands/plot
       
   - name: dev
     description: Development, admin utilities
     scripts:
-      - filepath: commands/utils/utils
+      - filepath: commands/utils
 
   # ---------------------------------------------------------------------------
   # Examples, templates

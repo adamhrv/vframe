@@ -47,7 +47,10 @@ def pil2np(im, swap=True):
     return im
   im = np.asarray(im, np.uint8)
   if swap:
-    if im.shape[2] == 4:
+    if len(im.shape) == 2:
+      # grayscale, ignore swap and return current image
+      return im
+    elif len(im.shape) > 2 and im.shape[2] == 4:
       im = bgra2rgba(im)
     elif im.shape[2] == 3:
       im = bgr2rgb(im)
