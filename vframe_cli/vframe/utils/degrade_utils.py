@@ -19,6 +19,12 @@ from vframe.settings import app_cfg
 from vframe.utils import im_utils
 from vframe.models.geometry import BBox
 
+"""
+TODO
+- glitch regions https://github.com/Kareeeeem/jpglitchhttps://github.com/Kareeeeem/jpglitch
+- create standalone version without ranges
+"""
+
 
 log = app_cfg.LOG
 
@@ -71,6 +77,7 @@ def motion_blur_h(im, value_range=(0.25, 0.75), rate=0.5, alpha_range=(0.25, 0.7
   kernel_h[int((k - 1)/2), :] = np.ones(k)  # Fill middle row with ones
   kernel_h /= k  # Normalize
   im_adj = cv.filter2D(im, -1, kernel_h)
+  #im_adj = cv.GaussianBlur(im, (kernel_h,kernel_h), 0, 0, kernel_h)
   # blend
   alpha = random.uniform(*alpha_range)
   im_adj = cv.addWeighted(im, 1.0 - alpha, im_adj, alpha, 1.0)

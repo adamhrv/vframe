@@ -28,7 +28,9 @@ def np2pil(im, swap=True):
     return im
   except:
     if swap:
-      if im.shape[2] == 4:
+      if len(im.shape) == 2:
+        color_mode = 'L'
+      elif im.shape[2] == 4:
         im = bgra2rgba(im)
         color_mode = 'RGBA'
       elif im.shape[2] == 3:
@@ -106,46 +108,112 @@ def crop_roi(im, bbox):
   return im_roi
 
 
-def blur_roi(im, bbox, per=0.33, iters=1):
+def blur(im, bboxes, per=0.33, iters=1):
   """Blur ROI
   :param im: (np.ndarray) image BGR
   :param bbox: (BBox)
   :param cell_size: (int, int) pixellated cell size
   :returns (np.ndarray) BGR image
   """
-  dim = im.shape[:2][::-1]
-  x1, y1, x2, y2 = bbox.xyxy_int
-  im_roi = im[y1:y2, x1:x2]
-  h,w,c = im_roi.shape
-  ksize = int(max(per * w, per * h))
-  ksize = ksize if ksize % 2 else ksize + 1
-  for n in range(iters):
-    im_roi = cv.blur(im_roi, ksize=(ksize,ksize))
-    #im_roi = cv.GaussianBlur(im_roi, (ksize,ksize), 0)
-  im[y1:y2, x1:x2] = im_roi
+  if not bboxes:
+    return im
+  elif not type(bboxes) == list:
+    bboxes = list(bboxes)
+
+  for bbox in bboxes:
+    dim = im.shape[:2][::-1]
+    x1, y1, x2, y2 = bbox.xyxy_int
+    im_roi = im[y1:y2, x1:x2]
+    h,w,c = im_roi.shape
+    ksize = int(max(per * w, per * h))
+    ksize = ksize if ksize % 2 else ksize + 1
+    for n in range(iters):
+      im_roi = cv.blur(im_roi, ksize=(ksize,ksize))
+      #im_roi = cv.GaussianBlur(im_roi, (ksize,ksize), 0)
+    im[y1:y2, x1:x2] = im_roi
   return im
 
 
-def pixellate_roi(im, bbox, cell_size=(1,1)):
-  """Pixellates ROI
-  :param im: (np.ndarray) image BGR
+def pixellate(im, bboxes, cell_size=(5,6), expand_per=0.0):
+  """Pixellates ROI using Nearest Neighbor inerpolation
+  :param im: (numpy.ndarray) image BGR
   :param bbox: (BBox)
   :param cell_size: (int, int) pixellated cell size
-  :returns (np.ndarray) BGR image
+  :returns (numpy.ndarray) BGR image
   """
-  dim = im.shape[:2][::-1]
-  x1, y1, x2, y2 = bbox.xyxy_int
-  im_roi = im[y1:y2, x1:x2]
-  h,w,c = im_roi.shape
-  fw,fh = cell_size
+  if not bboxes:
+    return im
+  elif not type(bboxes) == list:
+    bboxes = list(bboxes)
 
-  #im_roi = resize(im_roi, width=fw, height=fh, interp=cv.INTER_NEAREST, force_fit=True)
-  im_roi = cv.resize(im_roi, cell_size, interpolation=cv.INTER_NEAREST)
-  #im_roi = resize(im_roi, width=w, height=h, interp=cv.INTER_NEAREST, force_fit=True)
-  im_roi = cv.resize(im_roi, (w,h), interpolation=cv.INTER_NEAREST)
-  im[y1:y2, x1:x2] = im_roi
+  for bbox in bboxes:
+    if expand_per > 0:
+      bbox = bbox.expand_per(expand_per)
+    x1,y1,x2,y2 = bbox.xyxy_int
+    im_roi = im[y1:y2, x1:x2]
+    h,w,c = im_roi.shape
+    # pixellate
+    im_roi = cv.resize(im_roi, cell_size, interpolation=cv.INTER_NEAREST)
+    im_roi = cv.resize(im_roi, (w,h), interpolation=cv.INTER_NEAREST)
+    im[y1:y2, x1:x2] = im_roi
+
   return im
 
+
+def circle_blur_soft_edges(im, bboxes, im_ksize=51, mask_ksize=51, 
+  sigma_x=51, sigma_y=None, iters=2):
+  """Blurs ROI using soft edges
+  """
+  if not bboxes:
+    return im
+  elif not type(bboxes) == list:
+    bboxes = list(bboxes)
+  
+  # force kernels odd
+  im_ksize = im_ksize if im_ksize % 2 else im_ksize + 1
+  mask_ksize = mask_ksize if mask_ksize % 2 else mask_ksize + 1
+  sigma_x = sigma_x if sigma_x % 2 else sigma_x + 1
+  sigma_y = sigma_y if sigma_y else sigma_x
+  
+  # mk empty mask
+  h,w,c = im.shape
+  im_mask = np.zeros((h,w))
+  
+  # draw mask shapes
+  for bbox in bboxes:
+    #im_mask = cv.rectangle(im_mask, bbox.p1.xy_int, bbox.p2.xy_int, (255,255,255), -1)
+    #im_mask = cv.circle(im_mask, bbox.cxcy_int, bbox.w,(255,255,255), -1)
+    im_mask = cv.ellipse(im_mask, bbox.cxcy_int, bbox.wh_int, 0, 0, 360, (255,255,255), -1)
+    
+  # use sigma 1/4 size of blur kernel
+  im_blur = cv.GaussianBlur(im, (im_ksize,im_ksize), im_ksize//4, 0, im_ksize//4)
+  im_dst = im.copy()
+
+  for i in range(iters):
+    im_mask = cv.blur(im_mask, ksize=(mask_ksize, mask_ksize))
+    im_mask = cv.GaussianBlur(im_mask, (mask_ksize, mask_ksize), mask_ksize, mask_ksize)
+    im_alpha = im_mask / 255.
+    im_dst = im_alpha[:, :, None] * im_blur + (1 - im_alpha)[:, :, None] * im_dst
+    
+  return (im_dst).astype(np.uint8)
+
+
+def compound_blur_bboxes(im, bboxes, cell_size=(5,7), iters=2, expand_per=-0.15, opt_pixellate=True):
+  """Pixellates and blurs object
+  """
+  if not bboxes:
+    return im
+  elif not type(bboxes) == list:
+    bboxes = list(bboxes)
+
+  k = max([min(b.w_int, b.h_int) for b in bboxes])
+  im_ksize = k // 3  # image blur kernel 
+  mask_ksize = k // 8  # mask blur kernel
+  bboxes_inner = [b.expand_per(expand_per, keep_edges=True) for b in bboxes]
+  if opt_pixellate:
+    im = pixellate(im, bboxes_inner, cell_size=cell_size)
+  im = circle_blur_soft_edges(im, bboxes_inner, im_ksize=im_ksize, mask_ksize=mask_ksize, iters=iters)
+  return im
 
 # -----------------------------------------------------------------------------
 #

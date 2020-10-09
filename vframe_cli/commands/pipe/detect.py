@@ -33,11 +33,12 @@ from vframe.settings import app_cfg
   help='Rotate image this many degrees in counter-clockwise direction before detection')
 @click.option('--phash', 'opt_phash_filter', default=0, type=click.IntRange(0,36),
   help='Perceptual hash to skip similar non-face frames (1 - 4 recommended values)')
+@click.option('--preblur', 'opt_pre_blur', is_flag=True)
 @click.option('--verbose', 'opt_verbose', is_flag=True)
 @processor
 @click.pass_context
-def cli(ctx, pipe, opt_model_enum, opt_data_key, opt_gpu, 
-  opt_dnn_threshold, opt_dnn_size, opt_rotate, opt_phash_filter, opt_verbose):
+def cli(ctx, pipe, opt_model_enum, opt_data_key, opt_gpu, opt_dnn_threshold, 
+  opt_dnn_size, opt_rotate, opt_phash_filter, opt_pre_blur, opt_verbose):
   """Detect objects"""
   
   from os.path import join
@@ -70,7 +71,7 @@ def cli(ctx, pipe, opt_model_enum, opt_data_key, opt_gpu,
   # phash filtering to skip same frames
   im_blank = Image.new('RGB', (100,100), (0,0,0))
   phash_pre = imagehash.phash(im_blank)
-  n_phashes = 5
+  n_phashes = 8
   phashes_pre = n_phashes * [phash_pre]
   objects_found = True  # set True to force detection on first frame
   phash_max = 36
@@ -90,7 +91,9 @@ def cli(ctx, pipe, opt_model_enum, opt_data_key, opt_gpu,
     pipe_item = yield
     header = ctx.obj['header']
     im = pipe_item.get_image(FrameImage.ORIGINAL)
-      
+    
+    if opt_pre_blur:
+      im = cv.bilateralFilter(im, 3, 125, 125, cv.BORDER_DEFAULT);
     phash_same = False
     if opt_phash_filter > 0:
       phash_cur = imagehash.phash(im_utils.np2pil(im))

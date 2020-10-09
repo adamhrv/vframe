@@ -58,7 +58,7 @@ imagenet-alexnet:
   allow_resize: False
   active: True
 
-imagenet-bvlc:
+imagenet-caffenet:
   name: Caffe ImageNet CaffeNet
   processor: classify
   output: features

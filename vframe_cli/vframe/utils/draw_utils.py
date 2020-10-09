@@ -253,7 +253,7 @@ def draw_bbox(im, bbox, color=None, stroke=None, expand=None,
 
 
   # init kwargs
-  bbox = bbox if expand is None else bbox.expand(expand)
+  bbox = bbox if expand is None else bbox.expand_per(expand)
   color = color if color else app_cfg.GREEN
   stroke = stroke if stroke else app_cfg.DEFAULT_STROKE_WEIGHT
   font_name = font_name if font_name else app_cfg.DEFAULT_FONT_NAME

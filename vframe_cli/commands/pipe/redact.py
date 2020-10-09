@@ -12,6 +12,8 @@ import click
 
 from vframe.utils.click_utils import processor
 
+redact_types = ['pixellate', 'blur', 'softblur']
+
 @click.command('')
 @click.option( '-n', '--name', 'opt_data_keys', 
   multiple=True,
@@ -25,12 +27,15 @@ from vframe.utils.click_utils import processor
   show_default=True,
   help='Blur iterations')
 @click.option('--expand', 'opt_expand', 
-  default=0.25,
+  default=0.0,
   show_default=True,
   help='Percentage to expand')
+@click.option('-t', '--type', 'opt_redact_type', type=click.Choice(redact_types),
+  show_default=True,
+  help='Redact type')
 @processor
 @click.pass_context
-def cli(ctx, pipe, opt_data_keys, opt_factor, opt_iters, opt_expand):
+def cli(ctx, pipe, opt_data_keys, opt_factor, opt_iters, opt_expand, opt_redact_type):
   """Blurs BBoxes"""
   
   from vframe.settings import app_cfg
@@ -64,6 +69,8 @@ def cli(ctx, pipe, opt_data_keys, opt_factor, opt_iters, opt_expand):
       data_keys = opt_data_keys
 
     # iterate data keys
+    bboxes = []
+
     for data_key in data_keys:
       
       if data_key not in header.get_data_keys():
@@ -75,13 +82,19 @@ def cli(ctx, pipe, opt_data_keys, opt_factor, opt_iters, opt_expand):
       # blur data
       if item_data:
         for obj_idx, detection in enumerate(item_data.detections):
+          #bbox = detection.bbox.expand_per(opt_expand).redim(dim)
           bbox = detection.bbox.expand_per(opt_expand).redim(dim)
+          bboxes.append(bbox)
 
-          # TODO: handle segmentation mask
-          for i in range(opt_iters):
-            im = im_utils.blur_roi(im, bbox)
+    
+    # blur
+    if opt_redact_type == 'pixellate':
+      im = im_utils.pixellate(im, bboxes)
+    elif opt_redact_type == 'blur':
+      im = im_utils.blur(im, bboxes)
+    elif opt_redact_type == 'softblur':
+      im = im_utils.circle_blur_soft_edges(im, bboxes, iters=opt_iters)
 
-
-      # resume pipe stream    
-      pipe_item.set_image(types.FrameImage.DRAW, im)
-      pipe.send(pipe_item)
+    # resume pipe stream    
+    pipe_item.set_image(types.FrameImage.DRAW, im)
+    pipe.send(pipe_item)

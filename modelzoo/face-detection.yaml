@@ -83,7 +83,7 @@ yoloface2:
   # model
   local: modelzoo/models/darknet/detection/yolo_v4_face_v2/
   remote: https://download.vframe.io/v2/models/darknet/detection/yolov4_face_v2/
-  model: yolov4_last.weights  # 22500
+  model: yolov4_28000.weights  # untested
   config: yolov4_deploy.cfg
   labels: labels.txt
   license: LICENSE.txt

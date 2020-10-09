@@ -144,7 +144,6 @@ def cli(ctx, pipe, opt_data_keys, opt_bbox, opt_label, opt_key, opt_conf,
             label = ': '.join(labels) if labels else None
 
             # draw bbox and optional labeling
-            app_cfg.LOG.debug(bbox)
             im = draw_utils.draw_bbox(im, bbox, color=color,
               stroke=opt_stroke, expand=opt_expand,
               label=label, size_label=opt_size_label, padding_label=opt_padding_label,

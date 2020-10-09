@@ -24,7 +24,7 @@ from vframe.utils import click_utils
 @click.option('-t', '--threads', 'opt_threads', default=2)
 @click.option('-m', '--model', 'opt_model_enum',
   type=types.ModelZooClickVar,
-  default = 'caffe_imagenet_bvlc_alexnet',
+  default = 'imagenet-alexnet',
   help=click_utils.show_help(types.ModelZoo))
 @click.option('--min-width', 'opt_width_min', default=224,
   help='Filter out media below this width')

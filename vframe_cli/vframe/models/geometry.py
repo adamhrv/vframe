@@ -152,52 +152,58 @@ class BBox:
 
   # ---------------------------------------------------------------------------
   # Expanding
+  # - ambiguous. change to scale() and expand_pixels()
   # ---------------------------------------------------------------------------
 
-  def _expand_wh(self, w, h):
+  def _expand_wh(self, w, h, keep_edges=False):
     x1, y1, x2, y2 = list(np.array(self.xyxy) + np.array([-w, -h, w, h]))
+    if keep_edges:
+      x1 = x1 if self.x1_int > 0 else self.x1_int
+      y1 = y1 if self.y1_int > 0 else self.y1_int
+      x2 = x2 if self.x2_int < self.dw else self.x2_int
+      y2 = y2 if self.y2_int < self.dh else self.y2_int
     return self.__class__(x1, y1, x2, y2, *self.dim)
 
 
-  def expand(self, k):
+  def expand_px(self, k, keep_edges=False):
     """Expands by pixels in all directions
     :param k: (int) pixels
     :returns BBox
     """
-    return self._expand_wh(k, k)
+    return self._expand_wh(k, k, keep_edges=keep_edges)
 
 
-  def expand_w(self, k):
-    return self._expand_wh(k, 0)
+  def expand_px_w(self, k, keep_edges=False):
+    return self._expand_wh(k, 0, keep_edges=keep_edges)
 
 
-  def expand_h(self, k):
-    return self._expand_wh(0, k)
+  def expand_px_h(self, k, keep_edges=False):
+    return self._expand_wh(0, k, keep_edges=keep_edges)
 
 
-  def expand_per(self, k):
+  def expand_per(self, k, keep_edges=False):
     """Expands BBox by percentage of current width and height
     :param per: (float) percentage to expand 0.0 - 1.0
     :returns BBox expanded
     """
     w, h = (int(k * self.w), int(k * self.h))
-    return self._expand_wh(w, h)
+    return self._expand_wh(w, h, keep_edges=keep_edges)
 
-  def expand_per_w(self, k):
+  def expand_per_w(self, k, keep_edges=False):
     """Expands BBox by percentage of current width
     :param per: (float) percentage to expand 0.0 - 1.0
     :returns BBox expanded
     """
     w, h = (int(k * self.w), int(k * self.h))
-    return self._expand_wh(w, 0)
+    return self._expand_wh(w, 0, keep_edges=keep_edges)
 
-  def expand_per_h(self, k):
+  def expand_per_h(self, k, keep_edges=False):
     """Expands BBox by percentage of current height
     :param per: (float) percentage to expand 0.0 - 1.0
     :returns BBox expanded
     """
     h = int(k * self.h)
-    return self._expand_wh(0, h)
+    return self._expand_wh(0, h, keep_edges=keep_edges)
 
 
   # ---------------------------------------------------------------------------
@@ -565,9 +571,13 @@ class BBox:
   def cy_norm(self):
     return (self.y1 + (self.height / 2)) / self.dh
   
+  # @property
+  # def cxcy(self):
+  #   return (*self.cx, *self.cy)
+
   @property
-  def cxcy(self):
-    return (*self.cx, *self.cy)
+  def cxcy_int(self):
+    return (self.cx, self.cy)
 
   @property
   def cxcy_norm(self):
@@ -654,7 +664,7 @@ class BBox:
 
   @property
   def wh_int(self):
-    return tuple(map, int, (self.w, self.h))
+    return tuple(map(int, (self.w, self.h)))
 
   @property
   def wh_norm(self):
@@ -694,11 +704,11 @@ class BBox:
 
   @property
   def p1(self):
-    return Point(self.x1, self.y1, self.dim)
+    return Point(self.x1, self.y1, *self.dim)
 
   @property
   def p2(self):
-    return Point(self.x2, self.y2, self.dim)
+    return Point(self.x2, self.y2, *self.dim)
 
 
 
