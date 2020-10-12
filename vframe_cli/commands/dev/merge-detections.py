@@ -42,17 +42,27 @@ def cli(ctx, opt_inputs, opt_output, opt_minify):
   opt_inputs = list(opt_inputs)
   fp_first = opt_inputs.pop(0)
   data =  file_utils.load_json(fp_first)
+  results = {}
 
   # merge 
   for fp_in in tqdm(opt_inputs, desc='Files'):
-    
-    results = file_utils.load_json(fp_in)
 
-    for result_idx, result in enumerate(results):
-      
-      for frame_index, frame_data in result['frames_data'].items():
-        data[result_idx]['frames_data'][frame_index].update(frame_data)
+    # load json
+    detections = file_utils.load_json(fp_in)
+    detections_lkup = {d['filepath']: d for d in detections}
+
+    # add all the current detections to cumulative detections
+    for filepath, result in detections_lkup.items():
+      if not filepath in results.keys():
+          results[filepath] = {'filepath': filepath}
+      for frame_idx, frame_data in result['frames_data'].items():
+        if not 'frames_data' in results[filepath].keys():
+          results[filepath]['frames_data'] = {}
+        if not frame_idx in results[filepath]['frames_data'].keys():
+          results[filepath]['frames_data'][frame_idx] = {}
+        results[filepath]['frames_data'][frame_idx].update(frame_data)
 
   # write
-  file_utils.write_json(data, opt_output, minify=opt_minify)
+  results_out = list(results.values())
+  file_utils.write_json(results_out, opt_output, minify=opt_minify)
 

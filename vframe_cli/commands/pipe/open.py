@@ -45,7 +45,7 @@ def cli(ctx, sink, opt_input, opt_recursive, opt_replace_path, opt_width, opt_he
   from pathlib import Path
   from os.path import join
 
-  from tqdm import tqdm
+  from tqdm import tqdm, trange
   
   import cv2 as cv
   from vframe.settings import app_cfg
@@ -94,14 +94,16 @@ def cli(ctx, sink, opt_input, opt_recursive, opt_replace_path, opt_width, opt_he
   # ---------------------------------------------------------------------------
   # process
 
-  for item in tqdm(items, desc='Files', leave=False):
+  for item_idx in trange(len(items), desc='Files', leave=False):
     
+    item = items[item_idx]
 
     if type(item) == dict:      
       
       # replace parent filepath if optioned
       if opt_replace_path is not None:
-        item['filepath'] = join(opt_replace_path, Path(item['filepath']).name)
+        # replaced place in item data
+        items[item_idx]['filepath'] = join(opt_replace_path, Path(item['filepath']).name)
       
       fp_item = item['filepath']
       if not Path(fp_item).is_file():

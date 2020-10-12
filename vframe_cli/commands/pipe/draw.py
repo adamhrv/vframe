@@ -25,7 +25,7 @@ color_styles = ['random', 'preset', 'fixed']
   help='Draws label')
 @click.option('--data-label/--no-data-label', 'opt_key', is_flag=True, default=False,
   help='Draws data key')
-@click.option('--confidence/--no-confidence', 'opt_conf', is_flag=True, default=False,
+@click.option('--confidence-label/--no-confidence-label', 'opt_conf', is_flag=True, default=False,
   help='Draws confidence score text')
 @click.option('--mask/--no-mask', 'opt_mask', is_flag=True, default=False,
   help='Draws mask (if available)')

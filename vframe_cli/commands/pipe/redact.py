@@ -32,6 +32,7 @@ redact_types = ['pixellate', 'blur', 'softblur']
   help='Percentage to expand')
 @click.option('-t', '--type', 'opt_redact_type', type=click.Choice(redact_types),
   show_default=True,
+  default='softblur',
   help='Redact type')
 @processor
 @click.pass_context
@@ -63,10 +64,7 @@ def cli(ctx, pipe, opt_data_keys, opt_factor, opt_iters, opt_expand, opt_redact_
     dim = im.shape[:2][::-1]
     
     # get data keys
-    if not opt_data_keys:
-      data_keys = header.get_data_keys()
-    else:
-      data_keys = opt_data_keys
+    data_keys = opt_data_keys if opt_data_keys else header.get_data_keys()
 
     # iterate data keys
     bboxes = []
@@ -82,18 +80,18 @@ def cli(ctx, pipe, opt_data_keys, opt_factor, opt_iters, opt_expand, opt_redact_
       # blur data
       if item_data:
         for obj_idx, detection in enumerate(item_data.detections):
-          #bbox = detection.bbox.expand_per(opt_expand).redim(dim)
           bbox = detection.bbox.expand_per(opt_expand).redim(dim)
           bboxes.append(bbox)
 
-    
-    # blur
+    # redact method
     if opt_redact_type == 'pixellate':
       im = im_utils.pixellate(im, bboxes)
     elif opt_redact_type == 'blur':
       im = im_utils.blur(im, bboxes)
     elif opt_redact_type == 'softblur':
-      im = im_utils.circle_blur_soft_edges(im, bboxes, iters=opt_iters)
+      im = im_utils.blur_bbox_soft(im, bboxes, iters=2, expand_per=-0.15, 
+        mask_k_fac=0.25, im_k_fac=0.995, multiscale=True)
+    
 
     # resume pipe stream    
     pipe_item.set_image(types.FrameImage.DRAW, im)

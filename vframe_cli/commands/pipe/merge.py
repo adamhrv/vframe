@@ -20,7 +20,7 @@ from vframe.utils.click_utils import processor
   help="Rename merged data-key to this")
 @click.option('--nms-threshold', 'opt_nms_thresh', default=0.4,
   help='NMS threshold')
-@click.option('--dnn-threshold', 'opt_dnn_thresh', default=0.75,
+@click.option('--dnn-threshold', 'opt_dnn_thresh', default=0.7,
   help='DNN threshold')
 @click.option('--remove/--keep', 'opt_remove_old', is_flag=True,
   default=True,
@@ -57,16 +57,12 @@ def cli(ctx, pipe, opt_data_keys, opt_nms_thresh, opt_dnn_thresh, opt_name, opt_
     pipe_item = yield
     header = ctx.obj['header']
     frame_dim = header.dim
+    data_keys = opt_data_keys if opt_data_keys else header.get_data_keys()
 
     bboxes = []
     confidences = []
     detect_results = []
     labels = []
-
-    if not opt_data_keys:
-      data_keys = header.get_data_keys()
-    else:
-      data_keys = opt_data_keys
 
     for data_key in data_keys:
       

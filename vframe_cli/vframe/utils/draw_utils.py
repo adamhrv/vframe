@@ -235,7 +235,7 @@ def draw_bbox(im, bbox, color=None, stroke=None, expand=None,
   label=None, color_label=None, size_label=None, padding_label=None, font_name=None):
   """Draws BBox on image
   :param im: PIL.Image or numpy.ndarray
-  :param bbox: list(BBox)
+  :param bbox: list(BBox) or (BBox)
   :param color: Color
   :param stroke: int
   :param expand: float percentage
@@ -253,35 +253,37 @@ def draw_bbox(im, bbox, color=None, stroke=None, expand=None,
 
 
   # init kwargs
+  bboxes = bbox if type(bbox) == list else [bbox]
   bbox = bbox if expand is None else bbox.expand_per(expand)
   color = color if color else app_cfg.GREEN
   stroke = stroke if stroke else app_cfg.DEFAULT_STROKE_WEIGHT
   font_name = font_name if font_name else app_cfg.DEFAULT_FONT_NAME
   canvas = ImageDraw.ImageDraw(im)
 
-  # draw bbox
-  _draw_bbox_pil(canvas, bbox, color, stroke)
+  for bbox in bboxes:
+    # draw bbox
+    _draw_bbox_pil(canvas, bbox, color, stroke)
 
-  # draw label-background if optioned
-  if label:
-    label = label.upper()
-    # init font styles
-    color_label = color_label if color_label else color.get_fg_color()
-    size_label = size_label if size_label else app_cfg.DEFAULT_SIZE_LABEL
-    padding_label = padding_label if padding_label else int(app_cfg.DEFAULT_PADDING_PER * size_label)
-    font = font_mngr.get_font(font_name, size_label)
-    # bbox of label background
-    bbox_bg = _bbox_from_text(bbox, label, font, padding_label)
-    # check if space permits outer label
-    if bbox_bg.h > bbox.y1:
-      # move inside
-      bbox_bg = bbox_bg.translate(stroke, bbox_bg.h + stroke)
-    else:
-      bbox_bg = bbox_bg.translate(0, 0 - bbox_bg.h)
-    _draw_bbox_pil(canvas, bbox_bg,  color, -1)
-    # point of label origin
-    bbox_label = bbox_bg.shift(padding_label, padding_label, -padding_label, -padding_label)
-    _draw_text_pil(canvas, label, Point.from_bbox(bbox_label), color_label, font)
+    # draw label-background if optioned
+    if label:
+      label = label.upper()
+      # init font styles
+      color_label = color_label if color_label else color.get_fg_color()
+      size_label = size_label if size_label else app_cfg.DEFAULT_SIZE_LABEL
+      padding_label = padding_label if padding_label else int(app_cfg.DEFAULT_PADDING_PER * size_label)
+      font = font_mngr.get_font(font_name, size_label)
+      # bbox of label background
+      bbox_bg = _bbox_from_text(bbox, label, font, padding_label)
+      # check if space permits outer label
+      if bbox_bg.h > bbox.y1:
+        # move inside
+        bbox_bg = bbox_bg.translate(stroke, bbox_bg.h + stroke)
+      else:
+        bbox_bg = bbox_bg.translate(0, 0 - bbox_bg.h)
+      _draw_bbox_pil(canvas, bbox_bg,  color, -1)
+      # point of label origin
+      bbox_label = bbox_bg.shift(padding_label, padding_label, -padding_label, -padding_label)
+      _draw_text_pil(canvas, label, Point.from_bbox(bbox_label), color_label, font)
 
   # cleanup
   del canvas
