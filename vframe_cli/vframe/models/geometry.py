@@ -238,6 +238,21 @@ class BBox:
   # Transformations
   # ---------------------------------------------------------------------------
 
+
+  def union(self, bboxes):
+    """Merges list of bboxes
+    :param bboxes: (list) or BBox
+    :returns (BBox): of all merged BBoxes
+    """
+    bboxes = bboxes if isinstance(bboxes, list) else [bboxes]
+    bboxes.append(self)
+    x1 = min([b.x1 for b in bboxes])
+    y1 = min([b.y1 for b in bboxes])
+    x2 = max([b.x2 for b in bboxes])
+    y2 = max([b.y2 for b in bboxes])
+    return self.__class__(x1, y1, x2, y2, *self.dim)
+    
+
   def to_dim(self, dim):
     """Sets xyxy into new dimension plane
     """
@@ -414,6 +429,10 @@ class BBox:
   # Comparisons
   # ---------------------------------------------------------------------------
 
+  def is_empty(self):
+    return (self.w == 0 or self.h == 0)
+
+
   def contains_point(self, p2):
     '''Checks if this BBox contains the normalized point
     :param p: (Point)
@@ -422,21 +441,36 @@ class BBox:
     return (p2.x >= self.x1 and p2.x <= self.x2 and p2.y >= self.y1 and p2.y <= self.y2)
 
 
-  def contains_bbox(self, b2):
+  def contains_bbox(self, bb2):
     '''Checks if this BBox fully contains another BBox
     :param b: (BBox)
     :returns (bool)
     '''
-    return (b2.x1 >= self.x1 and b2.x2 <= self.x2 and b2.y1 >= self.y1 and b2.y2 <= self.y2)
+    return (bb2.x1 >= self.x1 and bb2.x2 <= self.x2 and bb2.y1 >= self.y1 and bb2.y2 <= self.y2)
 
 
-  def overlaps(self, b2):
-    """Calculates overlap percentage between another BBox
-    :param b2: BBox
-    :returns percentage as float
+  def intersection(self, bb2):
+    """Creates new BBox of the intersection between two BBoxes. 
+    Returns zero filled BBox if no intersection.
+    :param bb2: BBox
+    :returns (BBox) of where two BBoxes intersected
     """
-    log.warn('Not yet implemented')
-    return 0.0
+    x1 = max(self.x1, bb2.x1)
+    y1 = max(self.y1, bb2.y1)
+    x2 = max(x1, min(self.x2, bb2.x2))
+    y2 = max(y1, min(self.y2, bb2.y2))
+    return self.__class__(x1,y1,x2,y2,*self.dim)
+
+
+  def iou(self, bb2):
+    """Calculates the intersection-over-union of two bounding boxes
+    :param bb2: (BBox)
+    :returns (float): intersection over union between bboxes
+    """
+    bbox_u = self.union(bb2)
+    bbox_x= self.intersection(bb2)
+    iou = 0 if bbox_x.is_empty() else bbox_x.area / bbox_u.area 
+    return iou
 
 
   # ---------------------------------------------------------------------------
