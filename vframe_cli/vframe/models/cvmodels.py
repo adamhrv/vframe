@@ -89,6 +89,7 @@ class DetectResult(ProcessorResult):
   bbox: BBox
   confidence: float
   label: str = ''
+  track: int=0
   
   def to_dict(self):
     return {
@@ -96,6 +97,7 @@ class DetectResult(ProcessorResult):
       'label': self.label,
       'confidence': float(self.confidence),
       'bbox': self.bbox.to_dict(),
+      'track': self.track,
     }
 
 

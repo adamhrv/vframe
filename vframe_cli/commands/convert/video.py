@@ -1,6 +1,6 @@
 ############################################################################# 
 #
-# VFRAME Synthetic Data Generator
+# VFRAME
 # MIT License
 # Copyright (c) 2019 Adam Harvey and VFRAME
 # https://vframe.io 

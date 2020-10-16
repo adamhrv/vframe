@@ -153,6 +153,7 @@ if CUDA_ENABLED:
 # -----------------------------------------------------------------------------
 DEFAULT_DETECT_MODEL = 'coco'
 
+# use CCW rotation where 90 means 90 CCW
 ROTATE_VALS = {
   '0': None,
   '90': cv.ROTATE_90_COUNTERCLOCKWISE,

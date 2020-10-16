@@ -134,7 +134,7 @@ def cli(ctx, pipe, opt_model_enum, opt_data_key, opt_gpu, opt_dnn_threshold,
       # update data
       if results:
         pipe_data = {opt_data_key: results}
-        header.add_data(pipe_data)
+        header.set_data(pipe_data)
     
     # continue processing
     pipe.send(pipe_item)

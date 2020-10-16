@@ -244,6 +244,9 @@ def draw_bbox(im, bbox, color=None, stroke=None, expand=None,
   :param padding_label: int
   """
 
+  if not bbox:
+    return im
+
   # ensure pil format
   if im_utils.is_np(im):
     im = im_utils.np2pil(im)
@@ -251,10 +254,9 @@ def draw_bbox(im, bbox, color=None, stroke=None, expand=None,
   else:
     was_np = False
 
-
   # init kwargs
   bboxes = bbox if type(bbox) == list else [bbox]
-  bbox = bbox if expand is None else bbox.expand_per(expand)
+  bboxes = [b.expand_per(expand) for b in bboxes] if expand is not None else bboxes
   color = color if color else app_cfg.GREEN
   stroke = stroke if stroke else app_cfg.DEFAULT_STROKE_WEIGHT
   font_name = font_name if font_name else app_cfg.DEFAULT_FONT_NAME

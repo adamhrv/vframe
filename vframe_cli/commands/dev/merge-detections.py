@@ -19,8 +19,10 @@ import click
 @click.option('--minify', 'opt_minify', is_flag=True,
   default=False,
   help='Minify JSON')
+@click.option('--replace-path', 'opt_replace_path',
+  help="Replace file parent path")
 @click.pass_context
-def cli(ctx, opt_inputs, opt_output, opt_minify):
+def cli(ctx, opt_inputs, opt_output, opt_replace_path, opt_minify):
   """Merge JSON detections"""
 
   # ------------------------------------------------
@@ -39,30 +41,35 @@ def cli(ctx, opt_inputs, opt_output, opt_minify):
   log = app_cfg.LOG
 
   # load first file
-  opt_inputs = list(opt_inputs)
-  fp_first = opt_inputs.pop(0)
-  data =  file_utils.load_json(fp_first)
-  results = {}
+  merge_results = {}
 
   # merge 
   for fp_in in tqdm(opt_inputs, desc='Files'):
 
     # load json
-    detections = file_utils.load_json(fp_in)
-    detections_lkup = {d['filepath']: d for d in detections}
+    log.debug(f'load: {fp_in}')
+    detection_results = file_utils.load_json(fp_in)
 
     # add all the current detections to cumulative detections
-    for filepath, result in detections_lkup.items():
-      if not filepath in results.keys():
-          results[filepath] = {'filepath': filepath}
-      for frame_idx, frame_data in result['frames_data'].items():
-        if not 'frames_data' in results[filepath].keys():
-          results[filepath]['frames_data'] = {}
-        if not frame_idx in results[filepath]['frames_data'].keys():
-          results[filepath]['frames_data'][frame_idx] = {}
-        results[filepath]['frames_data'][frame_idx].update(frame_data)
+    for detection_result in detection_results:
+        # replaced place in item data
+      if opt_replace_path is not None:
+        detection_result['filepath'] = join(opt_replace_path, Path(detection_result['filepath']).name)
+      filepath = detection_result['filepath']
+      
+      if not filepath in merge_results.keys():
+        merge_results[filepath] = {'filepath': filepath}
+      
+      for frame_idx, frame_data in detection_result['frames_data'].items():
+        if not 'frames_data' in merge_results[filepath].keys():
+          merge_results[filepath]['frames_data'] = {}
+        if not frame_idx in merge_results[filepath]['frames_data'].keys():
+          merge_results[filepath]['frames_data'][frame_idx] = {}
+        
+        for model_name, model_results in frame_data.items():
+          merge_results[filepath]['frames_data'][frame_idx][model_name] = model_results
 
   # write
-  results_out = list(results.values())
+  results_out = list(merge_results.values())
   file_utils.write_json(results_out, opt_output, minify=opt_minify)
 

@@ -63,7 +63,7 @@ def cli(ctx, pipe, opt_data_keys, opt_bbox, opt_label, opt_key, opt_conf,
   opt_mask, opt_rbbox, opt_stroke, opt_size_label, opt_expand, 
   opt_mask_alpha, opt_color_source, opt_color_label, opt_color, opt_padding_label,
   opt_label_index, opt_threshold):
-  """Draw bboxes, labels, and masks"""
+  """Draw bboxes and labels"""
   
   from os.path import join
 
@@ -115,15 +115,18 @@ def cli(ctx, pipe, opt_data_keys, opt_bbox, opt_label, opt_key, opt_conf,
             color = Color.from_rgb_int(opt_color)
           elif opt_color_source == 'preset':
             # TODO: load JSON colors from .yaml
+            # TODO: add tracking ID based colors
             app_cfg.LOG.warn('Not yet implemented')
             color = Color.from_rgb_int((255,0,0))
           
+          # TODO: implement mask-segmentation drawing
           # # draw mask
           # if opt_mask and item_data.task_type == types.Processor.SEGMENTATION:
           #   mask = detection.mask
           #   im = draw_utils.draw_mask(im, bbox, mask, 
           #     color=color, color_weight=opt_mask_alpha)
 
+          # TODO: implement rotated BBox drawing
           # # draw rotated bbox
           # if opt_rbbox and item_data.task_type == types.Processor.DETECTION_ROTATED:
           #   im = draw_utils.draw_rotated_bbox_pil(im, detection.rbbox, 
@@ -149,5 +152,6 @@ def cli(ctx, pipe, opt_data_keys, opt_bbox, opt_label, opt_key, opt_conf,
               label=label, size_label=opt_size_label, padding_label=opt_padding_label,
               )
 
+    # update pipe with modified image
     pipe_item.set_image(types.FrameImage.DRAW, im)
     pipe.send(pipe_item)
