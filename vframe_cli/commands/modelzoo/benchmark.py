@@ -24,8 +24,9 @@ from vframe.utils import click_utils
   help='Filepath to output CSV')
 @click.option('--gpu/--cpu', 'opt_gpu', is_flag=True, default=False,
   help='GPU index, overrides config file')
-@click.option('-s', '--size', 'opt_dnn_size', default=(None, None), type=(int, int),
-  help='DNN blob image size. Overrides config file. TODO add multiple sizes')
+@click.option('-s', '--size', 'opt_dnn_sizes', default=(None, None), type=(int, int),
+  multiple=True,
+  help='DNN blob image size. Overrides config file')
 @click.option('--iters', 'opt_n_iters',
   default=10,
   type=click.IntRange(1,1000),
@@ -35,7 +36,7 @@ from vframe.utils import click_utils
 @click.option('--gpu-name', 'opt_gpu_name', default='',
   help='Type in your GPU name (e.g. RTX 2070)')
 @click.pass_context
-def cli(ctx, opt_model_enums, opt_gpu, opt_dnn_size, 
+def cli(ctx, opt_model_enums, opt_gpu, opt_dnn_sizes, 
   opt_n_iters, opt_fp_in, opt_gpu_name, opt_fp_out):
   """Benchmark models"""
 
@@ -72,39 +73,40 @@ def cli(ctx, opt_model_enums, opt_gpu, opt_dnn_size,
 
   # iterate models
   for model_name in model_names:
-    log.info(f'Benchmark: {model_name}')
-    
-    dnn_cfg = modelzoo_cfg.modelzoo.get(model_name)
-    dnn_cfg.override(gpu=opt_gpu, size=opt_dnn_size)
-    processor = 'gpu' if opt_gpu else 'cpu'
+    for dnn_size in opt_dnn_sizes:
+      log.info(f'Benchmark: {model_name}')
+      
+      dnn_cfg = modelzoo_cfg.modelzoo.get(model_name)
+      dnn_cfg.override(gpu=opt_gpu, size=dnn_size)
+      processor = 'gpu' if opt_gpu else 'cpu'
 
-    # init cvmodel
-    cvmodel = DNNFactory.from_dnn_cfg(dnn_cfg)
-    
-    h,w = im.shape[:2]
-    fps = cvmodel.fps(n_iters=opt_n_iters, im=im)
-    
-    # force height to zero if cfg does not declare
-    if not dnn_cfg.width:
-      dnn_cfg.width = 0
-    if not dnn_cfg.height:
-      dnn_cfg.height = 0
+      # init cvmodel
+      cvmodel = DNNFactory.from_dnn_cfg(dnn_cfg)
+      
+      h,w = im.shape[:2]
+      fps = cvmodel.fps(n_iters=opt_n_iters, im=im)
+      
+      # force height to zero if cfg does not declare
+      if not dnn_cfg.width:
+        dnn_cfg.width = 0
+      if not dnn_cfg.height:
+        dnn_cfg.height = 0
+      
+      o = {
+        'model': model_name,
+        'fps': float(f'{fps:.2f}'),
+        'iterations': opt_n_iters,
+        'image_width': w,
+        'image_height': h,
+        'dnn_width': dnn_cfg.width,
+        'dnn_height': dnn_cfg.height,
+        'processor': processor
+      }
 
-    o = {
-      'model': model_name,
-      'fps': float(f'{fps:.2f}'),
-      'iterations': opt_n_iters,
-      'image_width': w,
-      'image_height': h,
-      'dnn_width': dnn_cfg.width,
-      'dnn_height': dnn_cfg.height,
-      'processor': processor
-    }
+      # append data as a list of dicts
+      benchmarks.append(asdict(from_dict(data=o, data_class=BenchmarkResult)))
 
-    # append data as a list of dicts
-    benchmarks.append(asdict(from_dict(data=o, data_class=BenchmarkResult)))
-
-    log.info(f'FPS: {fps:.2f}, for {opt_n_iters} iterations')
+      log.info(f'FPS: {fps:.2f}, for {opt_n_iters} iterations')
 
   # Write to CSV or print
   if opt_fp_out:
