@@ -50,6 +50,7 @@ def cli(ctx, opt_dir_in, opt_dir_out, opt_recursive, opt_exts, opt_slice, opt_th
   from pathlib import Path
   from dataclasses import asdict
   import shutil
+  import dacite
 
   import imagehash
   import numpy as np
@@ -63,6 +64,7 @@ def cli(ctx, opt_dir_in, opt_dir_out, opt_recursive, opt_exts, opt_slice, opt_th
   from vframe.utils import file_utils, im_utils, draw_utils, model_utils, keyframe_utils
   from vframe.utils import video_utils
   from vframe.models.dnn import DNN
+  from vframe.models.mediameta import KeyframeMediaMeta
   from vframe.image.dnn_factory import DNNFactory
   from vframe.settings.modelzoo_cfg import modelzoo
   from vframe.utils.video_utils import FileVideoStream
@@ -150,10 +152,11 @@ def cli(ctx, opt_dir_in, opt_dir_out, opt_recursive, opt_exts, opt_slice, opt_th
     #w = int(video.get(cv.CAP_PROP_FRAME_WIDTH))  # unreliable attribute
     #h = int(video.get(cv.CAP_PROP_FRAME_HEIGHT))  # unreliable attribute
     frame_ok, frame = video.read()
-    video.set(cv.CAP_PROP_POS_FRAMES, 0)  # rewind
     if not frame_ok:
       log.error(f'Could not read video: {fp_item}')
       return False
+
+    video.set(cv.CAP_PROP_POS_FRAMES, 0)  # rewind
 
     frame_sm = im_utils.resize(frame, width=opt_width)
     h,w,c = frame_sm.shape
@@ -214,14 +217,19 @@ def cli(ctx, opt_dir_in, opt_dir_out, opt_recursive, opt_exts, opt_slice, opt_th
     file_utils.ensure_dir(fp_dir_out)
 
     log.debug(f'Found {len(scene_frame_idxs)} keyframes')
-    # deduplicate across dnn metrics
-    drop_idxs = []
-    #for 
-    #scene_frame_dnn_deltas
 
-    # deduplicate across phash metrics
+    # TODO: deduplicate across dnn metrics
     drop_idxs = []
 
+    # TODO: deduplicate across phash metrics
+    drop_idxs = []
+
+    # write metadata.json
+    keyframe_meta = asdict(meta)
+    keyframe_meta.update({'sha256': sha256})
+    keyframe_meta = asdict(dacite.from_dict(data=keyframe_meta, data_class=KeyframeMediaMeta))
+    fp_out_json = fp_out = join(fp_dir_out, 'metadata.json')
+    file_utils.write_json(keyframe_meta, fp_out_json)
     # seek to frames
     frame_writes_ok = True
     for frame_idx in scene_frame_idxs:
