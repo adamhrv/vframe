@@ -9,39 +9,74 @@ For compatibility and long term support, the Model Zoo aims to only use models t
 
 ## ModelZoo Utility Scripts
 
+List and download models
 ```
 # list modelzoo commands
-./cli.py utils.modelzoo
+./cli.py modelzoo
 
 # list models
-./cli.py utils.modelzoo list
+./cli.py modelzoo list
 
 # list models and group by attribute
-./cli.py utils.modelzoo list -g output
+./cli.py modelzoo list -g output
 
 # download model (models also auto-download)
-./cli.py utils.modelzoo download -m caffe-imagenet-bvlc-alexnet
+./cli.py modelzoo download -m imagenet-alexnet
 
 # download all models
-./cli.py utils.modelzoo download --all
+./cli.py modelzoo download --all
 
+```
+
+Test models
+```
 # run basic inference test
-./cli.py utils.modelzoo test -m caffe-imagenet-bvlc-alexnet
+./cli.py modelzoo test -m imagenet-alexnet
 
 # benchmark model fps
-./cli.py utils.modelzoo fps -m caffe-imagenet-bvlc-alexnet
+./cli.py modelzoo benchmark -m imagenet-alexnet
 
 # benchmark model fps to csv
-./cli.py utils.modelzoo fps -m caffe-imagenet-bvlc-alexnet -o ~/Downloads/fps.csv
+./cli.py modelzoo benchmark -m imagenet-alexnet -o ~/Downloads/benchmark.csv
 
 # benchmark multiple models to csv
-./cli.py utils.modelzoo fps \
-    -m caffe-imagenet-bvlc-alexnet \
-    -m caffe-imagenet-bvlc-googlenet \
-    -m caffe-imagenet-bvlc-googlenet \
-    -m caffe-places365-vgg16 \
-    -m caffe-places365-imagenet1k-vgg16 \
-    -o ~/Downloads/fps.csv
+./cli.py modelzoo benchmark \
+    -m imagenet-alexnet \
+    -m imagenet-googlenet \
+    -m imagenet-googlenet \
+    -m places365-vgg16 \
+    -m places365-imagenet-vgg16 \
+    -o ~/Downloads/benchmark.csv
+```
+
+
+## Benchmarking
+
+![](assets/modelzoo-benchmark-bar.png)*Example bar plot comparing face detector models at multiple sizes*
+
+Multi-model multi-size benchmark bar plot
+```
+# generate data
+./cli.py modelzoo benchmark \
+    -m yoloface \
+    -m ssdface \
+    -m retinaface \
+    --size 600 600 \
+    --size 800 800 \            
+    --size 1024 1024 \
+    -o ~/Downloads/benchmark.csv
+
+# plot
+/cli.py modelzoo plot-benchmark -i ~/Downloads/benchmark.csv --type bar -f --xlabel-size 10
+```
+
+
+![](assets/modelzoo-benchmark-line.png)*Example line plot comparing face detector models at multiple sizes*
+
+```
+# NB: if using YOLO models add the "--user-size" flag
+# this avoids size discrepancies caused by YOLO auto-adjusting DNN inference sizes
+./cli.py modelzoo plot-benchmark -i ~/Downloads/benchmark.csv --type line -f --xlabel-size 10 --user-size
 ```
 
 
@@ -51,10 +86,10 @@ Config files for object detection will need the unconnected layers. Run the laye
 
 ```
 # object detection connected layers
-./cli.py utils.modelzoo layers -m yolo3-coco --type unconnected
+./cli.py modelzoo layers -m coco --type unconnected
 
 # image classification unconnected layers
-./cli.py utils.modelzoo layers -m caffe-places365-googlenet --type connected
+./cli.py modelzoo layers -m places365-googlenet --type connected
 ```
 
 
@@ -68,7 +103,7 @@ Config files for object detection will need the unconnected layers. Run the laye
 If you want to host your own Model Zoo distribution server, use the upload script to synchronize models to your S3 server:
 ```
 # upload (requires S3 account credentials in your .env)
-./cli.py upload -m caffe-imagenet-bvlc-alexnet
+./cli.py upload -m imagenet-alexnet
 ```
 
 
