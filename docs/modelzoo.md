@@ -52,7 +52,7 @@ Test models
 
 ## Benchmarking
 
-![](assets/modelzoo-benchmark-bar.png)*Example bar plot comparing face detector models at multiple sizes*
+![](assets/modelzoo-benchmark-bar.png)*Example bar plot comparing face detector models at multiple sizes using GTX 1080 Ti*
 
 Multi-model multi-size benchmark bar plot
 ```
@@ -71,7 +71,7 @@ Multi-model multi-size benchmark bar plot
 ```
 
 
-![](assets/modelzoo-benchmark-line.png)*Example line plot comparing face detector models at multiple sizes*
+![](assets/modelzoo-benchmark-line.png)*Example line plot comparing face detector models at multiple sizes using GTX 1080 Ti*
 
 ```
 # NB: if using YOLO models add the "--user-size" flag
@@ -79,6 +79,21 @@ Multi-model multi-size benchmark bar plot
 ./cli.py modelzoo plot-benchmark -i ~/Downloads/benchmark.csv --type line -f --xlabel-size 10 --user-size
 ```
 
+![](assets/modelzoo-benchmark-classification.png)*Example bar plot comparing classification models using GTX 1080 Ti*
+```
+/cli.py modelzoo benchmark \
+    -m imagenet-caffenet \
+    -m imagenet-alexnet \
+    -m imagenet-googlenet \
+    -m places365-googlenet \
+    -m places365-alexnet \
+    -m places365-vgg16 \
+    -m places365-imagenet-vgg16 \
+    --iters 50 \
+    -o ~/Downloads/benchmark.csv
+
+/cli.py modelzoo plot-benchmark -i ~/Downloads/benchmark.csv --type bar -f --xlabel-size 9
+```
 
 ## Adding new models:
 

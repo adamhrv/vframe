@@ -26,7 +26,7 @@ from vframe.utils import click_utils
   default=True, show_default=True,
   help='Use GPU')
 @click.option('-s', '--size', 'opt_dnn_sizes', type=(int, int),
-  default=(None, None), show_default=True,
+  default=[(0, 0)], show_default=True,
   multiple=True,
   help='DNN blob image size. Overrides config file')
 @click.option('--iters', 'opt_n_iters',
@@ -65,7 +65,7 @@ def cli(ctx, opt_model_enums, opt_gpu, opt_dnn_sizes,
 
   model_names = [x.name.lower() for x in opt_model_enums]
   
-  # init ars
+  # init args
   benchmarks = []
 
   # input image
@@ -77,7 +77,11 @@ def cli(ctx, opt_model_enums, opt_gpu, opt_dnn_sizes,
       log.info(f'Benchmark: {model_name}')
       
       dnn_cfg = modelzoo_cfg.modelzoo.get(model_name)
-      dnn_cfg.override(gpu=opt_gpu, size=dnn_size)
+      dnn_cfg.override(gpu=opt_gpu)
+      if all(dnn_size):
+        # override if non-zero
+        dnn_cfg.override(size=dnn_size)
+      
       processor = 'gpu' if opt_gpu else 'cpu'
 
       # init cvmodel

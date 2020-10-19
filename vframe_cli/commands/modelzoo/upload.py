@@ -19,6 +19,7 @@ from vframe.utils.click_utils import show_help
 @click.command('')
 @click.option('-m', '--model', 'opt_model_enum', 
   type=ModelZooClickVar,
+  multiple=True,
   help=show_help(ModelZoo))
 @click.option('--all', 'opt_all', is_flag=True,
   help='Sync all models')
@@ -51,7 +52,7 @@ def cli(ctx, opt_model_enum, opt_all):
   if opt_all:
     model_list = list(modelzoo.keys())
   elif opt_model_enum:
-    model_list = [opt_model_enum.name.lower()]
+    model_list = [x.name.lower() for x in opt_model_enum]
   else:
     log.error('Model required "-m/--model"')
     log.info(list(modelzoo.keys()))
