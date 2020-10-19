@@ -255,12 +255,12 @@ class PipeContextHeader:
         if task_type == 'detection':
           outputs['task_type'] = types.Processor.DETECTION  # FIXME
           d = dacite.from_dict(data=outputs, data_class=DetectResults)
-          pipe_item.add_data({data_key: d})
+          pipe_item.set_data({data_key: d})
           
         elif task_type == 'classification':
           outputs['task_type'] = types.Processor.CLASSIFICATION  # FIXME
           d = dacite.from_dict(data=outputs, data_class=ClassifyResults)
-          pipe_item.add_data({data_key: d})
+          pipe_item.set_data({data_key: d})
 
     return pipe_item
 

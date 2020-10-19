@@ -22,7 +22,6 @@ coco:
   remote: https://download.vframe.io/v2/models/darknet/detection/yolo_v4_coco/
   model: yolov4.weights
   config: yolov4.cfg
-  labels: labels.txt
   layers: ['yolo_139', 'yolo_150', 'yolo_161']
   mean: [0,0,0]
   scale: 0.00392156862745098  # 1/255
@@ -42,7 +41,6 @@ coco-yolov3:
   remote: https://download.vframe.io/v2/models/darknet/detection/yolo_v3_coco/
   model: yolov3.weights
   config: yolov3.cfg
-  labels: labels.txt
   layers: ['yolo_82', 'yolo_94', 'yolo_106']
   mean: [0,0,0]
   scale: 0.00392156862745098  # 1/255

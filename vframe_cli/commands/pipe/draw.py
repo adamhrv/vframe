@@ -39,7 +39,7 @@ color_styles = ['random', 'preset', 'fixed']
 @click.option('--mask-alpha', 'opt_mask_alpha', default=0.6,
   help='Mask color weight')
 @click.option('-c', '--color', 'opt_color', 
-  type=(int, int, int), default=(None, None, None),
+  type=(int, int, int), default=(0, 0, 255),
   help='Color in RGB int (eg 0 255 0)')
 @click.option('--color-source', 'opt_color_source', default='random', 
   type=click.Choice(color_styles),
