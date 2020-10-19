@@ -19,11 +19,12 @@ import click
 @click.option('-e', '--exts', 'opt_exts', default=['jpg', 'jpeg', 'png'],
   multiple=True,
   help='Extensions to glob for')
+@click.option('-t', '--threads', 'opt_threads', default=0)
 @click.option('--confirm', 'opt_confirm', is_flag=True,
   default=False,
   help='Dry run or confirm rename')
 @click.pass_context
-def cli(ctx, opt_input, opt_slice, opt_exts, opt_confirm):
+def cli(ctx, opt_input, opt_slice, opt_exts, opt_threads, opt_confirm):
   """Rename files"""
 
   """
@@ -38,8 +39,11 @@ def cli(ctx, opt_input, opt_slice, opt_exts, opt_confirm):
   from os.path import join
   from pathlib import Path
   from urllib.parse import unquote
-  from tqdm import tqdm
   import shutil
+
+  from tqdm import tqdm
+  from pathos.multiprocessing import ProcessingPool as Pool
+  from pathos.multiprocessing import cpu_count
 
   from vframe.utils import file_utils
   from vframe.utils.url_utils import download_url
@@ -49,6 +53,25 @@ def cli(ctx, opt_input, opt_slice, opt_exts, opt_confirm):
   # start
 
   log = app_cfg.LOG
+
+  # set N threads
+  if not opt_threads:
+    opt_threads = cpu_count()  # maximum
+
+
+  # -----------------------------------------------------------
+  # start pool worker
+
+  def pool_worker(pool_item):
+    fp = pool_item['fp']
+    sha256 = file_utils.sha256(fp)
+    ext = Path(fp).suffix
+    fp_sha256 = join(opt_input, f'{sha256}{ext}')
+    shutil.move(fp, fp_sha256)
+    return {'result': True}
+
+  # end pool worker
+  # -----------------------------------------------------------
 
   # glob files
   fp_items = file_utils.glob_multi(opt_input, exts=opt_exts)
@@ -66,9 +89,11 @@ def cli(ctx, opt_input, opt_slice, opt_exts, opt_confirm):
     log.warn('Add the "--confirm" option to rename files. This can\'t be undone')
     return
 
-  # rename
-  for fp_item in tqdm(fp_items, desc='Files'):
-    sha256 = file_utils.sha256(fp_item)
-    ext = Path(fp_item).suffix
-    fp_sha256 = join(opt_input, f'{sha256}{ext}')
-    shutil.move(fp_item, fp_sha256)
+  # convert file list into object with 
+  pool_items = [{'fp': fp} for fp in fp_items]
+
+  # init processing pool iterator
+  # use imap instead of map via @hkyi Stack Overflow 41920124
+  desc = f'Rename SHA256 x{opt_threads}'
+  with Pool(opt_threads) as p:
+    pool_results = list(tqdm(p.imap(pool_worker, pool_items), total=len(pool_items), desc=desc))
