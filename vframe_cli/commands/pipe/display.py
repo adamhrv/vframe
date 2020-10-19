@@ -59,7 +59,7 @@ def cli(ctx, pipe, opt_delay, opt_pause, opt_autoplay, opt_frame_type):
     header = ctx.obj['header']
 
     # if first video or new video, set frame delay based on video fps
-    if (opt_autoplay and not frame_delay) or (header.frame_index == header.frame_end):
+    if (opt_autoplay and not frame_delay) or (header.frame_index == header.last_frame_index):
       try:
         mspf =  int(header.mspf)  # milliseconds per frame
       except Exception as e:

@@ -33,13 +33,6 @@ from vframe.utils.click_utils import processor
 def cli(ctx, pipe, opt_text, opt_x, opt_y, opt_color, opt_font_size,
   opt_bg, opt_color_bg, opt_padding_text):
   """Add text caption"""
-  
-  """
-  TODO: 
-  - add background
-  """
-
-  import cv2 as cv
 
   from vframe.settings import app_cfg
   from vframe.models import types
@@ -49,7 +42,7 @@ def cli(ctx, pipe, opt_text, opt_x, opt_y, opt_color, opt_font_size,
   
   # ---------------------------------------------------------------------------
   # initialize
-
+  
   color_text = Color.from_rgb_int(opt_color)
   color_bg = Color.from_rgb_int(opt_color_bg)
 

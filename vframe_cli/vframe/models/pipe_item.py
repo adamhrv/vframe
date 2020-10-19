@@ -97,7 +97,7 @@ class PipeContextHeader:
   # ---------------------------------------------------------------------------
 
   @property
-  def first_frame(self):
+  def first_frame_index(self):
     """Returns the 0-based index of first frame
     :returns (int) first frame number index
     """

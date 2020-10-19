@@ -136,16 +136,16 @@ def cli(ctx, sink, opt_input, opt_recursive, opt_replace_path, opt_width, opt_he
 
       # init video
       header.set_frame_min_max(opt_frame_start, opt_frame_end, opt_decimate)
-      if header.frame_start is not None:
-        video.set(cv.CAP_PROP_POS_FRAMES, header.frame_start)
-        header.set_frame_index(header.frame_start)
+      if header.first_frame_index is not None:
+        video.set(cv.CAP_PROP_POS_FRAMES, header.first_frame_index)
+        header.set_frame_index(header.first_frame_index)
 
-      n_frames = header.frame_end - (header.frame_start)
-      pbar = tqdm(total=n_frames, desc=header.filename, initial=header.frame_start, leave=False)
+      n_frames = header.last_frame_index - (header.first_frame_index)
+      pbar = tqdm(total=n_frames, desc=header.filename, initial=header.first_frame_index, leave=False)
 
       while video.isOpened():
 
-        if header.frame_index > header.frame_end:
+        if header.frame_index > header.last_frame_index:
           pbar.close()
           break
 
