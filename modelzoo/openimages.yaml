@@ -23,8 +23,6 @@ openimages:
   remote: https://download.vframe.io/v2/models/darknet/detection/yolo_v3_openimages/
   model: yolov3-openimages.weights
   config: yolov3-openimages.cfg
-  labels: labels.txt
-  license: license.txt
   layers: ['yolo_82', 'yolo_94', 'yolo_106']
   mean: [0,0,0]
   scale: 0.00392156862745098  # 1/255

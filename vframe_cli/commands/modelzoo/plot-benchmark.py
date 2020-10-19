@@ -37,9 +37,16 @@ plot_types = ['bar', 'line']
   help="Sort")
 @click.option('-f', '--force', 'opt_force', is_flag=True,
   help="Overwrite file")
+@click.option('--xlabel-size', 'opt_xlabel_size', default=12)
+@click.option('--ylabel-size', 'opt_ylabel_size', default=12)
+@click.option('--title-size', 'opt_title_size', default=18)
+@click.option('--user-size/--dnn-size', 'opt_user_size', is_flag=True,
+  help='Group results using user-supplied size instead of actual DNN. \
+  Helpful when using YOLO models which require size intervals')
 @click.pass_context
 def cli(ctx, opt_input, opt_output, opt_plot_type, opt_dpi, opt_figsize, 
-  opt_prefix, opt_title, opt_sort, opt_force):
+  opt_prefix, opt_title, opt_sort, opt_force, 
+  opt_xlabel_size, opt_ylabel_size, opt_title_size, opt_user_size):
   """Plot benchmark FPS results"""
 
   # ------------------------------------------------
@@ -77,6 +84,20 @@ def cli(ctx, opt_input, opt_output, opt_plot_type, opt_dpi, opt_figsize,
   # set styles
   set_matplotlib_style(plt)
 
+  #plt.rcParams['font.family'] = 'sans-serif'
+  #plt.rcParams['font.serif'] = 'Helvetica'
+  #plt.rcParams['font.monospace'] = 'Andale Mono'
+  #plt.rcParams['font.size'] = 14
+  #plt.rcParams['axes.labelsize'] = 14
+  #plt.rcParams['axes.labelweight'] = 'bold'
+  #plt.rcParams['axes.titlepad'] = 20
+  #plt.rcParams['axes.labelpad'] = 14
+  #plt.rcParams['axes.titlesize'] = opt_title_size
+  plt.rcParams['xtick.labelsize'] = opt_xlabel_size
+  plt.rcParams['ytick.labelsize'] = opt_ylabel_size
+  #plt.rcParams['legend.fontsize'] = 12
+  #plt.rcParams['figure.titlesize'] = 16
+
   # labels
   opencv_ver = df.opencv_version.values[0]
   processor = 'GPU' if df.processor.values[0] == 'gpu' else 'GPU'
@@ -95,7 +116,10 @@ def cli(ctx, opt_input, opt_output, opt_plot_type, opt_dpi, opt_figsize,
     # proprocess
     items = {}
     for i, row in df.iterrows():
-      label = f'{row.model}: {row.dnn_width}x{row.dnn_height}'
+      if opt_user_size:
+        label = f'{row.model}: {row.user_width}x{row.user_height}'
+      else:
+        label = f'{row.model}: {row.dnn_width}x{row.dnn_height}'
       items[label] = row.fps
 
     if opt_sort:
@@ -116,7 +140,10 @@ def cli(ctx, opt_input, opt_output, opt_plot_type, opt_dpi, opt_figsize,
       values = group.fps.values
       ymax = max(ymax, max(values))
       for i, row in group.iterrows():
-        label = f'{row.dnn_width}x{row.dnn_height}'
+        if opt_user_size:
+          label = f'{row.user_width}x{row.user_height}'
+        else:
+          label = f'{row.dnn_width}x{row.dnn_height}'
         items[label] = row.fps
 
       if opt_sort:

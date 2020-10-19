@@ -23,8 +23,6 @@ places365-googlenet:
   remote: https://download.vframe.io/v2/models/caffe/classification/places365/googlenet_places365/
   model: googlenet_places365.caffemodel
   config: googlenet_places365.prototxt
-  labels: labels.txt
-  license: license.txt
   mean: [104, 117, 123]
   scale: 1.0
   width: 224
@@ -46,8 +44,6 @@ places365-alexnet:
   remote: https://download.vframe.io/v2/models/caffe/classification/places365/alexnet_places365/
   model: alexnet_places365.caffemodel
   config: alexnet_places365.prototxt
-  labels: labels.txt
-  license: license.txt
   mean: [104, 117, 123]
   scale: 1.0
   width: 224
@@ -70,8 +66,6 @@ places365-vgg16:
   remote: https://download.vframe.io/v2/models/caffe/classification/places365/vgg16_places365/
   model: vgg16_places365.caffemodel
   config: vgg16_places365.prototxt
-  labels: labels.txt
-  license: license.txt
   mean: [104, 117, 123]
   scale: 1.0
   width: 224
@@ -100,8 +94,6 @@ places365-imagenet-vgg16:
   remote: https://download.vframe.io/v2/models/caffe/classification/places365/vgg16_hybrid1365/
   model: vgg16_hybrid1365.caffemodel
   config: vgg16_hybrid1365.prototxt
-  labels: labels.txt
-  license: license.txt
   mean: [104, 117, 123]
   scale: 1.0
   width: 224

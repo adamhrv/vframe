@@ -23,7 +23,6 @@ coco:
   model: yolov4.weights
   config: yolov4.cfg
   labels: labels.txt
-  license: LICENSE.txt
   layers: ['yolo_139', 'yolo_150', 'yolo_161']
   mean: [0,0,0]
   scale: 0.00392156862745098  # 1/255
@@ -44,7 +43,6 @@ coco-yolov3:
   model: yolov3.weights
   config: yolov3.cfg
   labels: labels.txt
-  license: LICENSE.txt
   layers: ['yolo_82', 'yolo_94', 'yolo_106']
   mean: [0,0,0]
   scale: 0.00392156862745098  # 1/255

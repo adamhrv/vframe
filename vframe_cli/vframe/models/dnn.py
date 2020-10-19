@@ -33,7 +33,7 @@ class DNN:
   allow_resize: bool=False
   # model file locations
   config: str=''  # filename prototxt, pbtxt, .cfg, etc
-  labels: str = ''  # filename path to labels.txt line-delimeted
+  labels: str = 'labels.txt'  # filename path to labels.txt line-delimeted
   # preprocessing
   mean: List[float] = field(default_factory=lambda: [])
   scale: float=0.0
@@ -55,7 +55,7 @@ class DNN:
   # metadata
   credit: str=''  # how credit should be displayed
   repo: str=''  # author/repo URL
-  license: str=''  # filepath to license
+  license: str='LICENSE.txt'  # filepath to license
   license_tag: str=''  # eg "mit", see https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository#choosing-the-right-license
 
   model_exists: bool=False
@@ -71,6 +71,8 @@ class DNN:
     self.model_exists = Path(join(self.local, self.model)).is_file()
     self.config_exists = Path(join(self.local, self.config)).is_file()
     self.labels_exist = Path(join(self.local, self.labels)).is_file()
+    if not self.labels_exist:
+      self.labels = ''
     self.license_exists = Path(join(self.local, self.license)).is_file()
 
     # model

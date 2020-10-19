@@ -40,7 +40,8 @@ class BenchmarkResult:
   image_height: int
   dnn_width: int
   dnn_height: int
-
+  user_width: int=None
+  user_height: int=None
   processor: str=''
   opencv_version: str=''
   python_version: str=''
@@ -48,6 +49,10 @@ class BenchmarkResult:
   def __post_init__(self):
     self.opencv_version = cv.__version__
     self.python_version = sys.version.split(' ')[0]
+    if not self.user_width:
+      self.user_width = self.dnn_width
+    if not self.user_height:
+      self.user_height = self.dnn_height
 
 
 

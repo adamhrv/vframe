@@ -22,22 +22,22 @@ from vframe.utils import click_utils
   help=click_utils.show_help(types.ModelZoo))
 @click.option('-o', '--output', 'opt_fp_out',
   help='Filepath to output CSV')
-@click.option('--gpu/--cpu', 'opt_gpu', is_flag=True, default=False,
-  help='GPU index, overrides config file')
-@click.option('-s', '--size', 'opt_dnn_sizes', default=(None, None), type=(int, int),
+@click.option('--gpu/--cpu', 'opt_gpu', is_flag=True, 
+  default=True, show_default=True,
+  help='Use GPU')
+@click.option('-s', '--size', 'opt_dnn_sizes', type=(int, int),
+  default=(None, None), show_default=True,
   multiple=True,
   help='DNN blob image size. Overrides config file')
 @click.option('--iters', 'opt_n_iters',
-  default=10,
+  default=10, show_default=True,
   type=click.IntRange(1,1000),
   help='Number of iterations')
 @click.option('-i', '--input', 'opt_fp_in',
   help='Path to input image')
-@click.option('--gpu-name', 'opt_gpu_name', default='',
-  help='Type in your GPU name (e.g. RTX 2070)')
 @click.pass_context
 def cli(ctx, opt_model_enums, opt_gpu, opt_dnn_sizes, 
-  opt_n_iters, opt_fp_in, opt_gpu_name, opt_fp_out):
+  opt_n_iters, opt_fp_in, opt_fp_out):
   """Benchmark models"""
 
 
@@ -69,7 +69,7 @@ def cli(ctx, opt_model_enums, opt_gpu, opt_dnn_sizes,
   benchmarks = []
 
   # input image
-  im = cv.imread(opt_fp_in) if opt_fp_in else im_utils.create_blank_im(640, 480)
+  im = cv.imread(opt_fp_in) if opt_fp_in else im_utils.create_random_im(640, 480)
 
   # iterate models
   for model_name in model_names:
@@ -100,6 +100,8 @@ def cli(ctx, opt_model_enums, opt_gpu, opt_dnn_sizes,
         'image_height': h,
         'dnn_width': dnn_cfg.width,
         'dnn_height': dnn_cfg.height,
+        'user_width': dnn_size[0],
+        'user_height': dnn_size[1],
         'processor': processor
       }
 

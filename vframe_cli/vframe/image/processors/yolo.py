@@ -27,9 +27,13 @@ class YOLOProc(DetectionProc):
 
     if cfg.width % 32:
       wh = int(round(cfg.width / 32)) * 32
-      cfg.width = wh
-      cfg.height = wh
-      self.log.warn(f'YOLO width and height must be multiple of 32. Setting to: {wh}')
+    elif cfg.height % 32:
+      wh = int(round(cfg.height / 32)) * 32
+    else:
+      wh = None
+    if wh:
+      cfg.override(size=(wh, wh))
+      self.log.warn(f'YOLO width and height must be multiple of 32. Using width scale to: {wh}')
 
     self.frame_dim_orig = im.shape[:2][::-1]
     im = im_utils.resize(im, width=cfg.width, height=cfg.height, force_fit=cfg.fit)
