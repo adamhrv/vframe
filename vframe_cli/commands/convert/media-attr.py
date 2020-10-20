@@ -20,7 +20,7 @@ import click
   help='Slice list of files')
 @click.option('-f', '--force', 'opt_force', is_flag=True, 
   help='Overwrite current file')
-@click.option('-t', '--threads', 'opt_threads', default=0)
+@click.option('-t', '--threads', 'opt_threads', default=None, type=int)
 @click.pass_context
 def cli(ctx, opt_dir_in, opt_fp_out, opt_recursive, opt_exts, opt_slice, opt_force, opt_threads):
   """Create mediainfo metadata header CSV"""
@@ -40,7 +40,7 @@ def cli(ctx, opt_dir_in, opt_fp_out, opt_recursive, opt_exts, opt_slice, opt_for
   from pathos.multiprocessing import cpu_count
   
   from vframe.settings import app_cfg
-  from vframe.utils import log_utils, file_utils, video_utils
+  from vframe.utils import file_utils, video_utils
 
   log = app_cfg.LOG
 
@@ -59,11 +59,14 @@ def cli(ctx, opt_dir_in, opt_fp_out, opt_recursive, opt_exts, opt_slice, opt_for
 
   log.info(f'Processing: {len(fp_items):,} videos')
 
+  # -----------------------------------------------------------
+  # start pool worker
 
-  # multithreaded worker
   def pool_worker(fp_item):
     return video_utils.mediainfo(fp_item)
 
+  # end pool worker
+  # -----------------------------------------------------------
 
   # Multiprocess/threading use imap instead of map via @hkyi Stack Overflow 41920124
   with Pool(opt_threads) as p:
@@ -87,7 +90,7 @@ def cli(ctx, opt_dir_in, opt_fp_out, opt_recursive, opt_exts, opt_slice, opt_for
     fp_out_bad = opt_fp_out.replace('.csv', '_errors.csv')
     pd.DataFrame.from_dict(errors).to_csv(fp_out_bad, index=False)
 
-  # 
+  # status
   log.info(f'Processed {len(fp_items):,}')
   log.info(f'Valid: {len(records):,}, Errors: {len(errors):,}')
     

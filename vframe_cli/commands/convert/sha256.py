@@ -19,26 +19,19 @@ import click
 @click.option('-e', '--exts', 'opt_exts', default=['jpg', 'jpeg', 'png'],
   multiple=True,
   help='Extensions to glob for')
-@click.option('-t', '--threads', 'opt_threads', default=0)
+@click.option('-t', '--threads', 'opt_threads', default=None, type=int)
 @click.option('--confirm', 'opt_confirm', is_flag=True,
   default=False,
   help='Dry run or confirm rename')
 @click.pass_context
 def cli(ctx, opt_input, opt_slice, opt_exts, opt_threads, opt_confirm):
-  """Rename files"""
-
-  """
-  TODO
-  - add suffix, prefix, numerical
-  - multiprocessor
-  """
+  """Rename files to SHA256"""
 
   # ------------------------------------------------
   # imports
 
   from os.path import join
   from pathlib import Path
-  from urllib.parse import unquote
   import shutil
 
   from tqdm import tqdm
@@ -46,7 +39,6 @@ def cli(ctx, opt_input, opt_slice, opt_exts, opt_threads, opt_confirm):
   from pathos.multiprocessing import cpu_count
 
   from vframe.utils import file_utils
-  from vframe.utils.url_utils import download_url
   from vframe.settings import app_cfg
 
   # ------------------------------------------------
