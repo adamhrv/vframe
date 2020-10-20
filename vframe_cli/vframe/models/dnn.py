@@ -80,21 +80,21 @@ class DNN:
     self.url_model = join(self.remote, self.model)
 
     # config
-    if self.config:
+    if self.config_exists:
       self.fp_config = join(self.local, self.config)
       self.url_config = join(self.remote, self.config)
     else:
       self.fp_config = None
 
     # labels
-    if self.labels:
+    if self.labels_exist:
       self.fp_labels = join(self.local, self.labels)
       self.url_labels = join(self.remote, self.labels)
     else:
       self.fp_labels = None
 
     # labels
-    if self.license:
+    if self.license_exists:
       self.fp_license = join(self.local, self.license)
       self.url_license = join(self.remote, self.license)
     else:
