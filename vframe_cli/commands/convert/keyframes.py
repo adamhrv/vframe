@@ -24,7 +24,7 @@ from vframe.utils import click_utils
 @click.option('-t', '--threads', 'opt_threads', default=2)
 @click.option('-m', '--model', 'opt_model_enum',
   type=types.ModelZooClickVar,
-  default = 'imagenet-alexnet',
+  default = 'imagenet_alexnet',
   help=click_utils.show_help(types.ModelZoo))
 @click.option('--min-width', 'opt_width_min', default=224,
   help='Filter out media below this width')
@@ -35,10 +35,13 @@ from vframe.utils import click_utils
 @click.option('--focal-mask/--no-focal-mask', 'opt_use_focal_mask', 
   is_flag=True,  default=True,
   help='Use focal mask to deprioritize edge pixels')
+@click.option('--remove-existing/--keep-existing', 'opt_remove_existing', is_flag=True,
+  default=False,
+  help='Removes existing keyframes')
 @click.pass_context
 def cli(ctx, opt_dir_in, opt_dir_out, opt_recursive, opt_exts, opt_slice, opt_threads,
   opt_model_enum, opt_width_min, opt_height_min, opt_size_process,
-  opt_use_focal_mask):
+  opt_use_focal_mask, opt_remove_existing):
   """Detect and save keyframes"""
 
   # ------------------------------------------------
@@ -50,6 +53,7 @@ def cli(ctx, opt_dir_in, opt_dir_out, opt_recursive, opt_exts, opt_slice, opt_th
   from pathlib import Path
   from dataclasses import asdict
   import shutil
+  
   import dacite
 
   import imagehash
@@ -107,6 +111,19 @@ def cli(ctx, opt_dir_in, opt_dir_out, opt_recursive, opt_exts, opt_slice, opt_th
       return True
 
     # Read (faster) metadata first to filter out by sizes
+
+    sha256 = file_utils.sha256(fp_item)
+    fp_dir_out = join(pool_item['opt_dir_out'], sha256)
+    if Path(fp_dir_out).is_dir():
+      if pool_item['opt_remove_existing']:
+        shutil.rmtree(fp_dir_out)
+      else:
+        log.debug(f'Skipping {sha256}')
+        return False
+    
+    # mk output dir
+    file_utils.ensure_dir(fp_dir_out)
+
     log.debug(f'Process: {fp_item}')
     meta = video_utils.mediainfo(fp_item)
     w, h = (meta.width, meta.height)
@@ -135,6 +152,8 @@ def cli(ctx, opt_dir_in, opt_dir_out, opt_recursive, opt_exts, opt_slice, opt_th
     im_blank_pil = im_utils.np2pil(im_blank)
     phash_prev = imagehash.phash(im_blank_pil)
     frame_idx = 0
+
+    # write keyframes
 
     # dnn cfg
     model_cfg = modelzoo.get(pool_item['opt_model_name'])
@@ -211,10 +230,6 @@ def cli(ctx, opt_dir_in, opt_dir_out, opt_recursive, opt_exts, opt_slice, opt_th
       # advance frame index
       frame_idx += 1
 
-    # write keyframes
-    sha256 = file_utils.sha256(fp_item)
-    fp_dir_out = join(pool_item['opt_dir_out'], sha256)
-    file_utils.ensure_dir(fp_dir_out)
 
     log.debug(f'Found {len(scene_frame_idxs)} keyframes')
 
@@ -272,7 +287,8 @@ def cli(ctx, opt_dir_in, opt_dir_out, opt_recursive, opt_exts, opt_slice, opt_th
       'opt_size_process': opt_size_process,
       'width_min': opt_width_min,
       'height_min': opt_height_min,
-      'use_focal_mask': opt_use_focal_mask
+      'use_focal_mask': opt_use_focal_mask,
+      'opt_remove_existing': opt_remove_existing,
     }
     pool_items.append(o)
 
@@ -284,8 +300,8 @@ def cli(ctx, opt_dir_in, opt_dir_out, opt_recursive, opt_exts, opt_slice, opt_th
     # If multithreading is disabled, don't use the pool at all
     pool_results = [ pool_worker(item) for item in tqdm(pool_items, total=len(fp_items)) ]
 
+  log.info(f'{len(fp_items)} items processed')
   n_ok = sum(pool_results)
-  n_nok = len(pool_results) - n_ok
   log.info(f'Wrote keyframes for {n_ok:,}')
-  if n_nok > 0:
-    log.error(f'Could not write keyframes for: {n_nok:,}')
+  n_nok = len(pool_results) - n_ok
+  log.info(f'Did not write keyframes for: {n_nok:,}')
