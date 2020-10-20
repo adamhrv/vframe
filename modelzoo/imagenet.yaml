@@ -14,8 +14,8 @@
 #
 ################################################################################
 
-imagenet-googlenet:
-  name: Caffe ImageNet GoogleNet
+imagenet_googlenet:
+  name: ImageNet GoogleNet
   processor: classify
   output: features
   local: modelzoo/models/caffe/classification/imagenet/bvlc_googlenet/
@@ -34,8 +34,8 @@ imagenet-googlenet:
   allow_resize: False
   active: True
 
-imagenet-alexnet:
-  name: Caffe ImageNet AlexNet
+imagenet_alexnet:
+  name: ImageNet AlexNet
   processor: classify
   output: features
   local: modelzoo/models/caffe/classification/imagenet/bvlc_alexnet/
@@ -54,8 +54,8 @@ imagenet-alexnet:
   allow_resize: False
   active: True
 
-imagenet-caffenet:
-  name: Caffe ImageNet CaffeNet
+imagenet_caffenet:
+  name: ImageNet CaffeNet
   processor: classify
   output: features
   local: modelzoo/models/caffe/classification/imagenet/bvlc_reference_caffenet/

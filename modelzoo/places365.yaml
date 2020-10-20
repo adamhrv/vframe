@@ -14,8 +14,8 @@
 #
 ################################################################################
 
-places365-googlenet:
-  name: Caffe GoogleNet Places365
+places365_googlenet:
+  name: Places365 GoogleNet
   origin: https://github.com/CSAILVision/places365
   processor: classify
   output: features
@@ -35,8 +35,8 @@ places365-googlenet:
   allow_resize: False
   active: True
 
-places365-alexnet:
-  name: Caffe AlexNet Places365
+places365_alexnet:
+  name: Places365 AlexNet
   origin: https://github.com/CSAILVision/places365
   processor: classify
   output: features
@@ -57,8 +57,8 @@ places365-alexnet:
   active: True
   fit: True
 
-places365-vgg16:
-  name: Caffe VGG16 Places365
+places365_vgg16:
+  name: Places365 VGG16
   origin: https://github.com/CSAILVision/places365
   processor: classify
   output: features
@@ -85,8 +85,8 @@ places365-vgg16:
 #
 ################################################################################
 
-places365-imagenet-vgg16:
-  name: VGG16 ImagNetPlaces1365
+places365_imagenet_vgg16:
+  name: ImagNet Places1365 VGG16
   origin: https://github.com/CSAILVision/places365
   processor: classify
   output: features

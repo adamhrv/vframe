@@ -33,7 +33,7 @@ coco:
   nms: true
   allow_resize: True
 
-coco-yolov3:
+coco_yolov3:
   name: YOLOv3 COCO 608
   processor: yolo
   output: bbox
