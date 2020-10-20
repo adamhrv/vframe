@@ -71,8 +71,6 @@ class DNN:
     self.model_exists = Path(join(self.local, self.model)).is_file()
     self.config_exists = Path(join(self.local, self.config)).is_file()
     self.labels_exist = Path(join(self.local, self.labels)).is_file()
-    if not self.labels_exist:
-      self.labels = ''
     self.license_exists = Path(join(self.local, self.license)).is_file()
 
     # model
@@ -80,21 +78,21 @@ class DNN:
     self.url_model = join(self.remote, self.model)
 
     # config
-    if self.config_exists:
+    if self.config:
       self.fp_config = join(self.local, self.config)
       self.url_config = join(self.remote, self.config)
     else:
       self.fp_config = None
 
     # labels
-    if self.labels_exist:
+    if self.labels:
       self.fp_labels = join(self.local, self.labels)
       self.url_labels = join(self.remote, self.labels)
     else:
       self.fp_labels = None
 
     # labels
-    if self.license_exists:
+    if self.license:
       self.fp_license = join(self.local, self.license)
       self.url_license = join(self.remote, self.license)
     else:
