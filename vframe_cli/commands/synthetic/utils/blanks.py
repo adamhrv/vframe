@@ -31,7 +31,7 @@ def cli(ctx, opt_dir_ims, opt_ext, opt_force):
   import numpy as np
   from tqdm import tqdm
 
-  from vframe_synthetic.settings import plugin_cfg
+  from vframe.settings import plugin_cfg
 
   log = app_cfg.LOG
   dir_masks = join(opt_dir_ims, plugin_cfg.DN_MASK)

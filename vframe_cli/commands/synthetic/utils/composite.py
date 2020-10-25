@@ -42,7 +42,6 @@ def cli(ctx, opt_dir_ims, opt_fps, opt_bitrate, opt_codec, opt_fp_out_video, opt
   from pathos.multiprocessing import ProcessingPool as Pool
 
   from vframe.settings import app_cfg
-  from vframe_synthetic.settings import plugin_cfg
   from vframe.utils import file_utils, draw_utils
 
   log = app_cfg.LOG
@@ -52,15 +51,15 @@ def cli(ctx, opt_dir_ims, opt_fps, opt_bitrate, opt_codec, opt_fp_out_video, opt
   fps_ims_comp = []
 
   # glob images
-  fps_ims_real = sorted([im for im in glob(str(Path(opt_dir_ims) / plugin_cfg.DN_REAL / '*.png'))])
-  fps_ims_mask = sorted([im for im in glob(str(Path(opt_dir_ims) / plugin_cfg.DN_MASK / '*.png'))])
+  fps_ims_real = sorted([im for im in glob(str(Path(opt_dir_ims) / app_cfg.DN_REAL / '*.png'))])
+  fps_ims_mask = sorted([im for im in glob(str(Path(opt_dir_ims) / app_cfg.DN_MASK / '*.png'))])
   if not len(fps_ims_mask) == len(fps_ims_real):
     log.info(f'found {len(fps_ims_mask)} mask images')
     log.info(f'found {len(fps_ims_real)} real images')
     log.warn('Error: number images not same')
 
   # ensure output dir
-  opt_dir_ims_comp = Path(opt_dir_ims) / plugin_cfg.DN_COMP
+  opt_dir_ims_comp = Path(opt_dir_ims) / app_cfg.DN_COMP
   if not Path(opt_dir_ims_comp).is_dir():
     Path(opt_dir_ims_comp).mkdir(parents=True, exist_ok=True)
 

@@ -21,10 +21,10 @@ opts_sources = [app_cfg.DN_REAL, app_cfg.DN_MASK, app_cfg.DN_COMP, app_cfg.DN_BB
   help='Output dir')
 @click.option('--slice', 'opt_slice', type=(int, int), default=(None, None),
   help='Slice list of files')
-@click.option('-t', '--threads', 'opt_threads', default=12,
+@click.option('-t', '--threads', 'opt_threads', type=int,
   help='Number threads')
 @click.option('--font-size', 'opt_font_size', default=14)
-@click.option('--bbox-norm', 'opt_use_bbox_norm', is_flag=True,
+@click.option('--from-norm', 'opt_use_bbox_norm', is_flag=True,
   help="Use old annotation bbox norm format")
 @click.pass_context
 def cli(ctx, opt_dir_render, opt_type, opt_slice, opt_threads, opt_font_size, opt_use_bbox_norm):
@@ -41,6 +41,7 @@ def cli(ctx, opt_dir_render, opt_type, opt_slice, opt_threads, opt_font_size, op
   import numpy as np
   from tqdm import tqdm
   from pathos.multiprocessing import ProcessingPool as Pool
+  from pathos.multiprocessing import cpu_count
 
   from vframe.utils import file_utils, draw_utils
   from vframe.models.color import Color
@@ -50,6 +51,10 @@ def cli(ctx, opt_dir_render, opt_type, opt_slice, opt_threads, opt_font_size, op
   log.info('Draw annotations')
 
   file_utils.ensure_dir(join(opt_dir_render, app_cfg.DN_BBOX))
+
+  # set N threads
+  if not opt_threads:
+    opt_threads = cpu_count()  # maximum
 
   # glob images
   dir_glob = str(Path(opt_dir_render) / opt_type / '*.png')
@@ -75,22 +80,25 @@ def cli(ctx, opt_dir_render, opt_type, opt_slice, opt_threads, opt_font_size, op
 
     # group by filename
     df_fn = df_annos[df_annos.filename == fn]
-    #df_fn = df_fn[df_fn.label_index != 0]
 
     if not len(df_fn) > 0:
       log.warning(f'No annotations in: {fn}')
+
     # draw bboxes
     for rf in df_fn.itertuples():
-      if rf.label == 'Background':
+      if rf.label_enum == 'background':
         continue
       if opt_use_bbox_norm:
         bbox = BBox.from_xyxy_norm(rf.x1, rf.y1, rf.x2, rf.y2, *dim)
       else:
         bbox = BBox(rf.x1, rf.y1, rf.x2, rf.y2, *dim)
-      #color = Color.from_rgb_hex(rf.color)
-      color = Color.from_rgb_int((255,255,255))
-      #bbox_nlc = bbox_norm.to_labeled(rf.label, rf.label_index, rf.filename).to_colored(color)
-      im = draw_utils.draw_bbox(im, bbox, color=color, label=rf.label, size_label=opt_font_size)
+
+      color_anno = Color.from_rgb_hex((rf.color_hex))
+      r,g,b = color_anno.to_rgb_int()
+      rgb_str = f'{r}, {g}, {b}'
+      label = f'{rf.label_enum} ({rgb_str})'
+      color_bbox = Color.from_rgb_int((255,255,255))
+      im = draw_utils.draw_bbox(im, bbox, color=color_bbox, label=label, size_label=opt_font_size)
 
     # write file
     fp_out = join(opt_dir_render, app_cfg.DN_BBOX, Path(fp_im).name)

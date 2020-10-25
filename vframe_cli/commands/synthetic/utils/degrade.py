@@ -40,10 +40,10 @@ def cli(ctx, opt_input, opt_output, opt_slice, opt_threads):
   from pathos.multiprocessing import ProcessingPool as Pool
 
   from vframe.utils import log_utils, file_utils, im_utils
-  from vframe_synthetic.utils.degrade_utils import quality, zoom_shift, scale
-  from vframe_synthetic.utils.degrade_utils import motion_blur_v, motion_blur_h
-  from vframe_synthetic.utils.degrade_utils import enhance, auto_adjust
-  from vframe_synthetic.utils.degrade_utils import chromatic_aberration
+  from vframe.utils.degrade_utils import quality, zoom_shift, scale
+  from vframe.utils.degrade_utils import motion_blur_v, motion_blur_h
+  from vframe.utils.degrade_utils import enhance, auto_adjust
+  from vframe.utils.degrade_utils import chromatic_aberration
 
   log = app_cfg.LOG
   log.info('Degrade data to match target domain')

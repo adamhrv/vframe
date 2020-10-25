@@ -55,8 +55,7 @@ def cli(ctx, opt_dir_in, opt_force, opt_thresh, opt_labels, opt_threads, opt_for
   from vframe.utils import file_utils, im_utils
   from vframe.models.geometry import BBox
   from vframe.models.annotation import Annotation
-
-  from vframe_synthetic.utils import anno_utils
+  from vframe.utils import anno_utils
 
 
   # init log
@@ -77,14 +76,14 @@ def cli(ctx, opt_dir_in, opt_force, opt_thresh, opt_labels, opt_threads, opt_for
   fp_metadata = join(opt_dir_in, app_cfg.FN_METADATA)
   df_objects = pd.read_csv(fp_metadata)
   log.info(f'Metadata file contains {len(df_objects):,} objects')
-  label_groups = df_objects.groupby('label')
+  label_groups = df_objects.groupby('label_enum')
   for label, df in label_groups:
     log.info(f'{label} contains {len(df)} colors')
 
   # filter labels
   if opt_labels:
     for opt_label in opt_labels:
-      df_objects = df_objects[df_objects['label'] == opt_label]
+      df_objects = df_objects[df_objects['label_enum'] == opt_label]
     log.info(f'Metadata file contains {len(df_objects):,} filtered objects')
 
   # glob mask
@@ -119,7 +118,7 @@ def cli(ctx, opt_dir_in, opt_force, opt_thresh, opt_labels, opt_threads, opt_for
       return im
 
 
-  def mask_to_bbox_nlc(fp_mask):
+  def pool_worker(fp_mask):
     fn_mask = Path(fp_mask).name
     im_mask = cv.imread(fp_mask)
     w, h = im_mask.shape[:2][::-1]
@@ -172,8 +171,9 @@ def cli(ctx, opt_dir_in, opt_force, opt_thresh, opt_labels, opt_threads, opt_for
             #bbox_nlc = bbox_norm.to_labeled(df.label, df.label_index, fn_mask).to_colored(color_hex)
             init_obj = {
               'filename': fn_mask,
-              'label': df.label,
+              'label_enum': df.label_enum,
               'label_index': df.label_index,
+              'label_display': df.label_display,
               'bbox': bbox,
               'color': color,
             }
@@ -186,7 +186,8 @@ def cli(ctx, opt_dir_in, opt_force, opt_thresh, opt_labels, opt_threads, opt_for
       #log.info(f'No annotations in: {fn_mask}')
       init_obj = {
         'filename': fn_mask,
-        'label': 'Background',
+        'label_enum': 'background',
+        'label_display': 'Background',
         'label_index': 0,
         'bbox': BBox(0,0,0,0,0,0),
         'color': Color.from_rgb_hex('0x000000'),
@@ -201,7 +202,7 @@ def cli(ctx, opt_dir_in, opt_force, opt_thresh, opt_labels, opt_threads, opt_for
   with Pool(opt_threads) as p:
     d = f'Annotating x{opt_threads}'
     t = len(fps_masks)
-    pool_results = list(tqdm(p.imap(mask_to_bbox_nlc, fps_masks), total=t, desc=d))
+    pool_results = list(tqdm(p.imap(pool_worker, fps_masks), total=t, desc=d))
 
 
   # iterate through all images

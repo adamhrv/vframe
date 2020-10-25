@@ -25,11 +25,16 @@ ext_choices = ['jpg', 'png']
   help='Filename suffix')
 @click.option('--replace', 'opt_replace', type=str, nargs=2,
   help='String replace (from, to)')
-@click.option('--dry-run', 'opt_dry_run', is_flag=True,
+@click.option('--dry-run/--confirm', 'opt_dry_run', is_flag=True, default=True,
   help='Dry run, do not delete any files')
+@click.option('--number', 'opt_number', is_flag=True,
+  help='Number filenames')
+@click.option('--n-zeros', 'opt_n_zeros', default=6,
+  help='Number of zeros if using numbered filename')
 @click.option('--verbose', 'opt_verbose', is_flag=True)
 @click.pass_context
-def cli(ctx, opt_fp_in, opt_ext, opt_replace, opt_prefix, opt_suffix, opt_dry_run, opt_verbose):
+def cli(ctx, opt_fp_in, opt_ext, opt_replace, opt_prefix, opt_suffix, 
+  opt_number, opt_n_zeros, opt_dry_run, opt_verbose):
   """Rename files in render subdirectories"""
 
   import os
@@ -38,7 +43,7 @@ def cli(ctx, opt_fp_in, opt_ext, opt_replace, opt_prefix, opt_suffix, opt_dry_ru
   from glob import glob
 
   from tqdm import tqdm
-  from vframe.utils.file_utils import get_ext
+  from vframe.utils.file_utils import get_ext, zpad
 
   log = app_cfg.LOG
   fp_dirs = [join(opt_fp_in, d) for d in os.listdir(opt_fp_in) if os.path.isdir(join(opt_fp_in, d))]
@@ -56,11 +61,16 @@ def cli(ctx, opt_fp_in, opt_ext, opt_replace, opt_prefix, opt_suffix, opt_dry_ru
   for fp_dir in fp_dirs:
     
     log.info(f'Renaming files in: {fp_dir}')
-    fp_ims = glob(join(fp_dir, f'*.{opt_ext}'))
+    fp_ims = sorted(glob(join(fp_dir, f'*.{opt_ext}')))
     
-    for fp_src in fp_ims:
-      fn_stem = Path(fp_src).stem
+    for i, fp_src in enumerate(fp_ims):
+      
       ext = get_ext(fp_src)
+
+      if opt_number:
+        fn_stem = f'{zpad(i, zeros=opt_n_zeros)}'
+      else:
+        fn_stem = Path(fp_src).stem
       if opt_prefix:
         fn_stem = f'{opt_prefix}{fn_stem}'
       if opt_suffix:
@@ -76,5 +86,7 @@ def cli(ctx, opt_fp_in, opt_ext, opt_replace, opt_prefix, opt_suffix, opt_dry_ru
           log.info(f'Rename {Path(fp_src).name} --> {fn}')
         if not opt_dry_run:
          os.rename(fp_src, fp_dst)
+        else:
+          log.info(f'Dry not. Did not rename: {fp_src} --> {fp_dst}')
 
 
