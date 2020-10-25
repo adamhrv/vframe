@@ -243,60 +243,21 @@ def blur_bbox_soft(im, bbox, iters=1, expand_per=-0.1, multiscale=True,
   return (im_dst).astype(np.uint8)
 
 
-def _deprecated_circle_blur_soft_edges(im, bboxes, im_ksize=51, mask_ksize=51, 
-  sigma_x=51, sigma_y=None, iters=2):
-  """Blurs ROI using soft edges
+
+def swap_color(im, color_src, color_dst):
+  """Swaps colors in image
+  :param im: (numpy.ndarray) in BGR
+  :param color_src: (Color) source color
+  :param color_dst: (Color) destination color
+  :returns im: (numpy.ndarray) in BGR
   """
-  if not bboxes:
-    return im
-  elif not type(bboxes) == list:
-    bboxes = list(bboxes)
-  
-  # force kernels odd
-  im_ksize = im_ksize if im_ksize % 2 else im_ksize + 1
-  mask_ksize = mask_ksize if mask_ksize % 2 else mask_ksize + 1
-  sigma_x = sigma_x if sigma_x % 2 else sigma_x + 1
-  sigma_y = sigma_y if sigma_y else sigma_x
-  
-  # mk empty mask
-  h,w,c = im.shape
-  im_mask = np.zeros((h,w))
-  
-  # draw mask shapes
-  for bbox in bboxes:
-    #im_mask = cv.rectangle(im_mask, bbox.p1.xy_int, bbox.p2.xy_int, (255,255,255), -1)
-    #im_mask = cv.circle(im_mask, bbox.cxcy_int, bbox.w,(255,255,255), -1)
-    im_mask = cv.ellipse(im_mask, bbox.cxcy_int, bbox.wh_int, 0, 0, 360, (255,255,255), -1)
-    
-  # use sigma 1/4 size of blur kernel
-  im_blur = cv.GaussianBlur(im, (im_ksize,im_ksize), im_ksize//4, 0, im_ksize//4)
-  im_dst = im.copy()
-
-  for i in range(iters):
-    im_mask = cv.blur(im_mask, ksize=(mask_ksize, mask_ksize))
-    im_mask = cv.GaussianBlur(im_mask, (mask_ksize, mask_ksize), mask_ksize, mask_ksize)
-    im_alpha = im_mask / 255.
-    im_dst = im_alpha[:, :, None] * im_blur + (1 - im_alpha)[:, :, None] * im_dst
-    
-  return (im_dst).astype(np.uint8)
-
-
-def _deprecated_compound_blur_bboxes(im, bboxes, iters=2, expand_per=-0.15, opt_pixellate=True):
-  """Pixellates and blurs object
-  """
-  if not bboxes:
-    return im
-  elif not type(bboxes) == list:
-    bboxes = list(bboxes)
-
-  k = max([min(b.w_int, b.h_int) for b in bboxes])
-  im_ksize = k // 2  # image blur kernel 
-  mask_ksize = k // 10  # mask blur kernel
-
-  print('mask_ksize', mask_ksize, 'im k', im_ksize)
-  bboxes_inner = [b.expand_per(expand_per, keep_edges=True) for b in bboxes]
-  im = circle_blur_soft_edges(im, bboxes_inner, im_ksize=im_ksize, mask_ksize=mask_ksize, iters=iters)
+  bgr = list(color_src.to_bgr_int())
+  idxs = np.all(im == bgr, axis=2)
+  im[idxs] = list(color_dst.to_bgr_int())
   return im
+
+
+
 
 # -----------------------------------------------------------------------------
 #
@@ -434,3 +395,69 @@ def bgr2luma(im):
   """
   im_y, _, _ = cv.split(cv.cvtColor(im, cv.COLOR_BGR2YUV))
   return im_y
+
+
+
+
+
+
+# -----------------------------------------------------------------------------
+#
+# Deprecated. For reference.
+#
+# -----------------------------------------------------------------------------
+
+def _deprecated_circle_blur_soft_edges(im, bboxes, im_ksize=51, mask_ksize=51, 
+  sigma_x=51, sigma_y=None, iters=2):
+  """Blurs ROI using soft edges
+  """
+  if not bboxes:
+    return im
+  elif not type(bboxes) == list:
+    bboxes = list(bboxes)
+  
+  # force kernels odd
+  im_ksize = im_ksize if im_ksize % 2 else im_ksize + 1
+  mask_ksize = mask_ksize if mask_ksize % 2 else mask_ksize + 1
+  sigma_x = sigma_x if sigma_x % 2 else sigma_x + 1
+  sigma_y = sigma_y if sigma_y else sigma_x
+  
+  # mk empty mask
+  h,w,c = im.shape
+  im_mask = np.zeros((h,w))
+  
+  # draw mask shapes
+  for bbox in bboxes:
+    #im_mask = cv.rectangle(im_mask, bbox.p1.xy_int, bbox.p2.xy_int, (255,255,255), -1)
+    #im_mask = cv.circle(im_mask, bbox.cxcy_int, bbox.w,(255,255,255), -1)
+    im_mask = cv.ellipse(im_mask, bbox.cxcy_int, bbox.wh_int, 0, 0, 360, (255,255,255), -1)
+    
+  # use sigma 1/4 size of blur kernel
+  im_blur = cv.GaussianBlur(im, (im_ksize,im_ksize), im_ksize//4, 0, im_ksize//4)
+  im_dst = im.copy()
+
+  for i in range(iters):
+    im_mask = cv.blur(im_mask, ksize=(mask_ksize, mask_ksize))
+    im_mask = cv.GaussianBlur(im_mask, (mask_ksize, mask_ksize), mask_ksize, mask_ksize)
+    im_alpha = im_mask / 255.
+    im_dst = im_alpha[:, :, None] * im_blur + (1 - im_alpha)[:, :, None] * im_dst
+    
+  return (im_dst).astype(np.uint8)
+
+
+def _deprecated_compound_blur_bboxes(im, bboxes, iters=2, expand_per=-0.15, opt_pixellate=True):
+  """Pixellates and blurs object
+  """
+  if not bboxes:
+    return im
+  elif not type(bboxes) == list:
+    bboxes = list(bboxes)
+
+  k = max([min(b.w_int, b.h_int) for b in bboxes])
+  im_ksize = k // 2  # image blur kernel 
+  mask_ksize = k // 10  # mask blur kernel
+
+  print('mask_ksize', mask_ksize, 'im k', im_ksize)
+  bboxes_inner = [b.expand_per(expand_per, keep_edges=True) for b in bboxes]
+  im = circle_blur_soft_edges(im, bboxes_inner, im_ksize=im_ksize, mask_ksize=mask_ksize, iters=iters)
+  return im

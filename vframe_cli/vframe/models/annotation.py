@@ -11,6 +11,7 @@ import logging
 import random
 import math
 from dataclasses import dataclass
+from typing import Dict, Tuple, List
 
 import numpy as np
 
@@ -18,6 +19,29 @@ from vframe.models.color import Color
 from vframe.models.geometry import BBox
 
 log = logging.getLogger('vframe')
+
+
+# ---------------------------------------------------------------------------
+#
+# Label Map
+#
+# ---------------------------------------------------------------------------
+
+@dataclass
+class Label:
+  """Label map data
+  """
+  index: int
+  enum: str
+  display: str
+
+@dataclass
+class LabelMaps:
+  """List of label maps
+  """
+  labels: List[Label]
+
+
 
 # ---------------------------------------------------------------------------
 #
@@ -30,18 +54,24 @@ class Annotation:
   """Annotation data object
   """
   filename: str
-  label: str
+  label_enum: str
+  label_display: str
   label_index: int
   bbox: BBox
   color: Color
 
   def to_dict(self):
     d = self.bbox.to_dict()
+    r,g,b = self.color.to_rgb_int()
     d.update(
       {
-      'label': self.label,
+      'label_display': self.label_display,
+      'label_enum': self.label_enum,
       'label_index': self.label_index,
-      'color': self.color.to_rgb_hex(),
+      'color_hex': self.color.to_rgb_hex(),
+      'r': r,
+      'g': g,
+      'b': b,
       'filename': self.filename
       }
     )
