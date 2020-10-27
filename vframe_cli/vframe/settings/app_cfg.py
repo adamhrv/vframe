@@ -46,6 +46,7 @@ load_dotenv(dotenv_path=fp_env, verbose=True)
 
 # directories
 DIR_DATA_STORE = os.getenv("DATA_STORE", join(DIR_PROJECT_ROOT, 'data'))
+DIR_CONFIGS = join(DIR_DATA_STORE, 'configs')
 DIR_MODELZOO = join(DIR_PROJECT_ROOT, 'modelzoo')
 DIR_MODELS = join(DIR_MODELZOO, 'models')
 DIR_PLUGINS = join(DIR_MODELZOO, 'plugins')
@@ -265,6 +266,53 @@ FP_BLENDER_BIN = os.getenv('FP_BLENDER_BIN')  # set in .env
 BLENDER_VERSION = os.getenv('BLENDER_VERSION')  # set in .env
 
 # -----------------------------------------------------------------------------
-# Fonts synthetic
+# YOLO
 # -----------------------------------------------------------------------------
 
+
+FP_YOLO_MODELS = join(DIR_CONFIGS, 'yolo-models.yaml')
+FP_DARKNET_BIN = join(DIR_PROJECT_ROOT, '3rdparty/darknet/darknet')
+
+DN_IMAGES_LABELS = 'images_labels'
+DN_BACKUP = 'backup'
+
+FN_TRAIN_INIT = 'train_init.sh'
+FN_TRAIN_RESUME= 'train_resume.sh'
+FN_TEST_INIT = 'test.sh'
+FN_LOGFILE = 'training.log'
+FN_META_DATA = 'meta.data'
+FN_CLASSES = 'classes.txt'
+FN_VALID = 'valid.txt'
+FN_TRAIN = 'train.txt'
+
+LABEL_BACKGROUND = 'background'
+
+
+# -----------------------------------------------------------------------------
+# Yolo Training
+# -----------------------------------------------------------------------------
+
+# # load YOLO init model configs
+# modelzoo_yaml = load_yaml(FP_YOLO_MODELS)
+
+# # create dict with modelzoo name-keys and DNN values
+# modelzoo = {k: dacite.from_dict(data=v, data_class=DNN) for k,v in modelzoo_yaml.items()}
+
+# FP_YOLOV4_CFG = modelzoo.get('yolo4-init').fp_config
+# FP_YOLOV4_WEIGHTS = modelzoo.get('yolo4-init').fp_model
+
+# FP_YOLOV3_CFG = modelzoo.get('yolo3-init').fp_config
+# FP_YOLOV3_WEIGHTS = modelzoo.get('yolo3-init').fp_model
+
+# # Choose YOLO version based on .env variables
+# USE_YOLO_VERSION = int(os.getenv('YOLO_VERSION', '4'))
+# if USE_YOLO_VERSION == 3:
+#   FP_YOLO_CFG = FP_YOLOV4_CFG
+#   FP_YOLO_WEIGHTS = FP_YOLOV3_WEIGHTS
+# elif USE_YOLO_VERSION == 4:
+#   FP_YOLO_CFG = FP_YOLOV4_CFG
+#   FP_YOLO_WEIGHTS = FP_YOLOV3_WEIGHTS
+# else:
+#   LOG.error(f'YOLO version {USE_YOLO_VERSION} is not a valid option. Defaulting to 4.')
+#   FP_YOLO_CFG = FP_YOLOV4_CFG
+#   FP_YOLO_WEIGHTS = FP_YOLOV3_WEIGHTS

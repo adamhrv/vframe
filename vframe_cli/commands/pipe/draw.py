@@ -44,7 +44,7 @@ color_styles = ['random', 'preset', 'fixed']
 @click.option('--color-source', 'opt_color_source', default='random', 
   type=click.Choice(color_styles),
   help="Assign color to bbox and label background")
-@click.option('--label-size', 'opt_size_label', default=16,
+@click.option('--label-size', 'opt_size_label', default=12,
   help='Text size')
 @click.option('--label-color', 'opt_color_label', 
   type=(int, int, int), default=(None, None, None),

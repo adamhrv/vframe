@@ -36,6 +36,8 @@ def display_frame(im, delay=1):
       # exits the app
       cv.destroyAllWindows()
       sys.exit('Exiting because Q or ESC was pressed')
+    elif k != 255:
+      log.debug(f'k: {k}')
 
 
 # -----------------------------------------------------------------------------
