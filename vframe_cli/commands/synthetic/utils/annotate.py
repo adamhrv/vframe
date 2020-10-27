@@ -1,50 +1,39 @@
 ############################################################################# 
 #
-# VFRAME Synthetic Data Generator
+# VFRAME
 # MIT License
 # Copyright (c) 2019 Adam Harvey and VFRAME
 # https://vframe.io 
 #
 #############################################################################
 
-import os
 
 import click
-
-from vframe.models import types
-from vframe.models.color import Color
-from vframe.settings import app_cfg
-from vframe.utils import click_utils
-
 
 @click.command()
 @click.option('-i', '--input', 'opt_dir_in', required=True,
   help='Path to project folder (metadata.csv, mask, real)')
 @click.option('-f', '--force', 'opt_force', is_flag=True,
   help='Force overwrite annotations file')
-@click.option('--threshold', 'opt_thresh', default=625, show_default=True,
+@click.option('--threshold', 'opt_thresh', default=2000, show_default=True,
   help='Minimum total pixels for annotation (25x25 = 625)')
 @click.option('--label', 'opt_labels', multiple=True, default=None,
   help='Labels to filter for')
 @click.option('-t', '--threads', 'opt_threads', default=12, show_default=True,
   help='Number threads')
-@click.option('--force-neg', 'opt_force_negative', is_flag=True,
+@click.option('--force-negative', 'opt_force_negative', is_flag=True,
   help='Force negative null annotations')
 @click.pass_context
 def cli(ctx, opt_dir_in, opt_force, opt_thresh, opt_labels, opt_threads, opt_force_negative):
   """Generate annotations"""
   
-  import os
   from os.path import join
   from glob import glob
   from pathlib import Path
   from dataclasses import asdict
-  import logging
 
   import dacite
   from pathos.multiprocessing import ProcessingPool as Pool
-  #from multiprocessing.pool import ThreadPool as Pool
-  #from functools import partial
   from numba import jit, njit
   from PIL import Image
   import pandas as pd
@@ -52,19 +41,19 @@ def cli(ctx, opt_dir_in, opt_force, opt_thresh, opt_labels, opt_threads, opt_for
   import numpy as np
   from tqdm import tqdm
 
+  from vframe.settings import app_cfg
   from vframe.utils import file_utils, im_utils
   from vframe.models.geometry import BBox
   from vframe.models.annotation import Annotation
+  from vframe.models.color import Color
   from vframe.utils import anno_utils
 
 
   # init log
   log = app_cfg.LOG
-  log.info('Converting masks to annotations')
 
   # post-process input
   opt_threads = opt_threads if opt_threads else pathos.multiprocessing.cpu_count()
-  log.info(f'Using {opt_threads} threads')
 
   # output file
   fp_annotations = join(opt_dir_in, app_cfg.FN_ANNOTATIONS)

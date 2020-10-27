@@ -19,7 +19,7 @@ from vframe.settings import app_cfg
   help='Path to output directory to save degraded images')
 @click.option('--slice', 'opt_slice', type=(int, int), default=(None, None),
   help='Slice list of files')
-@click.option('-t', '--threads', 'opt_threads', default=12,
+@click.option('-t', '--threads', 'opt_threads', 
   help='Number threads')
 @click.pass_context
 def cli(ctx, opt_input, opt_output, opt_slice, opt_threads):
@@ -38,6 +38,7 @@ def cli(ctx, opt_input, opt_output, opt_slice, opt_threads):
   import numpy as np
   from tqdm import tqdm
   from pathos.multiprocessing import ProcessingPool as Pool
+  from pathos.multiprocessing import cpu_count
 
   from vframe.utils import log_utils, file_utils, im_utils
   from vframe.utils.degrade_utils import quality, zoom_shift, scale
@@ -52,6 +53,7 @@ def cli(ctx, opt_input, opt_output, opt_slice, opt_threads):
     log.error('Input can not equal output directory. Change input or output.')
     return
 
+  opt_threads = opt_threads if opt_threads else cpu_count()
   file_utils.ensure_dir(opt_output)
 
   # glob images
@@ -71,18 +73,18 @@ def cli(ctx, opt_input, opt_output, opt_slice, opt_threads):
       return
 
     # randomly degrade image
-    im = quality(im, value_range=(30, 90), alpha_range=(0.25, 0.95), rate=1.0)
-    im = motion_blur_v(im, value_range=(0.1, 0.25), alpha_range=(0.25, 0.75), rate=0.5)
-    im = motion_blur_h(im, value_range=(0.1, 0.25), alpha_range=(0.25, 0.75), rate=0.5)
-    im = scale(im, value_range=(0.5, 0.9), rate=0.5)
-    im = zoom_shift(im, value_range=(1, 6), alpha_range=(0.1, 0.6), rate=0.35)
-    im = enhance(im, 'sharpness', value_range=(0.5, 6.0), rate=0.5)
-    im = enhance(im, 'brightness', value_range=(0.75, 1.25), rate=0.5)
-    im = enhance(im, 'contrast', value_range=(0.75, 1.25), rate=0.5)
-    im = enhance(im, 'color', value_range=(0.75,1.25), rate=0.5)
+    im = quality(im, value_range=(30, 90), alpha_range=(0.5, 1.0), rate=0.75)
+    im = motion_blur_v(im, value_range=(0.01, 0.1), alpha_range=(0.25, 0.75), rate=0.25)
+    im = motion_blur_h(im, value_range=(0.01, 0.1), alpha_range=(0.25, 0.75), rate=0.25)
+    #im = scale(im, value_range=(0.05, 0.1), rate=0.25)
+    im = zoom_shift(im, value_range=(1, 6), alpha_range=(0.1, 0.6), rate=0.1)
+    im = enhance(im, 'sharpness', value_range=(0.5, 6.0), rate=0.25)
+    im = enhance(im, 'brightness', value_range=(0.75, 1.25), rate=0.25)
+    im = enhance(im, 'contrast', value_range=(0.75, 1.25), rate=0.25)
+    im = enhance(im, 'color', value_range=(0.75,1.25), rate=0.25)
     im = auto_adjust(im, 'equalize', alpha_range=(0.05, 0.1), rate=0.25)  # caution
     im = auto_adjust(im, 'autocontrast', alpha_range=(0.1, 0.5), rate=0.25)
-    im = chromatic_aberration(im, 0, value_range=(1, 4), rate=0.1)
+    im = chromatic_aberration(im, 0, value_range=(1, 3), rate=0.1)
     im_pil = im_utils.np2pil(im)
 
     fp_out = join(opt_output, Path(fp_im).name)
