@@ -54,9 +54,9 @@ class Annotation:
   """Annotation data object
   """
   filename: str
+  label_index: int
   label_enum: str
   label_display: str
-  label_index: int
   bbox: BBox
   color: Color
 
@@ -83,4 +83,4 @@ class Annotation:
   @classmethod
   def from_anno_series_row(cls, row):
     bbox = BBox(row.x1, row.y1, row.x2, row.y2, row.dw, row.dh)
-    return cls(row.filename, row.label, row.label_index, bbox, Color.from_rgb_hex(row.color))
+    return cls(row.filename, row.label_index, row.label_enum, row.label_display, bbox, Color.from_rgb_hex(row.color_hex))
