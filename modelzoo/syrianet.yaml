@@ -1,0 +1,113 @@
+############################################################################# 
+#
+# VFRAME
+# MIT License
+# Copyright (c) 2020 Adam Harvey and VFRAME
+# https://vframe.io 
+#
+#############################################################################
+
+
+
+################################################################################
+#
+# Syrian Archive
+#
+################################################################################
+
+sa_04:
+  # meta
+  name: YOLOV4 Munitions Synthetic
+  notes: Class multiplies. Total 13.500 annotations 7.000 negative.
+  # model
+  local: modelzoo/models/darknet/detection/sa_munitions_04_yolo/
+  remote: https://download.vframe.io/v2/models/darknet/detection/sa_munitions_04_yolo/
+  model: yolov4_last.weights
+  config: yolov4_deploy.cfg
+  layers: ['yolo_139', 'yolo_150', 'yolo_161']
+  mean: [0,0,0]
+  scale: 0.00392156862745098  # 1/255
+  width: 800
+  height: 800
+  rgb: True
+  crop: False
+  # processor
+  processor: yolo
+  output: bbox
+  nms_threshold: 0.4
+  threshold: 0.85
+  nms: True
+  allow_resize: True
+
+sa_03:
+  # BLU63 only
+  # meta
+  name: YOLOV4 Synthetic BLU63 Pos-Neg Mix
+  # model
+  local: modelzoo/models/darknet/detection/yolo_v4_ya_blu63/
+  remote: https://download.vframe.io/v2/models/darknet/detection/yolo_v4_ya_blu63/
+  model: yolov4_last_v3.weights
+  config: yolov4_deploy.cfg
+  layers: ['yolo_139', 'yolo_150', 'yolo_161']
+  mean: [0,0,0]
+  scale: 0.00392156862745098  # 1/255
+  width: 800
+  height: 800
+  rgb: True
+  crop: False
+  # processor
+  processor: yolo
+  output: bbox
+  nms_threshold: 0.4
+  threshold: 0.75
+  nms: True
+  allow_resize: True
+
+sa_02:
+  # AO-2.5RT, AO2.5RT Cassette, BLU-63, Danger Sign, ShOAB-0.5, PTAB-1M, RBK-250, RBK-500
+  # meta
+  name: YOLOV4 Synthetic Munitions
+  # model
+  local: modelzoo/models/darknet/detection/yolo_v4_syrianarchive_01/
+  remote: https://download.vframe.io/v2/models/darknet/detection/yolo_v4_syrianarchive_01/
+  model: yolov4_last.weights
+  config: yolov4_deploy.cfg
+  layers: ['yolo_139', 'yolo_150', 'yolo_161']
+  mean: [0,0,0]
+  scale: 0.00392156862745098  # 1/255
+  width: 608
+  height: 608
+  rgb: True
+  crop: False
+  # processor
+  processor: yolo
+  output: bbox
+  nms_threshold: 0.4
+  threshold: 0.5
+  nms: True
+  allow_resize: True
+
+sa_01:
+  # Danger Sign, AO-2.5RT, BLU-63, ShOAB-0.5, PTAB-1M, RBK-250, RBK-500, AO2.5RT Cassette
+  # meta
+  name: YOLOV3 Synthetic Munitions, Sign
+  # model
+  local: modelzoo/models/darknet/detection/yolo_v3_vframe_sd_v10/
+  remote: https://download.vframe.io/v2/models/darknet/detection/yolo_v3_vframe_sd_v10/
+  model: yolov3_last.weights
+  config: yolov3.cfg
+  layers: ['yolo_82', 'yolo_94', 'yolo_106']
+  infer_type: yolo
+  mean: [0,0,0]
+  scale: 0.00392156862745098  # 1/255
+  width: 608
+  height: 608
+  rgb: True
+  crop: False
+  # processor
+  processor: yolo
+  output: bbox
+  nms_threshold: 0.4
+  threshold: 0.5
+  nms: True
+  allow_resize: True
