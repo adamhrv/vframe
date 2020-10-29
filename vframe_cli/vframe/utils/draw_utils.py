@@ -277,10 +277,8 @@ def draw_bbox(im, bbox, color=None, stroke=None, expand=None,
       # bbox of label background
       bbox_bg = _bbox_from_text(bbox, label, font, padding_label)
       # check if space permits outer label
-      if bbox_bg.h > bbox.y1:
-        # move inside
-        bbox_bg = bbox_bg.translate(stroke, bbox_bg.h + stroke)
-      else:
+      if bbox_bg.h < bbox.y1:
+        # move outside
         bbox_bg = bbox_bg.translate(0, 0 - bbox_bg.h)
       _draw_bbox_pil(canvas, bbox_bg,  color, -1)
       # point of label origin
