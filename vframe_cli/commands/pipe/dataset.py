@@ -42,9 +42,7 @@ def cli(ctx, pipe, opt_input, opt_slice, opt_decimate, opt_shuffle, opt_labels):
   from vframe.models.pipe_item import PipeContextHeader, PipeFrame
   from vframe.utils import file_utils, draw_utils, display_utils
   from vframe.models.cvmodels import DetectResult, DetectResults
-
-  from vframe_train.settings import train_cfg
-  from vframe_train.models.project import YoloProjectConfig
+  from vframe.models.training_dataset import YoloProjectConfig
 
   
   # ---------------------------------------------------------------------------

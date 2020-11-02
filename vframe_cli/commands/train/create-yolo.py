@@ -17,11 +17,14 @@ import click
 def cli(ctx, opt_fp_cfg):
   """Creates new YOLO project from config file"""
 
-  import pandas as pd
+  from os.path import join
   import random
   from pathlib import Path
   import operator
   import shutil
+
+  import pandas as pd
+  from tqdm import tqdm
 
   from vframe.utils import file_utils
   from vframe.models.geometry import BBox
@@ -32,7 +35,8 @@ def cli(ctx, opt_fp_cfg):
   from vframe.models.training_dataset import YoloProjectConfig
 
 
-  app_cfg.LOG.info(f'Create YOLO project from: {opt_fp_cfg}')
+  log = app_cfg.LOG
+  log.info(f'Create YOLO project from: {opt_fp_cfg}')
   
   # load config file
   cfg = load_yaml(opt_fp_cfg, data_class=YoloProjectConfig)
@@ -44,7 +48,7 @@ def cli(ctx, opt_fp_cfg):
   df.label_index -= df.label_index.min()
   n_bg_annos = len(df[df.label_enum == 'background'])
   if n_bg_annos > 0:
-    cls.log.debug(f'Annotations contain {n_bg_annos} negative images. Removing 0th index')
+    log.debug(f'Annotations contain {n_bg_annos} negative images. Removing 0th index')
     # subtract the 0th index if Background (negative data is used)
     df.label_index -= 1  
   
@@ -112,24 +116,34 @@ def cli(ctx, opt_fp_cfg):
   # Create training .cfg
   subs_all = []
   
-  # Sizes, classes
-  subs_all.append(('{width}', str(cfg.image_size)))
-  subs_all.append(('{height}', str(cfg.image_size)))
+  # [net]
+  subs_all.append(('{width}', str(cfg.width)))
+  subs_all.append(('{height}', str(cfg.height)))
   subs_all.append(('{classes}', str(num_classes)))
-  
-  # Parameters
   subs_all.append(('{num_filters}', str(num_filters)))
   subs_all.append(('{max_batches}', str(max_batches)))
+  subs_all.append(('{saturation}', str(cfg.saturation)))
+  subs_all.append(('{exposure}', str(cfg.exposure)))
+  subs_all.append(('{hue}', str(cfg.hue)))
+
+  subs_all.append(('{batch_normalize}', str(int(cfg.batch_normalize))))
   subs_all.append(('{steps_min}', str(batch_steps[0])))
   subs_all.append(('{steps_max}', str(batch_steps[1])))
   subs_all.append(('{focal_loss}', f'{int(cfg.focal_loss)}'))
+  subs_all.append(('{resize}', f'{cfg.resize}'))
   subs_all.append(('{learning_rate}', f'{cfg.learning_rate}'))
 
   # Data augmentation
   subs_all.append(('{cutmix}', f'{int(cfg.cutmix)}'))
   subs_all.append(('{mosaic}', f'{int(cfg.mosaic)}'))
+  subs_all.append(('{mosaic_bound}', f'{int(cfg.mosaic_bound)}'))
   subs_all.append(('{mixup}', f'{int(cfg.mixup)}'))
   subs_all.append(('{blur}', f'{int(cfg.blur)}'))
+  subs_all.append(('{flip}', f'{int(cfg.flip)}'))
+  subs_all.append(('{gaussian_noise}', f'{int(cfg.gaussian_noise)}'))
+  subs_all.append(('{jitter}', f'{str(cfg.jitter)}'))
+  #subs_all.append(('{adversarial_lr}', f'{int(cfg.adversarial_lr)}'))
+  #subs_all.append(('{attention}', f'{int(cfg.attention)}'))
   
   # images per class
   groups = df.groupby('label_enum')
@@ -152,6 +166,7 @@ def cli(ctx, opt_fp_cfg):
   # search and replace train
   cfg_train = cfg_orig  # str copy
   for placeholder, value in subs_train:
+    app_cfg.LOG.debug(f'{placeholder}, {value}')
     cfg_train = cfg_train.replace(placeholder, value)
 
   # search and replace test
@@ -169,42 +184,40 @@ def cli(ctx, opt_fp_cfg):
   sh_base.append(f'DARKNET={cfg.darknet}')
   sh_base.append(f'DIR_PROJECT={cfg.output}')
   sh_base.append(f'FP_META={fp_metadata}')
+  sh_base.append('MAP="-map"')  # add mAP to chart
+  if cfg.show_output:
+    sh_base.append(f'VIZ=""')
+  else:
+    sh_base.append(f'VIZ="-dont_show"')  # don't show viz, if running in docker
+  if cfg.show_images:
+    sh_base.append(f'SHOW_IMGS="-show_imgs"')  # show images while training
+  else:
+    sh_base.append(f'SHOW_IMGS=""')
 
+  # init training
   sh_train = sh_base.copy()
   sh_train.append(f'FP_CFG={fp_cfg_train}')
   sh_train.append(f'FP_WEIGHTS={cfg.weights}')
   sh_train.append('CMD="detector train"')
   sh_train.append(f'GPUS="-gpus {cfg.gpu_idx_init}"')
-  sh_train.append('MAP="-map"')
-  if not cfg.show_output:
-    sh_train.append(f'VIZ="-dont_show"')  # don't show viz, if running in docker
-  else:
-    sh_train.append(f'VIZ=""')
-
-  sh_train.append(f'$DARKNET $CMD $FP_META $FP_CFG $FP_WEIGHTS $GPUS $VIZ $MAP 2>&1 | tee {cfg.logfile}')
+  sh_train.append(f'$DARKNET $CMD $FP_META $FP_CFG $FP_WEIGHTS $GPUS $VIZ $MAP $SHOW_IMGS 2>&1 | tee {cfg.logfile}')
   file_utils.write_txt(sh_train, fp_sh_train)
   file_utils.chmod_exec(fp_sh_train)
 
-  # Generate resume .sh
+  # resume training
   sh_resume = sh_base.copy()
   sh_resume.append(f'FP_CFG={fp_cfg_train}')
   cfg_name = Path(fp_cfg_train).stem
-  sh_resume.append('# Edit path to weights')
   fp_weights_last = join(dir_backup, f'{cfg_name}_last.weights')
   sh_resume.append(f'FP_WEIGHTS={fp_weights_last}')
   sh_resume.append('CMD="detector train"')
   gpus_resume_str = ','.join(list(map(str, cfg.gpu_idxs_resume)))
   sh_resume.append(f'GPUS="-gpus {gpus_resume_str}"')
-  if not cfg.show_output:
-    sh_resume.append(f'VIZ="-dont_show"')  # don't show viz, if running in docker
-  else:
-    sh_resume.append(f'VIZ=""')
-
-  sh_resume.append(f'$DARKNET $CMD $FP_META $FP_CFG $FP_WEIGHTS $GPUS $VIZ $MAP 2>&1 | tee -a {cfg.logfile}')
+  sh_resume.append(f'$DARKNET $CMD $FP_META $FP_CFG $FP_WEIGHTS $GPUS $VIZ $MAP $SHOW_IMGS 2>&1 | tee -a {cfg.logfile}')
   file_utils.write_txt(sh_resume, fp_sh_resume)
   file_utils.chmod_exec(fp_sh_resume)
 
-  # Generate test .sh
+  # test
   sh_test = sh_base.copy()
   sh_test.append(f'FP_CFG={fp_cfg_deploy}')
   cfg_name = Path(fp_cfg_train).stem
@@ -230,8 +243,9 @@ def cli(ctx, opt_fp_cfg):
     file_list.append(join(dir_images, fn))
     for row_idx, row in df_im_group.iterrows():
       anno = Annotation.from_anno_series_row(row)
-      if anno.label_enum == 'background' and int(anno.label_index) == -1:
-        # negative datra
+      #if anno.label_enum == 'background' and int(anno.label_index) == -1:
+      if anno.label_enum == 'background':
+        # negative data
         darknet_anno = ''  # empty entry for negative data
       else:
         darknet_anno = anno.to_darknet_str()

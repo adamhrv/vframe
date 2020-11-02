@@ -16,4 +16,6 @@ docker run \
 	-v /data_store_vframe:/data_store_vframe \
 	-w /work \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
+	-e DISPLAY=$DISPLAY \
+	-e QT_X11_NO_MITSHM=1 \
 	$IMAGE /bin/zsh

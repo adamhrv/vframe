@@ -68,11 +68,17 @@ def cli(ctx, opt_input, opt_output, opt_x_lim, opt_y_lim, opt_dpi, opt_figsize):
   ax.set_xlim(opt_x_lim)
   ax.set_ylim(opt_y_lim)
   project_name = Path(opt_input).parent.name
-  plt.title('YOLO Average Loss: {}'.format(project_name))
-  plt.xlabel('Iters')
-  plt.ylabel('Avg. Loss')
+  plt.title(f'Config: {project_name}')
+  plt.xlabel('Iteration')
+  plt.ylabel('Average Loss')
+  # Show the major grid lines with dark grey lines
+  plt.grid(b=True, which='major', color='#666666', linestyle='-')
+
+  # Show the minor grid lines with very faint and almost transparent grey lines
+  plt.minorticks_on()
+  plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
 
   #plt.grid()
-  plt.plot(iters, losses)
+  plt.scatter(iters, losses, s=2)
   plt.tight_layout(pad=1.0, w_pad=0.5, h_pad=1.0)
-  plt.savefig(fp_out, dpi=opt_dpi)
+  plt.savefig(opt_output, dpi=opt_dpi)

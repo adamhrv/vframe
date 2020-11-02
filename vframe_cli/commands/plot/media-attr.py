@@ -96,7 +96,6 @@ def cli(ctx, opt_fp_in, opt_dir_out, opt_dpi, opt_figsize, opt_prefix,
   # setup plot
   fig, ax = plt.subplots()
   figsize = pixels_to_figsize(opt_figsize, opt_dpi)
-  print(figsize)
   fig.set_size_inches(figsize)
 
 

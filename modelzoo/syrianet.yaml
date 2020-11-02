@@ -15,6 +15,38 @@
 #
 ################################################################################
 
+sa_04b:
+  # meta
+  name: YOLOV4 Munitions Synthetic 0.4b
+  notes: Class multiplies. Total 13.500 annotations 15.000 negative.
+  # model
+  local: modelzoo/models/darknet/detection/sa_05/
+  remote: https://download.vframe.io/v2/models/darknet/detection/sa_munitions_04_yolo/
+  model: yolov4_last.weights
+  config: yolov4_deploy.cfg
+  layers: ['yolo_139', 'yolo_150', 'yolo_161']
+  mean: [0,0,0]
+  scale: 0.00392156862745098  # 1/255
+  width: 800
+  height: 800
+  rgb: True
+  crop: False
+  # processor
+  processor: yolo
+  output: bbox
+  nms_threshold: 0.4
+  threshold: 0.7
+  nms: True
+  allow_resize: True
+
+  ################################################################################
+# last: for conf_thresh = 0.25, precision = 0.95, recall = 0.89, F1-score = 0.92 
+#   for conf_thresh = 0.25, TP = 2446, FP = 137, FN = 315, average IoU = 84.69
+# 18000: 
+#   
+# 17000: 
+# 16000: 
+################################################################################
 sa_04:
   # meta
   name: YOLOV4 Munitions Synthetic
@@ -35,7 +67,7 @@ sa_04:
   processor: yolo
   output: bbox
   nms_threshold: 0.4
-  threshold: 0.85
+  threshold: 0.7
   nms: True
   allow_resize: True
 

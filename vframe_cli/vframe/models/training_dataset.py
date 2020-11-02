@@ -15,19 +15,6 @@ from vframe.settings import app_cfg, modelzoo_cfg
 
 
 @dataclass
-class TFProjectConfig:
-  # TensorFlow training project
-  # input/output
-  annotations: str
-  images: str
-  output: str
-  split_train: float=0.6
-  split_test: float=0.2
-  split_val: float=0.2
-  random_seed: int=0
-
-
-@dataclass
 class YoloProjectConfig:
   # YOLO file i/o
   annotations: str
@@ -38,6 +25,7 @@ class YoloProjectConfig:
   darknet: str=app_cfg.FP_DARKNET_BIN
   logfile: str=app_cfg.FN_LOGFILE
   show_output: bool=False
+  show_images: bool=True
   gpu_idx_init: int=0
   gpu_idxs_resume: List = field(default_factory=lambda: [0])
   classes: str=app_cfg.FN_CLASSES
@@ -47,18 +35,31 @@ class YoloProjectConfig:
   # YOLO network config
   subdivisions: int=16
   batch_size: int=64
-  image_size: int=416
-
-  # Hyperparameters
+  batch_normalize: bool=True
+  width: int=608
+  height: int=608
   focal_loss: bool=False
   learning_rate: float=0.001  # yolov4
   batch_ceiling: int=50000  # total max batches, overrides suggested values
 
   # Data augmentation
+  resize: float=1.0
+  jitter: float=0.3
+  exposure: float=1.5
+  saturation: float=1.5
+  hue: float=0.1
   cutmix: bool=False
   mosaic: bool=True
+  mosaic_bound: bool=True
   mixup: bool=False
   blur: bool=False
+  gaussian_noise: int=0
+  flip: bool=True
 
+  def __post_init__(self):
+    #learning_rate = 0.00261 / GPUs
+    #self.learning_rate = self.learning_rate / len(self.gpu_idxs_resume)
+    # force mosaic bound false if not using mosaic augmentation
+    self.mosaic_bound = False if not self.mosaic else self.mosaic_bound
 
 

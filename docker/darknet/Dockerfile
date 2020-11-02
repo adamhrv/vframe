@@ -27,6 +27,7 @@ RUN sudo rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN sudo apt update
 RUN sudo apt install libopencv-dev -y
 RUN sudo apt install ffmpeg -y
+RUN sudo apt install libcanberra-gtk-module -y
 
 # [ Install Darknet ]
 
