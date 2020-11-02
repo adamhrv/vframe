@@ -15,7 +15,7 @@ import click
   help='Path to project folder (metadata.csv, mask, real)')
 @click.option('-f', '--force', 'opt_force', is_flag=True,
   help='Force overwrite annotations file')
-@click.option('--threshold', 'opt_thresh', default=2000, show_default=True,
+@click.option('--threshold', 'opt_thresh', default=800, show_default=True,
   help='Minimum total pixels for annotation (25x25 = 625)')
 @click.option('--label', 'opt_labels', multiple=True, default=None,
   help='Labels to filter for')
@@ -23,8 +23,10 @@ import click
   help='Number threads')
 @click.option('--force-negative', 'opt_force_negative', is_flag=True,
   help='Force negative null annotations')
+@click.option('-e', '--ext', 'opt_ext', default='png')
 @click.pass_context
-def cli(ctx, opt_dir_in, opt_force, opt_thresh, opt_labels, opt_threads, opt_force_negative):
+def cli(ctx, opt_dir_in, opt_force, opt_thresh, opt_labels, opt_threads, 
+  opt_force_negative, opt_ext):
   """Generate annotations"""
   
   from os.path import join
@@ -78,8 +80,8 @@ def cli(ctx, opt_dir_in, opt_force, opt_thresh, opt_labels, opt_threads, opt_for
   # glob mask
   fp_dir_im_reals = join(opt_dir_in, app_cfg.DN_REAL)
   fp_dir_im_masks = join(opt_dir_in, app_cfg.DN_MASK)
-  fps_reals = glob(join(fp_dir_im_reals, '*.png'))
-  fps_masks = glob(join(fp_dir_im_masks, '*.png'))
+  fps_reals = glob(join(fp_dir_im_reals, f'*.{opt_ext}'))
+  fps_masks = glob(join(fp_dir_im_masks, f'*.{opt_ext}'))
   
   if len(fps_masks) != len(fps_reals):
     log.error(f'Directories not balanced: {len(fps_masks)} masks != {len(fps_reals)} real')

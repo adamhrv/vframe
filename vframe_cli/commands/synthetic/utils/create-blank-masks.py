@@ -31,11 +31,11 @@ def cli(ctx, opt_dir_ims, opt_ext, opt_force):
   import numpy as np
   from tqdm import tqdm
 
-  from vframe.settings import plugin_cfg
+  from vframe.settings import app_cfg
 
   log = app_cfg.LOG
-  dir_masks = join(opt_dir_ims, plugin_cfg.DN_MASK)
-  dir_reals = join(opt_dir_ims, plugin_cfg.DN_REAL)
+  dir_masks = join(opt_dir_ims, app_cfg.DN_MASK)
+  dir_reals = join(opt_dir_ims, app_cfg.DN_REAL)
   fps_ims_real = sorted([im for im in glob(join(dir_reals,  f'*.{opt_ext}'))])
   fps_ims_mask = sorted([im for im in glob(join(dir_masks, f'*.{opt_ext}'))])
 

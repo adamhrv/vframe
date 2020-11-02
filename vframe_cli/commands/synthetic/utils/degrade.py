@@ -21,8 +21,11 @@ from vframe.settings import app_cfg
   help='Slice list of files')
 @click.option('-t', '--threads', 'opt_threads', 
   help='Number threads')
+@click.option('-e', '--ext', 'opt_exts', default=['jpg', 'png'],
+  multiple=True,
+  help='Glob extension')
 @click.pass_context
-def cli(ctx, opt_input, opt_output, opt_slice, opt_threads):
+def cli(ctx, opt_input, opt_output, opt_slice, opt_threads, opt_exts):
   """Degrades images, save to another directory"""
 
   
@@ -57,11 +60,10 @@ def cli(ctx, opt_input, opt_output, opt_slice, opt_threads):
   file_utils.ensure_dir(opt_output)
 
   # glob images
-  dir_glob = str(Path(opt_input) / '*.png')
-  fps_ims = sorted(glob(dir_glob))
+  fps_ims = file_utils.glob_multi(opt_input, exts=opt_exts, sort=True)
   if any(opt_slice):
     fps_ims = fps_ims[opt_slice[0]:opt_slice[1]]
-  log.info(f'found {len(fps_ims)} images in {dir_glob}')
+  log.info(f'found {len(fps_ims)} images in {opt_input}')
 
   # multiproc pool
   def pool_worker(fp_im):
@@ -73,18 +75,18 @@ def cli(ctx, opt_input, opt_output, opt_slice, opt_threads):
       return
 
     # randomly degrade image
-    im = quality(im, value_range=(30, 90), alpha_range=(0.5, 1.0), rate=0.75)
-    im = motion_blur_v(im, value_range=(0.01, 0.1), alpha_range=(0.25, 0.75), rate=0.25)
-    im = motion_blur_h(im, value_range=(0.01, 0.1), alpha_range=(0.25, 0.75), rate=0.25)
-    #im = scale(im, value_range=(0.05, 0.1), rate=0.25)
+    im = quality(im, value_range=(30, 90), alpha_range=(0.5, 1.0), rate=0.5)
+    im = motion_blur_v(im, value_range=(0.01, 0.1), alpha_range=(0.25, 0.75), rate=0.15)
+    im = motion_blur_h(im, value_range=(0.01, 0.1), alpha_range=(0.25, 0.75), rate=0.15)
+    im = scale(im, value_range=(0.05, 0.1), rate=0.15)
     im = zoom_shift(im, value_range=(1, 6), alpha_range=(0.1, 0.6), rate=0.1)
-    im = enhance(im, 'sharpness', value_range=(0.5, 6.0), rate=0.25)
-    im = enhance(im, 'brightness', value_range=(0.75, 1.25), rate=0.25)
-    im = enhance(im, 'contrast', value_range=(0.75, 1.25), rate=0.25)
-    im = enhance(im, 'color', value_range=(0.75,1.25), rate=0.25)
-    im = auto_adjust(im, 'equalize', alpha_range=(0.05, 0.1), rate=0.25)  # caution
-    im = auto_adjust(im, 'autocontrast', alpha_range=(0.1, 0.5), rate=0.25)
-    im = chromatic_aberration(im, 0, value_range=(1, 3), rate=0.1)
+    im = enhance(im, 'sharpness', value_range=(0.5, 6.0), rate=0.15)
+    im = enhance(im, 'brightness', value_range=(0.75, 1.25), rate=0.15)
+    im = enhance(im, 'contrast', value_range=(0.75, 1.25), rate=0.15)
+    im = enhance(im, 'color', value_range=(0.75,1.25), rate=0.15)
+    im = auto_adjust(im, 'equalize', alpha_range=(0.05, 0.1), rate=0.15)  # caution
+    im = auto_adjust(im, 'autocontrast', alpha_range=(0.1, 0.5), rate=0.15)
+    im = chromatic_aberration(im, 0, value_range=(1, 1), rate=0.1)
     im_pil = im_utils.np2pil(im)
 
     fp_out = join(opt_output, Path(fp_im).name)
