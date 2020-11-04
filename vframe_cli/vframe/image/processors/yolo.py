@@ -10,19 +10,18 @@
 import numpy as np
 import cv2 as cv
 
-from vframe.settings import app_cfg
-from vframe.models.geometry import BBox, Point
+from vframe.models.geometry import BBox
 from vframe.image.processors.base import DetectionProc
 from vframe.models.cvmodels import DetectResult, DetectResults
 from vframe.utils import im_utils
 
-class YOLOProc(DetectionProc):
 
+class YOLOProc(DetectionProc):
 
   def _pre_process(self, im):
     """Pre-process image
     """
-    
+
     cfg = self.dnn_cfg
 
     if cfg.width % 32:
@@ -42,18 +41,17 @@ class YOLOProc(DetectionProc):
     blob = cv.dnn.blobFromImage(im, cfg.scale, dim, cfg.mean, crop=cfg.crop, swapRB=cfg.rgb)
     self.net.setInput(blob)
 
-
   def _post_process(self, outs):
     """Post process net output for YOLO object detection
     Network produces output blob with a shape NxC where N is a number of
     detected objects and C is a number of classes + 4 where the first 4
     numbers are [center_x, center_y, width, height]
     """
-    
+
     detect_results = []
 
     for out in outs:
-      out_filtered_idxs = np.where(out[:,5:] > self.dnn_cfg.threshold)
+      out_filtered_idxs = np.where(out[:, 5:] > self.dnn_cfg.threshold)
       out = [out[x] for x in out_filtered_idxs[0]]
       for detection in out:
         scores = detection[5:]

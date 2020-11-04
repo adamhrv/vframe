@@ -142,6 +142,7 @@ def cli(ctx, opt_fp_cfg):
   subs_all.append(('{flip}', f'{int(cfg.flip)}'))
   subs_all.append(('{gaussian_noise}', f'{int(cfg.gaussian_noise)}'))
   subs_all.append(('{jitter}', f'{str(cfg.jitter)}'))
+  # not well tested, too experimental
   #subs_all.append(('{adversarial_lr}', f'{int(cfg.adversarial_lr)}'))
   #subs_all.append(('{attention}', f'{int(cfg.attention)}'))
   
@@ -199,7 +200,8 @@ def cli(ctx, opt_fp_cfg):
   sh_train.append(f'FP_CFG={fp_cfg_train}')
   sh_train.append(f'FP_WEIGHTS={cfg.weights}')
   sh_train.append('CMD="detector train"')
-  sh_train.append(f'GPUS="-gpus {cfg.gpu_idx_init}"')
+  gpus_init_str = ','.join(list(map(str, cfg.gpu_idxs_resume)))
+  sh_train.append(f'GPUS="-gpus {gpus_init_str}"')
   sh_train.append(f'$DARKNET $CMD $FP_META $FP_CFG $FP_WEIGHTS $GPUS $VIZ $MAP $SHOW_IMGS 2>&1 | tee {cfg.logfile}')
   file_utils.write_txt(sh_train, fp_sh_train)
   file_utils.chmod_exec(fp_sh_train)

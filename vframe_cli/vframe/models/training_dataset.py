@@ -26,7 +26,7 @@ class YoloProjectConfig:
   logfile: str=app_cfg.FN_LOGFILE
   show_output: bool=False
   show_images: bool=True
-  gpu_idx_init: int=0
+  gpu_idx_init: List = field(default_factory=lambda: [0])
   gpu_idxs_resume: List = field(default_factory=lambda: [0])
   classes: str=app_cfg.FN_CLASSES
   images_labels: str=app_cfg.DN_IMAGES_LABELS
@@ -43,18 +43,18 @@ class YoloProjectConfig:
   batch_ceiling: int=50000  # total max batches, overrides suggested values
 
   # Data augmentation
+  flip: bool=True
   resize: float=1.0
   jitter: float=0.3
   exposure: float=1.5
   saturation: float=1.5
   hue: float=0.1
   cutmix: bool=False
-  mosaic: bool=True
-  mosaic_bound: bool=True
+  mosaic: bool=False
+  mosaic_bound: bool=False
   mixup: bool=False
   blur: bool=False
   gaussian_noise: int=0
-  flip: bool=True
 
   def __post_init__(self):
     #learning_rate = 0.00261 / GPUs
