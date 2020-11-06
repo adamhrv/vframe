@@ -1,9 +1,9 @@
-############################################################################# 
+#############################################################################
 #
 # VFRAME
 # MIT License
 # Copyright (c) 2020 Adam Harvey and VFRAME
-# https://vframe.io 
+# https://vframe.io
 #
 #############################################################################
 
@@ -95,7 +95,7 @@ def load_csv(fp_in, data_class=None, as_list=True):
   """Loads CSV and retuns list of items
   :param fp_in: string filepath to CSV
   :returns: list of all CSV data
-  """ 
+  """
   if not Path(fp_in).exists():
     log.info('not found: {}'.format(fp_in))
   log.info('loading: {}'.format(fp_in))
@@ -213,7 +213,7 @@ def jsonify(data):
 # Writers
 # ----------------------------------------------------------------------
 
-def write_txt(data, fp_out, ensure_path=True):
+def write_txt(data, fp_out, ensure_path=True, split_lines=True):
   """Writes text file
   :param fp_out: (str) filepath
   :param ensure_path: (bool) create path if not exist
@@ -221,7 +221,7 @@ def write_txt(data, fp_out, ensure_path=True):
   if not data:
     log.error('no data')
     return
-    
+
   if ensure_path:
     mkdirs(fp_out)
   with open(fp_out, 'w') as fp:
@@ -244,8 +244,8 @@ def write_pkl(data, fp_out, ensure_path=True):
 
 def write_json(data, fp_out, minify=True, ensure_path=True, sort_keys=True, verbose=False, indent=2):
   """Writes JSON file
-  :param fp_out: (str)filepath 
-  :param minify: (bool) minify JSON 
+  :param fp_out: (str)filepath
+  :param minify: (bool) minify JSON
   :param verbose: (bool) print status
   :param ensure_path: (bool) create path if not exist
   """
@@ -287,11 +287,12 @@ def write_csv(data, fp_out, header=None):
 def setup_yaml():
   """ https://stackoverflow.com/a/8661021 """
   represent_dict_order = lambda self, data:  self.represent_mapping('tag:yaml.org,2002:map', data.items())
-  yaml.add_representer(OrderedDict, represent_dict_order)    
+  yaml.add_representer(OrderedDict, represent_dict_order)
 
 setup_yaml()
 
-def write_yaml(data, fp, indent=2, comment=None, verbose=False):
+def write_yaml(data, fp, indent=2, comment=None, verbose=False,
+    explicit_start=True, default_flow_style=False):
   """Writes YAML file. Use OrderedDict to maintain order.
   :param fp_out: filepath (str)
   :param data: (dict) of serialized data
@@ -302,10 +303,11 @@ def write_yaml(data, fp, indent=2, comment=None, verbose=False):
   with open(fp, 'w') as f:
     if comment:
       f.write(f'{comment}\n')
-    yaml.dump(data, f, default_flow_style=False, indent=indent)
+    yaml.dump(data, f, default_flow_style=default_flow_style,
+        explicit_start=explicit_start, indent=indent)
   if verbose:
     log.info(f'Wrote {fp}')
-  
+
 
 def write_file(data, fp_in, **kwargs):
   ext = get_ext(fp_in)
@@ -336,7 +338,7 @@ def sort_dict(d, reverse=True):
 
 def timestamp_to_str():
   return datetime.now().strftime("%Y%m%d%H%M%S")
-  
+
 
 def zpad(n, zeros=app_cfg.ZERO_PADDING):
   return str(n).zfill(zeros)
@@ -371,7 +373,7 @@ def replace_ext(fpp, ext):
   fpp = f'{fpp.stem}.{ext}'
   return fpp
 
-  
+
 def ensure_posixpath(fp):
   """Ensures filepath is pathlib.Path
   :param fp: a (str, LazyFile, PosixPath)
@@ -409,7 +411,7 @@ def glob_subdirs_limit(fp_dir_in, ext='jpg', limit=3, random=False):
     if glob_files:
       files.extend(glob_files[:limit])
   return files
-  
+
 
 def order_items(records):
   """Orders records by ASC SHA256"""
@@ -424,4 +426,3 @@ def chmod_exec(fp_script):
   '''Runs chmod +x on file'''
   st = os.stat(fp_script)
   os.chmod(fp_script, st.st_mode | stat.S_IEXEC)
-

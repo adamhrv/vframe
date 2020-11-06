@@ -1,21 +1,21 @@
-############################################################################# 
+#############################################################################
 #
 # VFRAME
 # MIT License
 # Copyright (c) 2019 Adam Harvey and VFRAME
-# https://vframe.io 
+# https://vframe.io
 #
 #############################################################################
 
 
 import click
 
-@click.command('')
+@click.command()
 @click.option('-i', '--input', 'opt_fp_cfg', required=True,
   help='Path YAML job config')
 @click.pass_context
 def cli(ctx, opt_fp_cfg):
-  """Creates new YOLO project from config file"""
+  """New YOLO Darknet project"""
 
   from os.path import join
   import random
@@ -27,31 +27,35 @@ def cli(ctx, opt_fp_cfg):
   from tqdm import tqdm
 
   from vframe.utils import file_utils
-  from vframe.models.geometry import BBox
   from vframe.models.annotation import Annotation
 
   from vframe.settings import app_cfg
   from vframe.utils.file_utils import load_yaml
-  from vframe.models.training_dataset import YoloProjectConfig
+  from vframe.models.training_dataset import YoloDarknet
 
 
   log = app_cfg.LOG
   log.info(f'Create YOLO project from: {opt_fp_cfg}')
-  
+
   # load config file
-  cfg = load_yaml(opt_fp_cfg, data_class=YoloProjectConfig)
+  cfg = load_yaml(opt_fp_cfg, data_class=YoloDarknet)
 
   # load annotations and convert to BBox class
   df = pd.read_csv(cfg.annotations)
 
   # class indices must start from zero
+  label_min = label_min = df.label_index.min()
+  if label_min > 0:
+      log.error('Label index minimum must start from zero. Remap annotations.')
+      return
+
   df.label_index -= df.label_index.min()
   n_bg_annos = len(df[df.label_enum == 'background'])
   if n_bg_annos > 0:
     log.debug(f'Annotations contain {n_bg_annos} negative images. Removing 0th index')
     # subtract the 0th index if Background (negative data is used)
-    df.label_index -= 1  
-  
+    df.label_index -= 1
+
   # ensure output directory
   file_utils.ensure_dir(cfg.output)
 
@@ -77,7 +81,7 @@ def cli(ctx, opt_fp_cfg):
   file_utils.ensure_dir(dir_images)
 
   # .data and deps filepaths
-  fp_classes = join(cfg.output, app_cfg.FN_CLASSES)
+  fp_classes = join(cfg.output, app_cfg.FN_LABELS)
   fp_valid_list = join(cfg.output, app_cfg.FN_VALID)
   fp_train_list = join(cfg.output, app_cfg.FN_TRAIN)
   dir_backup = join(cfg.output, app_cfg.DN_BACKUP)
@@ -97,7 +101,7 @@ def cli(ctx, opt_fp_cfg):
   num_classes = len(class_labels)  # class in annotation file
   num_masks = 3  # assuming 3
   num_filters = (num_classes + 5) * num_masks
-  
+
   # max_batches: classes*2000 but not less than number of training images
   max_batches = max(6000, max(len(df), 2000 * num_classes))
   max_batches = min(cfg.batch_ceiling, max_batches)
@@ -115,7 +119,7 @@ def cli(ctx, opt_fp_cfg):
 
   # Create training .cfg
   subs_all = []
-  
+
   # [net]
   subs_all.append(('{width}', str(cfg.width)))
   subs_all.append(('{height}', str(cfg.height)))
@@ -145,12 +149,12 @@ def cli(ctx, opt_fp_cfg):
   # not well tested, too experimental
   #subs_all.append(('{adversarial_lr}', f'{int(cfg.adversarial_lr)}'))
   #subs_all.append(('{attention}', f'{int(cfg.attention)}'))
-  
+
   # images per class
   groups = df.groupby('label_enum')
   ipc = ','.join([str(len(groups.get_group(label))) for label in class_labels])
   subs_all.append(('{counters_per_class}', ipc))
-  
+
   # batch size train
   subs_train = subs_all.copy()
   subs_train.append(('{batch_size}', str(cfg.batch_size)))
@@ -160,7 +164,7 @@ def cli(ctx, opt_fp_cfg):
   subs_test = subs_all.copy()
   subs_test.append(('{batch_size}', '1'))
   subs_test.append(('{subdivisions}', '1'))
-  
+
   # load original cfg into str
   cfg_orig = '\n'.join(file_utils.load_txt(cfg.cfg))
 
@@ -178,7 +182,7 @@ def cli(ctx, opt_fp_cfg):
   # write .cfg files
   file_utils.write_txt(cfg_train, fp_cfg_train)
   file_utils.write_txt(cfg_test, fp_cfg_deploy)
-  
+
   # write train .sh
   sh_base = []
   sh_base.append('#!/bin/bash')
@@ -253,7 +257,7 @@ def cli(ctx, opt_fp_cfg):
         darknet_anno = anno.to_darknet_str()
       darknet_annos.append(darknet_anno)
     labels_data.update({fn: darknet_annos})
-  
+
   # write labels and symlink images
   for fn, darknet_annos in tqdm(labels_data.items()):
     fp_label = join(dir_labels, file_utils.replace_ext(fn, 'txt'))
@@ -266,11 +270,10 @@ def cli(ctx, opt_fp_cfg):
         fpp_im_dst.symlink_to(fpp_im_src)
     else:
       shutil.copy(fpp_im_src, fpp_im_dst)
-  
+
   # Generate training list of images
   random.shuffle(file_list)
   n_train = int(0.8 * len(file_list))
-  n_test = len(file_list) - n_train
   training_list = file_list[:n_train]
   validation_list = file_list[n_train:]
 
@@ -278,4 +281,3 @@ def cli(ctx, opt_fp_cfg):
   file_utils.write_txt(training_list, fp_train_list)
   # write txt files for val
   file_utils.write_txt(validation_list, fp_valid_list)
-

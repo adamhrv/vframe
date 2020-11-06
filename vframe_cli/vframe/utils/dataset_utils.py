@@ -1,24 +1,25 @@
 import random
 
-def create_splits(anno_index,randomize=True,split_val=0.2,rseed=1):
+def split_train_val_test(annos, randomize=True, splits=(0.6, 0.2, 0.2), seed=1):
   """Convert annotation index into splits based on classes
+  :param annos: (list) of filepaths
+  :param randomize: (bool) randomize list
+  :param splits: (tuple) splits of train, val, test
+  :param seed: (int) random seed
+  :returns (dict) of train, val, test lists
   """
-  
-  # TODO add num_split_vals
-  annos_train = {}
-  annos_valid = {}
 
-  for class_idx, anno_obj in anno_index.items():
-    n_annos = len(anno_obj['regions'])
-    if randomize:
-      random.seed(rseed)
-      #random.shuffle(anno_obj['regions'])
-    n_test = int(n_annos*split_val)
-    class_annos_valid = anno_obj.copy()
-    class_annos_valid['regions'] = anno_obj['regions'][:n_test]
-    class_annos_train = anno_obj.copy()
-    class_annos_train['regions'] = anno_obj['regions'][n_test:]
-    annos_train[class_idx] = class_annos_train
-    annos_valid[class_idx] = class_annos_valid
+  if randomize:
+    random.seed(seed)
+    random.shuffle(annos)
 
-  return {'train':annos_train, 'valid':annos_valid}
+  n_annos = len(annos)
+  n_train, n_val, n_test = splits
+  n_train = int(n_annos * n_train)
+  n_val = int(n_annos * n_val)
+  result = {
+    'train': annos[:n_train],
+    'val': annos[n_train:n_train + n_val],
+    'test': annos[n_train + n_val:],
+  }
+  return result

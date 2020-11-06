@@ -1,9 +1,9 @@
-############################################################################# 
+#############################################################################
 #
 # VFRAME
 # MIT License
 # Copyright (c) 2020 Adam Harvey and VFRAME
-# https://vframe.io 
+# https://vframe.io
 #
 #############################################################################
 
@@ -203,12 +203,12 @@ ZERO_PADDING = 6
 UCODE_OK = u"\u2714"  # check ok
 UCODE_NOK = u'\u2718'  # x no ok
 
-LICENSE_HEADER = """############################################################################# 
+LICENSE_HEADER = """#############################################################################
 #
 # VFRAME
 # MIT License
 # Copyright (c) 2020 Adam Harvey and VFRAME
-# https://vframe.io 
+# https://vframe.io
 #
 #############################################################################
 
@@ -226,7 +226,7 @@ GPU_ARCHS = {
   '6.1': ['gtx 1080 ti', 'gtx 1080', 'gtx 1060',' gtx 1050', 'gtx 1030', 'titan xp', 'tesla p40', 'tesla p4'],
   '6.0': ['GP100', 'tesla p100'],
   '5.3': ['jetson tx1', 'tegra x1', 'drive cx', 'drive px'],
-  '5.2': ['jetson tx2', 'drive-px2', 'drive px'], 
+  '5.2': ['jetson tx2', 'drive-px2', 'drive px'],
 }
 
 
@@ -281,10 +281,9 @@ FN_TRAIN_RESUME= 'train_resume.sh'
 FN_TEST_INIT = 'test.sh'
 FN_LOGFILE = 'training.log'
 FN_META_DATA = 'meta.data'
-FN_CLASSES = 'classes.txt'
+FN_LABELS = 'labels.txt'
 FN_VALID = 'valid.txt'
 FN_TRAIN = 'train.txt'
-
 LABEL_BACKGROUND = 'background'
 
 

@@ -12,14 +12,14 @@ torchvision>=0.7.0
 tqdm>=4.41.0
 
 # logging -------------------------------------
-wandb
+# wandb
 
 # coco ----------------------------------------
 # pycocotools>=2.0
 
 # export --------------------------------------
 packaging  # for coremltools
-coremltools==4.0
+# coremltools==4.0
 onnx>=1.7.0
 scikit-learn==0.19.2  # for coreml quantization
 

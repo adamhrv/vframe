@@ -8,7 +8,7 @@
 #
 #############################################################################
 
-FROM vframe/base:gpu-cu102
+FROM vframe/base:gpu-cu111
 
 MAINTAINER Adam Harvey / VFRAME.io
 
