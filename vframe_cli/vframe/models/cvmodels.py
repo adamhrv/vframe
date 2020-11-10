@@ -1,9 +1,9 @@
-############################################################################# 
+#############################################################################
 #
 # VFRAME
 # MIT License
 # Copyright (c) 2020 Adam Harvey and VFRAME
-# https://vframe.io 
+# https://vframe.io
 #
 #############################################################################
 
@@ -66,7 +66,7 @@ class BenchmarkResult:
 class ProcessorResult:
   """Base class for processor result
   """
-  
+
   index: int
   confidence: float
 
@@ -75,7 +75,7 @@ class ProcessorResult:
 @dataclass
 class ClassifyResult(ProcessorResult):
   """Extends base processor class to hold results from classification
-  """  
+  """
   label: str
 
   def to_dict(self):
@@ -92,10 +92,9 @@ class DetectResult(ProcessorResult):
   """Store results of object detection processor
   """
   bbox: BBox
-  confidence: float
   label: str = ''
   track: int=0
-  
+
   def to_dict(self):
     return {
       'index': int(self.index),
@@ -116,7 +115,7 @@ class SegmentResult(ProcessorResult):
   confidence: float
   mask: np.ndarray
   label: str = ''
-  
+
   def to_dict(self):
     return {
       'bbox': self.bbox.to_dict(),
@@ -138,7 +137,7 @@ class RotatedDetectResult(ProcessorResult):
   bbox_unrotated: BBox
   angle: float
   label: str = ''
-  
+
   def to_dict(self):
     return {
       'bbox': self.bbox.to_dict(),
@@ -149,7 +148,7 @@ class RotatedDetectResult(ProcessorResult):
 
 
 
-@dataclass 
+@dataclass
 class PoseKeypoints:
   nose: Point
   neck: Point
@@ -197,14 +196,14 @@ class HumanPoseDetectResult(ProcessorResult):
   keypoints: List[PoseKeypoints]
   label: str = ''
 
-  
+
   def to_dict(self):
     return {
       'bbox': self.bbox.to_dict(),
       'label': self.label,
       'confidence': self.confidence,
     }
-  
+
 
 
 # -----------------------------------------------------------------------------
@@ -219,7 +218,7 @@ class ClassifyResults:
   """
   classifications: List[ClassifyResult]
   task_type: Enum = Processor.CLASSIFICATION
-  
+
 
   def to_dict(self):
     return {
@@ -236,7 +235,7 @@ class DetectResults:
   """
   detections: List[DetectResult]
   task_type: Enum = Processor.DETECTION
-  
+
 
   def to_dict(self):
     return {
@@ -251,7 +250,7 @@ class DetectResults:
     """Rotates BBox 90 degrees this many times
     """
     detections_copy = detections.copy()
-    
+
 
 
 @dataclass
@@ -260,7 +259,7 @@ class SegmentResults:
   """
   detections: List[SegmentResult]
   task_type: Enum = Processor.SEGMENTATION
-  
+
   def to_dict(self):
     return {
       'detections': [ d.to_dict() for d in self.detections ],
@@ -270,11 +269,11 @@ class SegmentResults:
 
 @dataclass
 class RotatedDetectResults:
-  """Container for RotatatedDetectReusult with 
+  """Container for RotatatedDetectReusult with
   """
   detections: List[RotatedDetectResult]
   task_type: Enum = Processor.DETECTION_ROTATED
-  
+
   def to_dict(self):
     return {
       'detections': [ d.to_dict() for d in self.detections ],
@@ -286,15 +285,13 @@ class RotatedDetectResults:
 
 @dataclass
 class HumanPoseDetectResults:
-  """Container for HumanPoseDetectResult with 
+  """Container for HumanPoseDetectResult with
   """
   detections: List[HumanPoseDetectResult]
   task_type: Enum = Processor.DETECTION_POSE
-  
+
   def to_dict(self):
     return {
       'detections': [ d.to_dict() for d in self.detections ],
       'task_type': self.task_type,
     }
-
-

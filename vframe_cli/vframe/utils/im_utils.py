@@ -1,9 +1,9 @@
-############################################################################# 
+#############################################################################
 #
 # VFRAME
 # MIT License
 # Copyright (c) 2020 Adam Harvey and VFRAME
-# https://vframe.io 
+# https://vframe.io
 #
 #############################################################################
 
@@ -37,6 +37,9 @@ def np2pil(im, swap=True):
       elif im.shape[2] == 3:
         im = bgr2rgb(im)
         color_mode = 'RGB'
+    else:
+      print('wt')
+      color_mode = 'RGB'
     return Image.fromarray(im.astype('uint8'), color_mode)
 
 
@@ -76,7 +79,7 @@ def is_np(im):
   '''Checks if image if numpy
   '''
   return type(im) == np.ndarray
-  
+
 
 def num_channels(im):
   '''Number of channels in numpy.ndarray image
@@ -195,7 +198,7 @@ def mask_composite(im, im_masked, im_mask):
   return (im).astype(np.uint8)
 
 
-def blur_bbox_soft(im, bbox, iters=1, expand_per=-0.1, multiscale=True, 
+def blur_bbox_soft(im, bbox, iters=1, expand_per=-0.1, multiscale=True,
                               mask_k_fac=0.125, im_k_fac=0.33, shape='ellipse'):
   """Blurs objects using multiple blur scale per bbox
   """
@@ -217,8 +220,8 @@ def blur_bbox_soft(im, bbox, iters=1, expand_per=-0.1, multiscale=True,
       bbox_blur = BBox.from_xywh(*bounding_rect, *bbox.dim)
       im_mask = cv.add(im_mask, im_mask_next)
       # blur the masked area bbox in the original image
-      
-    k = max([min(b.w_int, b.h_int) for b in bboxes])  
+
+    k = max([min(b.w_int, b.h_int) for b in bboxes])
     k_im = odd(int(k * im_k_fac)) # scaled image blur kernel
     im_blur = cv.GaussianBlur(im, (k_im,k_im), k_im/4, 0)
   else:
@@ -228,7 +231,7 @@ def blur_bbox_soft(im, bbox, iters=1, expand_per=-0.1, multiscale=True,
     k_mask = odd(int(k * mask_k_fac))  # scale min bbox dim for desired blur intensity
     im_mask = mk_mask(bboxes, shape=shape, blur_kernel_size=k_mask, blur_iters=iters)
     im_blur = cv.GaussianBlur(im, (k_im,k_im), k_im, 0, k_im)
-  
+
   # iteratively blend image
   k = max([min(b.w_int, b.h_int) for b in bboxes])
   k_im = odd(int(k * im_k_fac)) # scaled image blur kernel
@@ -237,7 +240,7 @@ def blur_bbox_soft(im, bbox, iters=1, expand_per=-0.1, multiscale=True,
     im_alpha = im_mask / 255.
     im_dst = im_alpha[:, :, None] * im_blur + (1 - im_alpha)[:, :, None] * im_dst
     im_mask = cv.GaussianBlur(im_mask, (k_im, k_im), k_im, 0)
-  
+
   #im_dst = mask_composite(im, im_blur, im_mask)
 
   return (im_dst).astype(np.uint8)
@@ -407,7 +410,7 @@ def bgr2luma(im):
 #
 # -----------------------------------------------------------------------------
 
-def _deprecated_circle_blur_soft_edges(im, bboxes, im_ksize=51, mask_ksize=51, 
+def _deprecated_circle_blur_soft_edges(im, bboxes, im_ksize=51, mask_ksize=51,
   sigma_x=51, sigma_y=None, iters=2):
   """Blurs ROI using soft edges
   """
@@ -415,23 +418,23 @@ def _deprecated_circle_blur_soft_edges(im, bboxes, im_ksize=51, mask_ksize=51,
     return im
   elif not type(bboxes) == list:
     bboxes = list(bboxes)
-  
+
   # force kernels odd
   im_ksize = im_ksize if im_ksize % 2 else im_ksize + 1
   mask_ksize = mask_ksize if mask_ksize % 2 else mask_ksize + 1
   sigma_x = sigma_x if sigma_x % 2 else sigma_x + 1
   sigma_y = sigma_y if sigma_y else sigma_x
-  
+
   # mk empty mask
   h,w,c = im.shape
   im_mask = np.zeros((h,w))
-  
+
   # draw mask shapes
   for bbox in bboxes:
     #im_mask = cv.rectangle(im_mask, bbox.p1.xy_int, bbox.p2.xy_int, (255,255,255), -1)
     #im_mask = cv.circle(im_mask, bbox.cxcy_int, bbox.w,(255,255,255), -1)
     im_mask = cv.ellipse(im_mask, bbox.cxcy_int, bbox.wh_int, 0, 0, 360, (255,255,255), -1)
-    
+
   # use sigma 1/4 size of blur kernel
   im_blur = cv.GaussianBlur(im, (im_ksize,im_ksize), im_ksize//4, 0, im_ksize//4)
   im_dst = im.copy()
@@ -441,7 +444,7 @@ def _deprecated_circle_blur_soft_edges(im, bboxes, im_ksize=51, mask_ksize=51,
     im_mask = cv.GaussianBlur(im_mask, (mask_ksize, mask_ksize), mask_ksize, mask_ksize)
     im_alpha = im_mask / 255.
     im_dst = im_alpha[:, :, None] * im_blur + (1 - im_alpha)[:, :, None] * im_dst
-    
+
   return (im_dst).astype(np.uint8)
 
 
@@ -454,7 +457,7 @@ def _deprecated_compound_blur_bboxes(im, bboxes, iters=2, expand_per=-0.15, opt_
     bboxes = list(bboxes)
 
   k = max([min(b.w_int, b.h_int) for b in bboxes])
-  im_ksize = k // 2  # image blur kernel 
+  im_ksize = k // 2  # image blur kernel
   mask_ksize = k // 10  # mask blur kernel
 
   print('mask_ksize', mask_ksize, 'im k', im_ksize)

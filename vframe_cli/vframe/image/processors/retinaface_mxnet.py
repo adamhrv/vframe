@@ -1,9 +1,9 @@
-############################################################################# 
+#############################################################################
 #
 # VFRAME
 # MIT License
 # Copyright (c) 2020 Adam Harvey and VFRAME
-# https://vframe.io 
+# https://vframe.io
 #
 #############################################################################
 
@@ -55,13 +55,12 @@ class RetinaFaceMXNetProc(DetectionProc):
   def infer(self, im):
     # run detection inference
     self._pre_process(im)
-    start_time = time.time()
     h,w,c = im.shape
     scale = min(self.dnn_cfg.width / w, self.dnn_cfg.height / h)
     outs = self.net.detect(im, threshold=self.dnn_cfg.threshold, scale=scale)
     results = self._post_process(outs)
     return results
-    
+
 
   def _post_process(self, outs):
     """InsightFace RetinaFace mxnet detector
@@ -77,6 +76,5 @@ class RetinaFaceMXNetProc(DetectionProc):
       bbox = BBox(*xyxy, *self.frame_dim)
       detect_result = DetectResult(self.class_idx, conf, bbox, self.label)
       detect_results.append(detect_result)
-    
-    return DetectResults(detect_results)
 
+    return DetectResults(detect_results)

@@ -292,7 +292,7 @@ def setup_yaml():
 setup_yaml()
 
 def write_yaml(data, fp, indent=2, comment=None, verbose=False,
-    explicit_start=True, default_flow_style=False):
+    explicit_start=False, default_flow_style=False):
   """Writes YAML file. Use OrderedDict to maintain order.
   :param fp_out: filepath (str)
   :param data: (dict) of serialized data

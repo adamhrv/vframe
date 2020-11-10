@@ -51,8 +51,6 @@ class HyperParameters:
 class YoloPyTorchArgs:
   # transfer weights relative to yolov4/weights directory
   weights: str
-  # renames experiment folder exp{N} to exp{N}_{name} if supplied
-  name: str=''
   # CLI opts
   epochs: int=300
   # total batch size for all GPUs
@@ -78,8 +76,10 @@ class YoloPyTorchArgs:
   cache_images: bool=False
   # use weighted image selection for training
   image_weights: bool=False
+  # renames experiment folder exp{N} to exp{N}_{name} if supplied
+  name: str=''
   # cuda device, i.e. 0 or 0,1,2,3 or cpu
-  device: str=''
+  device: List = field(default_factory=lambda: [0])
   # vary img-size +/- 50%
   multi_scale: bool=False
   # train as single-class dataset
@@ -134,6 +134,11 @@ class YoloPyTorch:
   download: str=''
   n_classes: int=0
   classes: List = field(default_factory=lambda: [])
+  splits: List = field(default_factory=lambda: [0.6, 0.2, 0.2])
+
+  def __post_init__(self):
+    if not self.arguments.logdir:
+      self.arguments.logdir = join(self.fp_output, 'runs')
 
   def set_classes(self, classes):
     self.classes = classes
@@ -148,6 +153,52 @@ class YoloPyTorch:
       'names': self.classes,
     }
     return d
+
+  def to_cli_args(self):
+    args = self.arguments
+    opts = []
+    opts.extend(['--weights', args.weights])
+    opts.extend(['--cfg', join(self.fp_output, self.fn_model_cfg)])
+    opts.extend(['--data', join(self.fp_output, self.fn_metadata)])
+    opts.extend(['--hyp', join(self.fp_output, self.fn_hyp)])
+    opts.extend(['--epochs', str(args.epochs)])
+    opts.extend(['--batch', str(args.batch_size)])
+    opts.extend(['--img-size', str(args.img_size_train)])
+    if args.rect:
+      opts.extend(['--rect', args.rect])
+    if args.resume:
+      opts.extend(['--resume', args.resume])
+    if args.no_save:
+      opts.extend(['--nosave'])
+    if args.no_test:
+      opts.extend(['--notest'])
+    if args.no_autoanchor:
+      opts.extend(['--noautoanchor'])
+    if args.evolve:
+      opts.extend(['--evolve'])
+    opts.extend(['--bucket', args.local_rank])
+    if args.cache_images:
+      opts.extend(['--cache-images'])
+    if args.image_weights:
+      opts.extend(['--image-weights'])
+    if args.name:
+      opts.extend(['--name', args.name])
+    if args.device:
+      device_str = [str(x) for x in args.device]
+      opts.extend(['--device', str(','.join(device_str))])
+    if args.multi_scale:
+      opts.extend(['--multi-scale'])
+    if args.adam:
+      opts.extend(['--adam'])
+    if args.single_cls:
+      opts.extend(['--single-cls'])
+    if args.sync_bn:
+      opts.extend(['--sync-bn'])
+    opts.extend(['--local_rank', args.local_rank])
+    opts.extend(['--logdir', args.logdir])
+    opts.extend(['--log-imgs', args.log_imgs])
+    opts.extend(['--workers', args.workers])
+    return opts
 
 
 # -----------------------------------------------------------------------------
