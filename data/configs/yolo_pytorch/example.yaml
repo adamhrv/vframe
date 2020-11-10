@@ -37,7 +37,7 @@ arguments:
   # CLI opts
   epochs: 300
   # total batch size for all GPUs
-  batch_size: 16
+  batch_size: 32
     # [train, test] image sizes
   img_size_train: 640
   img_size_test: 640

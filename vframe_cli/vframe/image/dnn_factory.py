@@ -1,9 +1,9 @@
-############################################################################# 
+#############################################################################
 #
 # VFRAME
 # MIT License
 # Copyright (c) 2020 Adam Harvey and VFRAME
-# https://vframe.io 
+# https://vframe.io
 #
 #############################################################################
 
@@ -18,6 +18,7 @@ from vframe.image.processors.ssd import SSDProc
 from vframe.image.processors.retinaface_mxnet import RetinaFaceMXNetProc
 from vframe.image.processors.ultralight import UltralightRetinaFaceProc
 from vframe.image.processors.pose import COCOPoseFaceProc
+from vframe.image.processors.yolov5_onnx import YOLOV5ONNXProc
 # from vframe.image.processors.mask_rcnn import MaskRCNNProc
 # from vframe.image.processors.human_pose import HumanPoseProc
 # from vframe.image.processors.east import EASTProc
@@ -37,6 +38,7 @@ class DNNFactory:
     'classification': ClassificationProc,  # generic
     'ssd': SSDProc,
     'yolo': YOLOProc,
+    'yolov5_onnx': YOLOV5ONNXProc,
     'retinaface_mxnet': RetinaFaceMXNetProc,
     'ultralight': UltralightRetinaFaceProc,
     'bbox_features': ClassificationProc,
