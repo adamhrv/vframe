@@ -13,7 +13,7 @@ import sys
 from os.path import join
 from pathlib import Path
 import shutil
-from pprint import pprint
+# from pprint import pprint
 from dataclasses import asdict
 from tqdm import tqdm
 import pandas as pd
@@ -32,7 +32,7 @@ log = app_cfg.LOG
 
 # %% codecell
 # load yaml
-opt_fp_cfg = '/work/vframe/data/configs/yolo_pytorch/example.yaml'
+opt_fp_cfg = '/data_store_vframe/vframe/training/test_yolo_pytorch/config.yaml'
 cfg = load_yaml(opt_fp_cfg, data_class=YoloPyTorch)
 
 # %% codecell
@@ -54,6 +54,19 @@ write_yaml(asdict(cfg.hyperparameters), fp_out, comment=comment)
 df = pd.read_csv(cfg.fp_annotations)
 df_pos = df[df.label_enum != app_cfg.LABEL_BACKGROUND]
 df_neg = df[df.label_enum == app_cfg.LABEL_BACKGROUND]
+
+# %% codecell
+# check for dupes
+df_pos_dd = df_pos.drop_duplicates()
+print(len(df_pos_dd), len(df_pos))
+df_neg_dd = df_neg.drop_duplicates()
+print(len(df_neg_dd), len(df_neg_dd))
+
+# %% codecell
+# check for dupes
+df_dupes = df_pos[df_pos.duplicated()]
+fp_dupes = '/data_store_vframe/vframe/training/sa_05a/dupes.csv'
+df_dupes.to_csv(fp_dupes, index=False)
 
 # %% codecell
 # count
@@ -136,13 +149,12 @@ with open(fp_out, 'w') as f:
 args = cfg.arguments
 sh = []
 sh.extend(['python','train.py'])
-sh.extend(['--batch', str(args.batch_size)])
 sh.extend(['--weights', args.weights])
 sh.extend(['--cfg', join(cfg.fp_output, cfg.fn_model_cfg)])
 sh.extend(['--data', join(cfg.fp_output, cfg.fn_metadata)])
 sh.extend(['--hyp', join(cfg.fp_output, cfg.fn_hyp)])
 sh.extend(['--epochs', str(args.epochs)])
-sh.extend(['--batch-size', str(args.batch_size)])
+sh.extend(['--batch', str(args.batch_size)])
 sh.extend(['--img-size', str(args.img_size_train)])
 if args.rect:
   sh.extend(['--rect', args.rect])
@@ -161,7 +173,8 @@ if args.cache_images:
   sh.extend(['--cache-images'])
 if args.image_weights:
   sh.extend(['--image-weights'])
-sh.extend(['--name', args.name])
+if args.name:
+  sh.extend(['--name', args.name])
 if args.device:
   sh.extend(['--device', str(args.device)])
 if args.multi_scale:
@@ -185,3 +198,6 @@ fp_sh = join(cfg.fp_output, app_cfg.FN_TRAIN_INIT)
 write_txt(sh_str, fp_sh)
 # make executable
 chmod_exec(fp_sh)
+
+# TODO: add tensorboard script
+# tensorboard --logdir runs/exp0 --bind_all
