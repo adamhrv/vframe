@@ -1,9 +1,9 @@
-############################################################################# 
+#############################################################################
 #
 # VFRAME Synthetic Data Generator
 # MIT License
 # Copyright (c) 2019 Adam Harvey and VFRAME
-# https://vframe.io 
+# https://vframe.io
 #
 #############################################################################
 
@@ -26,10 +26,11 @@ opts_sources = [app_cfg.DN_REAL, app_cfg.DN_MASK, app_cfg.DN_COMP, app_cfg.DN_BB
 @click.option('--font-size', 'opt_font_size', default=14)
 @click.option('--from-norm', 'opt_use_bbox_norm', is_flag=True,
   help="Use old annotation bbox norm format")
+@click.option('-e','--ext','opt_ext', default='png')
 @click.pass_context
-def cli(ctx, opt_dir_render, opt_type, opt_slice, opt_threads, opt_font_size, opt_use_bbox_norm):
+def cli(ctx, opt_dir_render, opt_type, opt_slice, opt_threads, opt_font_size, opt_use_bbox_norm, opt_ext):
   """Generates bounding box images"""
-  
+
   from os.path import join
 
   from PIL import Image
@@ -57,7 +58,7 @@ def cli(ctx, opt_dir_render, opt_type, opt_slice, opt_threads, opt_font_size, op
     opt_threads = cpu_count()  # maximum
 
   # glob images
-  dir_glob = str(Path(opt_dir_render) / opt_type / '*.png')
+  dir_glob = str(Path(opt_dir_render) / opt_type / f'*.{opt_ext}')
   fps_ims = sorted(glob(dir_glob))
   if any(opt_slice):
     fps_ims = fps_ims[opt_slice[0]:opt_slice[1]]
@@ -105,7 +106,5 @@ def cli(ctx, opt_dir_render, opt_type, opt_slice, opt_threads, opt_font_size, op
     im.save(fp_out)
 
   with Pool(opt_threads) as p:
-    pool_results = list(tqdm(p.imap(pool_worker, fps_ims), total=len(fps_ims)))
-
-
-  
+    d = f'Render bbox x{opt_threads}''
+    pool_results = list(tqdm(p.imap(pool_worker, fps_ims), total=len(fps_ims), desc=d))
