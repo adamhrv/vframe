@@ -110,6 +110,9 @@ def cli(ctx, opt_fp_cfg, opt_skip_images, opt_skip_labels):
     for fn, df_group in tqdm(df_groups):
       fpp_im_dst = Path(join(dir_images, fn))
       fpp_im_src = Path(join(cfg.fp_images, fn))
+      if not fpp_im_src.is_file():
+          app_cfg.LOG.error(f'{fpp_im_dst} missing')
+          continue
       if cfg.symlink:
         if fpp_im_dst.is_symlink():
           fpp_im_dst.unlink()

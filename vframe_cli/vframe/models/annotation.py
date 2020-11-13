@@ -1,18 +1,17 @@
-############################################################################# 
+#############################################################################
 #
 # VFRAME
 # MIT License
 # Copyright (c) 2020 Adam Harvey and VFRAME
-# https://vframe.io 
+# https://vframe.io
 #
 #############################################################################
 
 import logging
 import random
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, Tuple, List
-
 import numpy as np
 
 from vframe.models.color import Color
@@ -20,6 +19,18 @@ from vframe.models.geometry import BBox
 
 log = logging.getLogger('vframe')
 
+
+# ---------------------------------------------------------------------------
+#
+# CVAT
+#
+# ---------------------------------------------------------------------------
+
+@dataclass
+class CVATLabel:
+  name: str
+  color: str=''
+  attributes: list = field(default_factory=list)
 
 # ---------------------------------------------------------------------------
 #
@@ -34,6 +45,9 @@ class Label:
   index: int
   enum: str
   display: str
+
+  def to_cvat_label(self):
+    return CVATLabel(self.enum)
 
 @dataclass
 class LabelMaps:

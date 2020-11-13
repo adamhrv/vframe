@@ -106,5 +106,5 @@ def cli(ctx, opt_dir_render, opt_type, opt_slice, opt_threads, opt_font_size, op
     im.save(fp_out)
 
   with Pool(opt_threads) as p:
-    d = f'Render bbox x{opt_threads}''
+    d = f'Render bbox x{opt_threads}'
     pool_results = list(tqdm(p.imap(pool_worker, fps_ims), total=len(fps_ims), desc=d))

@@ -32,6 +32,8 @@ def cli(ctx, opt_fp_in, opt_fp_out, opt_n_zeros, opt_ext, opt_prefix, opt_decima
   from vframe.models.color import Color
   from vframe.utils.file_utils import zpad
 
+  LOG.debug(f'Process {opt_fp_in}')
+  
   if not opt_fp_out:
     dot_ext = Path(opt_fp_in).suffix
     opt_fp_out = opt_fp_in.replace(dot_ext, '.csv')
@@ -43,6 +45,8 @@ def cli(ctx, opt_fp_in, opt_fp_out, opt_n_zeros, opt_ext, opt_prefix, opt_decima
   size = cvat_annos.get('meta').get('task').get('original_size')
   w,h = (int(float(size.get('width'))), int(float(size.get('height'))))
   tracks = cvat_annos.get('track')
+  if not isinstance(tracks, list):
+    tracks = [tracks]
 
   # filename: str
   # label_index: int
@@ -60,7 +64,9 @@ def cli(ctx, opt_fp_in, opt_fp_out, opt_n_zeros, opt_ext, opt_prefix, opt_decima
   annos = []
   for track in tracks:
     label_enum = track.get('@label')
-    for box_idx, b in enumerate(track.get('box')):
+    boxes = track.get('box')
+    boxes = boxes if isinstance(boxes, list) else [boxes]
+    for box_idx, b in enumerate(boxes):
       if box_idx % opt_decimate:
         # skip every N decimate frames
         continue
