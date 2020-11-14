@@ -91,7 +91,7 @@ class YoloPyTorchArgs:
   # DDP parameter, do not modify
   local_rank: int=-1
   # logging directory
-  # logdir: str='runs/'
+  project: str=''
   # number of images for W&B logging, max 100
   log_imgs: int=10
   # maximum number of dataloader workers
@@ -137,8 +137,8 @@ class YoloPyTorch:
   splits: List = field(default_factory=lambda: [0.6, 0.2, 0.2])
 
   def __post_init__(self):
-    if not self.arguments.logdir:
-      self.arguments.logdir = join(self.fp_output, 'runs')
+    if not self.arguments.project:
+      self.arguments.project = join(self.fp_output, 'runs')
 
   def set_classes(self, classes):
     self.classes = classes
@@ -195,7 +195,7 @@ class YoloPyTorch:
     if args.sync_bn:
       opts.extend(['--sync-bn'])
     opts.extend(['--local_rank', args.local_rank])
-    opts.extend(['--logdir', args.logdir])
+    opts.extend(['--project', args.project])
     opts.extend(['--log-imgs', args.log_imgs])
     opts.extend(['--workers', args.workers])
     return opts
