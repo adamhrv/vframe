@@ -16,11 +16,14 @@ import click
 @click.option('-e','--ext','opt_ext', default='PNG')
 @click.option('--prefix', 'opt_prefix',default='frame')
 @click.option('--decimate', 'opt_decimate',default=1)
+@click.option('--limit', 'opt_limit', default=0,
+  help='Limit total annotations per media/file')
 @click.pass_context
-def cli(ctx, opt_fp_in, opt_fp_out, opt_n_zeros, opt_ext, opt_prefix, opt_decimate):
-  """CVAT JSON to VFRAME CSV"""
+def cli(ctx, opt_fp_in, opt_fp_out, opt_n_zeros, opt_ext, opt_prefix, opt_decimate, opt_limit):
+  """CVAT XML to VFRAME CSV"""
 
   from pathlib import Path
+  import math
 
   import pandas as pd
   import xmltodict
@@ -33,7 +36,7 @@ def cli(ctx, opt_fp_in, opt_fp_out, opt_n_zeros, opt_ext, opt_prefix, opt_decima
   from vframe.utils.file_utils import zpad
 
   LOG.debug(f'Process {opt_fp_in}')
-  
+
   if not opt_fp_out:
     dot_ext = Path(opt_fp_in).suffix
     opt_fp_out = opt_fp_in.replace(dot_ext, '.csv')
@@ -86,6 +89,10 @@ def cli(ctx, opt_fp_in, opt_fp_out, opt_n_zeros, opt_ext, opt_prefix, opt_decima
       }
       anno = from_dict(data_class=Annotation, data=o)
       annos.append(anno.to_dict())
+
+  if opt_limit and len(annos) > opt_limit:
+    n_interval = math.ceil(len(annos) / opt_limit)
+    annos = annos[::n_interval]
 
   # write csv
   df = pd.DataFrame.from_dict(annos)

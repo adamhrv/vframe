@@ -53,8 +53,9 @@ def cli(ctx, opt_fp_cfg, opt_skip_images, opt_skip_labels):
 
   # load annos
   df = pd.read_csv(cfg.fp_annotations)
-  df_pos = df[df.label_enum != app_cfg.LABEL_BACKGROUND]
-  df_neg = df[df.label_enum == app_cfg.LABEL_BACKGROUND]
+  df_pos = df[df.label_index != -1]
+  # df_neg = df[df.label_enum == app_cfg.LABEL_BACKGROUND or df.label_index == -1]
+  df_neg = df[df.label_index == -1]
 
   # count
   log.info(f'positive annotations: {len(df_pos):,}')
