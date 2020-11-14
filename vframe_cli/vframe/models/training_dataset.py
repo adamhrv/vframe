@@ -91,7 +91,7 @@ class YoloPyTorchArgs:
   # DDP parameter, do not modify
   local_rank: int=-1
   # logging directory
-  logdir: str='runs/'
+  # logdir: str='runs/'
   # number of images for W&B logging, max 100
   log_imgs: int=10
   # maximum number of dataloader workers

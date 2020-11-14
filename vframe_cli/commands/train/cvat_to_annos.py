@@ -16,11 +16,13 @@ import click
 @click.option('-e','--ext','opt_ext', default='PNG')
 @click.option('--prefix', 'opt_prefix',default='frame')
 @click.option('--decimate', 'opt_decimate',default=1)
+@click.option('--limit', 'opt_limit', default=0)
 @click.pass_context
-def cli(ctx, opt_fp_in, opt_fp_out, opt_n_zeros, opt_ext, opt_prefix, opt_decimate):
+def cli(ctx, opt_fp_in, opt_fp_out, opt_n_zeros, opt_ext, opt_prefix, opt_decimate, opt_limit):
   """CVAT JSON to VFRAME CSV"""
 
   from pathlib import Path
+  import math
 
   import pandas as pd
   import xmltodict
@@ -47,14 +49,6 @@ def cli(ctx, opt_fp_in, opt_fp_out, opt_n_zeros, opt_ext, opt_prefix, opt_decima
   tracks = cvat_annos.get('track')
   if not isinstance(tracks, list):
     tracks = [tracks]
-
-  # filename: str
-  # label_index: int
-  # label_enum: str
-  # label_display: str
-  # bbox: BBox
-  # color: Color
-  #
 
   # defaults
   color = Color(0,0,0)  # irrelevant, placeholder
@@ -87,7 +81,17 @@ def cli(ctx, opt_fp_in, opt_fp_out, opt_n_zeros, opt_ext, opt_prefix, opt_decima
       anno = from_dict(data_class=Annotation, data=o)
       annos.append(anno.to_dict())
 
-  # write csv
+  # to dataframe
   df = pd.DataFrame.from_dict(annos)
+
+  # limit images, grouped by filename
+  if opt_limit and len(annos) > opt_limit:
+    groups = df.groupby('filename')
+    df_groups = [df_group for i, df_group in groups]
+    n_interval = math.ceil(len(annos) / opt_limit)
+    df_groups = df_groups[::n_interval]
+    df = pd.concat(df_groups)
+
+  # write csv
   df.to_csv(opt_fp_out, index=False)
   LOG.info(f'Wrote {len(df):,} annotations to {opt_fp_out}')

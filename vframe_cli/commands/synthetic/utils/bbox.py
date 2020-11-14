@@ -27,8 +27,10 @@ opts_sources = [app_cfg.DN_REAL, app_cfg.DN_MASK, app_cfg.DN_COMP, app_cfg.DN_BB
 @click.option('--from-norm', 'opt_use_bbox_norm', is_flag=True,
   help="Use old annotation bbox norm format")
 @click.option('-e','--ext','opt_ext', default='png')
+@click.option('--skip-blanks/--draw-blanks', 'opt_skip_blank', is_flag=True)
 @click.pass_context
-def cli(ctx, opt_dir_render, opt_type, opt_slice, opt_threads, opt_font_size, opt_use_bbox_norm, opt_ext):
+def cli(ctx, opt_dir_render, opt_type, opt_slice, opt_threads, 
+  opt_font_size, opt_use_bbox_norm, opt_ext, opt_skip_blank):
   """Generates bounding box images"""
 
   from os.path import join
@@ -73,17 +75,20 @@ def cli(ctx, opt_dir_render, opt_type, opt_slice, opt_threads, opt_font_size, op
     log.warn('No annotations. Exiting')
     return
 
-  def pool_worker(fp_im):
+  def pool_worker(item):
+    
+    fp_im = item['fp']
+    fn = Path(fp_im).name
+    # group by filename
+    df_fn = df_annos[df_annos.filename == fn]
+    if not len(df_fn) > 0:
+      # log.warning(f'No annotations in: {fn}')
+      if item['opt_skip_blank']:
+        return False
+    
     # load image
     im = Image.open(fp_im)
     dim = im.size
-    fn = Path(fp_im).name
-
-    # group by filename
-    df_fn = df_annos[df_annos.filename == fn]
-
-    if not len(df_fn) > 0:
-      log.warning(f'No annotations in: {fn}')
 
     # draw bboxes
     for rf in df_fn.itertuples():
@@ -104,7 +109,13 @@ def cli(ctx, opt_dir_render, opt_type, opt_slice, opt_threads, opt_font_size, op
     # write file
     fp_out = join(opt_dir_render, app_cfg.DN_BBOX, Path(fp_im).name)
     im.save(fp_out)
+    return True
 
+  items = [{'fp': fp, 'opt_skip_blank': opt_skip_blank} for fp in fps_ims]
+  n_items = len(items)
   with Pool(opt_threads) as p:
     d = f'Render bbox x{opt_threads}'
-    pool_results = list(tqdm(p.imap(pool_worker, fps_ims), total=len(fps_ims), desc=d))
+    pool_results = list(tqdm(p.imap(pool_worker, items), total=n_items, desc=d))
+
+  n_wrote = sum(pool_results)
+  log.info(f'Wrote {n_wrote:,} images. Skipped {n_items - n_wrote:,}')
