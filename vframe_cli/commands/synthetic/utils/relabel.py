@@ -1,9 +1,9 @@
-############################################################################# 
+#############################################################################
 #
 # VFRAME
 # MIT License
 # Copyright (c) 2019 Adam Harvey and VFRAME
-# https://vframe.io 
+# https://vframe.io
 #
 #############################################################################
 
@@ -22,7 +22,7 @@ ext_choices = ['jpg', 'png']
   multiple=True, help='Label from, to')
 @click.pass_context
 def cli(ctx, opt_input, opt_output, opt_labels_from_to):
-  """Rename files in render subdirectories"""
+  """Relabel label enum in annotation CSV"""
 
   import pandas as pd
 
