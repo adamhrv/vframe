@@ -81,15 +81,7 @@ def cli(ctx, opt_fp_in, opt_fp_out, opt_n_zeros, opt_ext, opt_prefix, opt_decima
       anno = from_dict(data_class=Annotation, data=o)
       annos.append(anno.to_dict())
 
-<<<<<<< HEAD
   # to dataframe
-=======
-  if opt_limit and len(annos) > opt_limit:
-    n_interval = math.ceil(len(annos) / opt_limit)
-    annos = annos[::n_interval]
-
-  # write csv
->>>>>>> 9b0efc5abda4cebd8f0f80de23ef9b2e3bab1c0c
   df = pd.DataFrame.from_dict(annos)
 
   # limit images, grouped by filename

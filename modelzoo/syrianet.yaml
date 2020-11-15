@@ -15,14 +15,13 @@
 #
 ################################################################################
 
-sa_05a:
-  # PyTorch detector
+sa_06b_ao25rt:
   # meta
-  name: YOLOV5 Munitions Synthetic 0.5a ONNX
-  notes: "scale: 0.35, multi_scale enabled. no mosaic, mixup 0.2"
+  name: YOLOV5 ONNX AO-2.5RT on 3D printed data
+  notes: ''
   # model
-  local: modelzoo/models/pytorch/detection/sa_05a/
-  remote: https://download.vframe.io/v2/models/pytorch/detection/sa_05a/
+  local: modelzoo/models/onnx/detection/sa_06b_ao25rt/
+  remote: https://download.vframe.io/v2/models/onnx/detection/sa_06b_ao25rt/
   model: best.onnx
   width: 640
   height: 640
