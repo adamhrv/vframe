@@ -105,8 +105,6 @@ def cli(ctx, opt_input, opt_threads):
     colors = [Color.from_rgb_int(c) for c in rgb_unique]
     return colors
 
-  
-  # Multiprocess/threading use imap instead of map via @hkyi Stack Overflow 41920124
   with Pool(opt_threads) as p:
     d = f'Get Colors x{opt_threads}'
     t = len(fps_masks)

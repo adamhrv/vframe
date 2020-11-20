@@ -15,13 +15,31 @@
 #
 ################################################################################
 
-sa_06b_ao25rt:
+sa_06b:
   # meta
   name: YOLOV5 ONNX AO-2.5RT on 3D printed data
   notes: ''
   # model
-  local: modelzoo/models/onnx/detection/sa_06b_ao25rt/
-  remote: https://download.vframe.io/v2/models/onnx/detection/sa_06b_ao25rt/
+  local: modelzoo/models/onnx/detection/sa_06b/
+  remote: https://download.vframe.io/v2/models/onnx/detection/sa_06b/
+  model: best.onnx
+  width: 640
+  height: 640
+  # processor
+  processor: yolov5_onnx
+  output: bbox
+  iou: 0.45
+  nms_threshold: 0.4
+  threshold: 0.5
+  allow_resize: False  # ?
+
+sa_06a:
+  # meta
+  name: YOLOV5 ONNX AO-2.5RT on 3D printed, rendered
+  notes: ''
+  # model
+  local: modelzoo/models/onnx/detection/sa_06a/
+  remote: https://download.vframe.io/v2/models/onnx/detection/sa_06a/
   model: best.onnx
   width: 640
   height: 640

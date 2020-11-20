@@ -70,7 +70,7 @@ def cli(ctx, pipe, opt_text, opt_x, opt_y, opt_color, opt_font_size,
     pt = Point(*xy, *dim)
     
     # draw text
-    im = draw_utils.draw_text(im, opt_text, pt, color=color_text, size_text=opt_font_size, 
+    im = draw_utils.draw_text(im, opt_text, pt, font_color=color_text, font_size=opt_font_size, 
       bg=opt_bg, padding_text=opt_padding_text, color_bg=color_bg, upper=False)
     
     pipe_item.set_image(types.FrameImage.DRAW, im)

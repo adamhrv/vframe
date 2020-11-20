@@ -43,6 +43,8 @@ def cli(ctx, opt_input, opt_output, opt_force):
   for label_enum, df_group in groups:
     # filter annos
     annos = df_group[df_group.label_enum == label_enum]
+    label_index = df_group.label_index.values[0]
+
     # create list of bboxes
     bboxes = [BBox(r.x1, r.y1, r.x2, r.y2, r.dw, r.dh) for i, r in annos.iterrows()]
     # conver to dict of w, h
@@ -57,6 +59,7 @@ def cli(ctx, opt_input, opt_output, opt_force):
     min_wh = df_bboxes.min()
 
     o = {
+      'label_index': label_index,
       'label_count': len(df_group),
       'label_enum': label_enum,
       'min_width': min_wh.width,
@@ -82,11 +85,7 @@ def cli(ctx, opt_input, opt_output, opt_force):
   df_out.to_csv(opt_output, index=False, columns=cols)
 
   # totals
-  n_bg = df_out[df_out.label_enum == 'background']
-  if len(n_bg):
-    n_bg = label_count.values[0]
-  else:
-    n_bg = 0
+  n_bg = df_out[df_out.label_index == -1].label_count.sum()
   n_total = df_out.label_count.sum()
   n_annos = n_total - n_bg
   log.info(f'total annotations: {n_total:,}')

@@ -75,10 +75,10 @@ def cli(ctx, opt_input, opt_output, opt_slice, opt_threads, opt_exts):
       return
 
     # randomly degrade image
-    im = quality(im, value_range=(30, 90), alpha_range=(0.5, 1.0), rate=0.5)
-    im = motion_blur_v(im, value_range=(0.01, 0.1), alpha_range=(0.25, 0.75), rate=0.15)
-    im = motion_blur_h(im, value_range=(0.01, 0.1), alpha_range=(0.25, 0.75), rate=0.15)
-    im = scale(im, value_range=(0.05, 0.1), rate=0.15)
+    im = quality(im, value_range=(30, 90), alpha_range=(0.5, 1.0), rate=1.0)
+    # im = motion_blur_v(im, value_range=(0.01, 0.1), alpha_range=(0.25, 0.75), rate=0.15)
+    # im = motion_blur_h(im, value_range=(0.01, 0.1), alpha_range=(0.25, 0.75), rate=0.15)
+    # im = scale(im, value_range=(0.05, 0.1), rate=0.15)
     im = zoom_shift(im, value_range=(1, 6), alpha_range=(0.1, 0.6), rate=0.1)
     im = enhance(im, 'sharpness', value_range=(0.5, 6.0), rate=0.15)
     im = enhance(im, 'brightness', value_range=(0.75, 1.25), rate=0.15)

@@ -258,12 +258,6 @@ DN_BBOX = 'bbox'  # directory name
 DN_IMAGES = 'images'  # directory name for images in concat output
 OUTPUT_FILE_FORMAT = 'PNG'
 
-# -----------------------------------------------------------------------------
-# Blender synthetic
-# -----------------------------------------------------------------------------
-
-FP_BLENDER_BIN = os.getenv('FP_BLENDER_BIN')  # set in .env
-BLENDER_VERSION = os.getenv('BLENDER_VERSION')  # set in .env
 
 # -----------------------------------------------------------------------------
 # YOLO

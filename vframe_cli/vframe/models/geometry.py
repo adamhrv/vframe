@@ -210,28 +210,28 @@ class BBox:
   # Scaling
   # ---------------------------------------------------------------------------
 
-  def _scale(self, w, h):
-    return self.__class__(self.x1 * s, self.y1 * h, self.x2 * s, self.y2 * h, *self.dim)
+  def _scale(self, sw, sh):
+    return self.__class__(self.x1 * sw, self.y1 * sh, self.x2 * sw, self.y2 * sh, *self.dim)
 
 
-  def scale(self, k):
+  def scale(self, s):
     """Scale by width and height values
     """
-    self._scale(k, k)
+    return self._scale(s, s)
 
 
-  def scale_w(self, k):
-    return self._scale(k, 1)
+  def scale_w(self, sw):
+    return self._scale(sw, 1)
 
 
-  def scale_h(self, k):
-    return self._scale(1, k)
+  def scale_h(self, sh):
+    return self._scale(1, sh)
     
 
-  def scale_wh(self, w, h):
+  def scale_wh(self, sw, sh):
     """Scales width and height independently
     """
-    self._scale(w, h)
+    return self._scale(sw, sh)
 
 
   # ---------------------------------------------------------------------------
@@ -612,6 +612,14 @@ class BBox:
   @property
   def cxcy_int(self):
     return (self.cx, self.cy)
+
+  @property
+  def cx_int(self):
+    return self.cx
+
+  @property
+  def cy_int(self):
+    return self.cy
 
   @property
   def cxcy_norm(self):

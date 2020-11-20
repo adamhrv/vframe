@@ -276,13 +276,15 @@ def draw_bbox(im, bbox, color=None, stroke=None, expand=None,
       font = font_mngr.get_font(font_name, size_label)
       # bbox of label background
       bbox_bg = _bbox_from_text(bbox, label, font, padding_label)
+      x1,y1,x2,y2 = bbox_bg.xyxy_int
+      bbox_bg = BBox(x1, y1, x2 + 2*stroke, y2, *bbox_bg.dim)
       # check if space permits outer label
       if bbox_bg.h < bbox.y1:
         # move outside
         bbox_bg = bbox_bg.translate(0, 0 - bbox_bg.h)
       _draw_bbox_pil(canvas, bbox_bg,  color, -1)
       # point of label origin
-      bbox_label = bbox_bg.shift(padding_label, padding_label, -padding_label, -padding_label)
+      bbox_label = bbox_bg.shift(padding_label + stroke, padding_label, -padding_label, -padding_label)
       _draw_text_pil(canvas, label, Point.from_bbox(bbox_label), color_label, font)
 
   # cleanup

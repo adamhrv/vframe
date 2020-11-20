@@ -328,8 +328,8 @@ def write_file(data, fp_in, **kwargs):
 # Helpers
 # ----------------------------------------------------------------------
 
-def sort_dict(d, reverse=True):
-  """Sorts dict by value
+def sort_dict(d, reverse=True, element_idx=1):
+  """Sorts dict by value or key
   :param d: (dict) of serialized ata
   :param reverse: (bool) reverse for ascending
   :returns (OrderedDict)

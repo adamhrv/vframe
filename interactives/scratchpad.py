@@ -37,7 +37,3 @@ from vframe.models.dnn import DNN
 from vframe.settings import app_cfg
 
 # %% codecell
-f = 'path/to/file.jpg'
-Path(f).suffix
-e = file_utils.get_ext(f)
-print(e)

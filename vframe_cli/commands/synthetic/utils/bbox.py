@@ -28,9 +28,10 @@ opts_sources = [app_cfg.DN_REAL, app_cfg.DN_MASK, app_cfg.DN_COMP, app_cfg.DN_BB
   help="Use old annotation bbox norm format")
 @click.option('-e','--ext','opt_ext', default='png')
 @click.option('--skip-blanks/--draw-blanks', 'opt_skip_blank', is_flag=True)
+@click.option('--label-color', 'opt_label_color', is_flag=True)
 @click.pass_context
 def cli(ctx, opt_dir_render, opt_type, opt_slice, opt_threads, 
-  opt_font_size, opt_use_bbox_norm, opt_ext, opt_skip_blank):
+  opt_font_size, opt_use_bbox_norm, opt_ext, opt_skip_blank, opt_label_color):
   """Generates bounding box images"""
 
   from os.path import join
@@ -100,9 +101,11 @@ def cli(ctx, opt_dir_render, opt_type, opt_slice, opt_threads,
         bbox = BBox(rf.x1, rf.y1, rf.x2, rf.y2, *dim)
 
       color_anno = Color.from_rgb_hex((rf.color_hex))
-      r,g,b = color_anno.to_rgb_int()
-      rgb_str = f'{r}, {g}, {b}'
-      label = f'{rf.label_enum} ({rgb_str})'
+      label = f'{rf.label_enum}'
+      if opt_label_color:
+        r,g,b = color_anno.to_rgb_int()
+        rgb_str = f'{r}, {g}, {b}'
+        label = f'{label} ({rgb_str})'
       color_bbox = Color.from_rgb_int((255,255,255))
       im = draw_utils.draw_bbox(im, bbox, color=color_bbox, label=label, size_label=opt_font_size)
 
