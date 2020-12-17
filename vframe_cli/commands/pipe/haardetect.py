@@ -26,7 +26,7 @@ from vframe.settings import app_cfg
   help='Min detect size')
 @click.option('--max-size', 'opt_max_size', default=None, type=int,
   help='Max detect size')
-@click.option( '--neighbors', 'opt_neighbors', default=None, type=float,
+@click.option( '--overlaps', 'opt_overlaps', default=5, type=int,
   help='Minimum neighbor overlaps')
 @click.option( '--scale-factor', 'opt_scale_factor', default=1.1,
   help='Scale factor')
@@ -40,7 +40,7 @@ from vframe.settings import app_cfg
 @processor
 @click.pass_context
 def cli(ctx, pipe, opt_model_enum, opt_data_key, opt_gpu, 
-  opt_neighbors, opt_scale_factor, opt_min_size, opt_max_size, opt_rotate, opt_verbose):
+  opt_overlaps, opt_scale_factor, opt_min_size, opt_max_size, opt_rotate, opt_verbose):
   """Haarcascade face detection"""
   
   from os.path import join
@@ -95,16 +95,16 @@ def cli(ctx, pipe, opt_model_enum, opt_data_key, opt_gpu,
     try:
       if opt_min_size and opt_max_size:
         detections = cascade.detectMultiScale(im, scaleFactor=opt_scale_factor, 
-          minNeighbors=opt_neighbors, minSize=(opt_min_size,opt_min_size), maxSize=(opt_max_size, opt_max_size))
+          minNeighbors=opt_overlaps, minSize=(opt_min_size,opt_min_size), maxSize=(opt_max_size, opt_max_size))
       elif opt_max_size:
         detections = cascade.detectMultiScale(im, scaleFactor=opt_scale_factor, 
-          minNeighbors=opt_neighbors, maxSize=(opt_max_size,opt_max_size))
+          minNeighbors=opt_overlaps, maxSize=(opt_max_size,opt_max_size))
       elif opt_min_size:
         detections = cascade.detectMultiScale(im, scaleFactor=opt_scale_factor, 
-          minNeighbors=opt_neighbors, minSize=(opt_min_size,opt_min_size))
+          minNeighbors=opt_overlaps, minSize=(opt_min_size,opt_min_size))
       else:
         detections = cascade.detectMultiScale(im, scaleFactor=opt_scale_factor, 
-          minNeighbors=opt_neighbors)
+          minNeighbors=opt_overlaps)
 
       bboxes = [BBox.from_xywh(*xywh,*dim) for xywh in detections]
       results = [DetectResult(class_idx, confidence, bbox, label) for bbox in bboxes]
