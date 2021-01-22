@@ -11,7 +11,7 @@
 
 modelzoo:
   - filepath: 'modelzoo/coco.yaml'
-  - filepath: 'modelzoo/openimages.yaml
+  - filepath: 'modelzoo/openimages.yaml'
   - filepath: 'modelzoo/imagenet.yaml'
   - filepath: 'modelzoo/places365.yaml'
   - filepath: 'modelzoo/super-resolution.yaml'
@@ -37,11 +37,6 @@ plugins:
     description: Conversion utility scripts
     scripts:
       - filepath: commands/convert
-
-  - name: cvat
-    description: CVAT utility scripts
-    scripts:
-      - filepath: commands/cvat
 
   - name: modelzoo
     description: ModelZoo utility scripts
@@ -71,26 +66,3 @@ plugins:
     pipe: True
     scripts:
       - filepath: commands/templates/pipe
-
-
-
-  # ---------------------------------------------------------------------------
-  # Plugin Template
-  # ---------------------------------------------------------------------------
-
-  # - name: plugins.template
-  #   scripts:
-  #     - filepath: plugins/vframe_template_plugin/vframe_template/commands/utils/
-  # - name: plugins.template.pipe
-  #   pipe: True
-  #   scripts:
-  #     - filepath: plugins/vframe_template_plugin/vframe_template/commands/pipe/
-
-
-  # ---------------------------------------------------------------------------
-  # Search
-  # ---------------------------------------------------------------------------
-
-  #- name: plugins.search
-  #  scripts:
-  #    - filepath: plugins/vframe_search_plugin/vframe_search/commands/

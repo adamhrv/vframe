@@ -78,7 +78,7 @@ Create labels.json and save to your shared directory
 ```
 [
   {
-    "name": "face",
+    "name": "myobject",
     "attributes": []
   }
 ]
@@ -202,6 +202,16 @@ Find file
 # Find if filename (title) exist in tasks
 ./cli.py cvat find --name ${SHA256}
 ```
+
+## Automatic Annotation
+
+For others that see this to look at the docker logs you can run
+
+docker logs nuclio-nuclio-tf-faster-rcnn-inception-v2-coco-gpu
+
+and use docker ps -a to find your nuclio function if you try a different model.
+
+Solution was to set maxWorkers to 1 in the function.yaml file
 
 
 ## User Guide for Annotating Images and Video
